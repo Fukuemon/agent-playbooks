@@ -1,6 +1,9 @@
 # <プロダクト名> Design Doc
 
-> 最終更新: YYYY-MM-DD / Status: Draft
+> 最終更新: YYYY-MM-DD
+
+**Document Status:** Draft <!-- Draft | In Review | Approved のいずれか 1 つ -->
+**Development Status:** TBD <!-- TBD | In Progress | Done のいずれか 1 つ -->
 
 本 Design Doc は <プロダクト名> の **全体像 (system landscape)** を扱う。Why/What の所在 → Goal → アーキテクチャ概観 → モジュール責務の順に示し、feature 単位の詳細は [design/features/](../features/)、技術規約は [context/](../../context/)、個別判断は [adr/](../../adr/) へ委譲する。
 
@@ -33,7 +36,15 @@
 
 ## Goal
 
+<!-- この Design Doc が何を提供するか。-->
+
+## Lower-Priority Goals
+
+<!-- 将来的には提供したいが現バージョンでは優先しないもの。Non Goals (意図的な恒久スコープ外) とは区別する。-->
+
 ## Non Goals
+
+<!-- 意図的にスコープ外とするもののみ書く。「この doc では触れない詳細」「他 doc を参照」は Non-Goal ではない (別 doc が担う領域は委譲先リンクで示す)。-->
 
 ## Background
 
@@ -100,12 +111,12 @@ feature 単位の設計 (データ構造・画面・主要シナリオ / フロ�
 
 技術スタック規約・codebase architecture・運用契約は [context/](../../context/) ライブラリを正本とする。プロジェクト固有値は [context/project.md](../../context/project.md)。
 
-| トピック | 文書 |
-| -------- | ---- |
-| package / runtime / state boundary | [context/architecture.md](../../context/architecture.md) |
-| toolchain・build・scaffold policy | [context/toolchain.md](../../context/toolchain.md) |
-| root task / shared config / quality gate | [context/engineering.md](../../context/engineering.md) |
-| test 方針 | [context/testing.md](../../context/testing.md) |
+| トピック                                    | 文書                                                         |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| package / runtime / state boundary          | [context/architecture.md](../../context/architecture.md)     |
+| toolchain・build・scaffold policy           | [context/toolchain.md](../../context/toolchain.md)           |
+| root task / shared config / quality gate    | [context/engineering.md](../../context/engineering.md)       |
+| test 方針                                   | [context/testing.md](../../context/testing.md)               |
 | infra / deployment / environment / security | [context/infrastructure.md](../../context/infrastructure.md) |
 
 ### Related ADRs / 代替案 (Why: 判断)
