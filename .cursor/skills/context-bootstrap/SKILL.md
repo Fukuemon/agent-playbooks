@@ -14,14 +14,14 @@ description: Bootstraps the project profile (context/project.md) and the initial
 
 ## 先に読むもの
 
-- `technical-writing` skill
+- `styleguide-documents` skill
 - `design/DesignDoc.md` (Why/What/How の前提)
 - `.rulesync/rules/CLAUDE.md` の `Spec Workflow Contract`
 - `templates/context/*.md` (生成元スケルトン)
 
 ## 実行フロー
 
-> 流れ: DesignDoc 読込 → Required Context の対話確定 → project.md 生成 → context/*.md 生成 → 未確定点の確認依頼
+> 流れ: DesignDoc 読込 → Required Context の対話確定 → project.md 生成 → context/\*.md 生成 → 未確定点の確認依頼
 
 ### 1. Design Doc から導出できる値を抽出
 
