@@ -31,6 +31,20 @@ description: Defines the writing quality bar for all design / context / spec doc
 
 未確定論点が残る対象は図にしない (推測で描かない)。
 
+### C4 図の規則
+
+- `Rel(A, B, ...)` の方向はデータフロー方向 (A が B へ送信)。イベント駆動は push する側 → 受け取る側。
+- tech tag は具体的に書く (例: `"WebUSB"` と略さず `"TypeScript / WebUSB API"` のように言語・API を併記)。
+
+## 文書に書かない物 (境界)
+
+- **Non-Goals は意図的にスコープ外とするものだけ** を書く。「この文書では触れない詳細」「他文書を参照」は Non-Goal ではない。別文書が担う領域は Goals 欄のリンクか Related Documents で示す。
+- **関数単位の API 仕様・生成ドキュメントを Design Doc に複製しない**。コードレベルの詳細は言語ネイティブの doc system (例: GoDoc) を正本とする。
+
+## Markdown 記法
+
+- 段落内改行は **行末に半角スペース 2 つ**。`<br>` タグは使わない。
+
 ## 適用チェック
 
 - [ ] 各記述の主語・対象が一意に定まる
