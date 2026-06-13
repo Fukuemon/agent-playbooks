@@ -27,7 +27,7 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 
 ## 文書品質
 
-すべての設計文書は `technical-writing` skill の 5 原則 (曖昧さ排除 / 意思決定理由 / AI 実装可能な粒度 / 可読構造 / 過剰装飾の回避) に従う。
+すべての設計文書は `styleguide-documents` skill の 5 原則 (曖昧さ排除 / 意思決定理由 / AI 実装可能な粒度 / 可読構造 / 過剰装飾の回避) に従う。
 
 ## ディレクトリ
 
