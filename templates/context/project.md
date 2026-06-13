@@ -48,6 +48,28 @@
 
 `<module-a>`, `<module-b>`, ...
 
+## Label Policy
+
+Issue / PR のラベル体系の **唯一の正本**。`workflow-git` skill はラベル付与時に本節を読む。命名は **名前空間付き** (`<axis>:<value>`) とし、軸ごとに色を揃える。
+
+### 軸とラベル
+
+| 軸         | ラベル                                                                     | 付与ルール                                                     | 色        |
+| ---------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- | --------- |
+| `type:*`   | `type:feature` / `type:bug` / `type:research` / `type:task` / `type:chore` | **必須・1 件**。issue の種類 (issue-format と一致)             | `#1d76db` |
+| `phase:*`  | `phase:design` / `phase:implementation`                                    | SDD ライフサイクル。設計 issue は `phase:design`               | `#5319e7` |
+| `domain:*` | `<domain:module-a>` / `<domain:module-b>` / ... / `domain:core`            | **1 件以上**。上記「対象ドメイン」に対応。横断は `domain:core` | `#0e8a16` |
+| (flag)     | `epic`                                                                     | 複数 phase / spec にまたがる大きい要件 (親)                    | `#fbca04` |
+
+> `domain:*` は「対象ドメイン」節と一対一。ドメインを増やすときは両方を更新する。`type:*` は [workflow-git の issue-format](../.rulesync/skills/workflow-git/references/issue-format.md) の type と一致させる。
+
+### 付与の最低ライン
+
+- すべての issue に `type:*` を 1 件付ける。
+- 実装対象が定まる issue には該当する `domain:*` を付ける。
+- SDD の設計フェーズ issue には `phase:design`、実装フェーズには `phase:implementation`。
+- 1 つの要件が複数 phase / spec に展開される親 issue には `epic` を付ける。
+
 ## Issue Tracker
 
 - Tracker: `<GitHub / GitLab / Redmine / Jira / ...>`
