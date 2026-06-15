@@ -23,7 +23,7 @@ run_agent() {           # $1=id  $2=timeout秒  $3...=invocation（registry か�
   local id="$1" tmo="$2"; shift 2
   if [ -n "$TIMEOUT" ]; then          # timeout runner があるとき
     "$TIMEOUT" "$tmo" "$@" </dev/null >"$OUT/$id.out" 2>&1
-  else                                # runner 不在: timeout を付けずに起動 (背後の background runner 側で打ち切る)
+  else                                # runner 不在: 素の起動はハングを打ち切れない。下記「timeout runner の解決」に従い background runner 方式へ切り替える前提
     "$@" </dev/null >"$OUT/$id.out" 2>&1
   fi
   echo $? >"$OUT/$id.exit"
@@ -52,7 +52,9 @@ elif command -v gtimeout >/dev/null 2>&1; then TIMEOUT=gtimeout   # coreutils (b
 else TIMEOUT=""; fi   # どれも無ければ background runner 方式に切り替える
 ```
 
-- `$TIMEOUT` が空のときは `run_agent` が自動で timeout なし起動に切り替わる (上記関数の分岐)。さらに下記「background runner を使う場合」へ寄せ、実行環境側の timeout に委ねてもよい。macOS は GNU `timeout` 非搭載が既定のため、この分岐は本リポジトリの想定 platform で頻繁に通る。
+- `$TIMEOUT` が空だと `run_agent` の素の起動は **ハングを打ち切れず `wait` が無限に止まりうる** (中核原則「timeout を各エージェントに適用」を満たせない)。macOS は GNU `timeout` 非搭載が既定のためこの分岐は頻繁に通る。したがって runner 不在時は次のいずれかを **必須** とする:
+  - (推奨) 下記「background runner を使う場合」の方式に切り替え、harness 側の timeout に各エージェントの打ち切りを委ねる。打ち切られた場合は `<id>.exit` に timeout 相当 (124) を書き、失敗分類を成立させる。
+  - background runner も無い実行環境では、timeout runner (coreutils の `gtimeout` 等) の導入を `停止条件` として促す (無制限起動のまま続行しない)。
 - coreutils が multi-call binary (`coreutils timeout ...`) の環境では、その呼び出しを `$TIMEOUT` に読み替える。
 
 ## background runner を使う場合

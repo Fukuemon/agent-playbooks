@@ -45,7 +45,7 @@ targets:
 ### 1. レジストリ解決
 
 - `context/ai-agents.md` を読み、対象エージェントの `invocation` / `limit_patterns` / `timeout` / `model` を取得する。
-- `enabled: no` のエージェントは対象集合から **除外** する。
+- 対象集合の決定順: ①起動時に明示指定があればそれを優先 → ②`用途` (`review` / `implement`) 指定時は用途別ルーティング表で絞る → ③どちらも無ければ `enabled: yes` 全て。いずれの場合も `enabled: no` のエージェントは **除外** する。
 - `verified: no` のエージェントは初回に `<cli> --help` / `<cli> <subcmd> --help` で各 flag が現行 CLI に存在するか点検してから使う (スキーマは `references/agent-registry-schema.md`)。
 - 対象が 0 件なら `停止条件` へ。
 
@@ -62,7 +62,7 @@ targets:
 
 ### 4. 失敗分類とリトライ
 
-- 各 `<id>.exit` と `<id>.out` を `references/failure-handling.md` の規則で分類する (`ok` / `limit` / `auth` / `timeout` / `error`)。
+- 各 `<id>.exit` と `<id>.out` を `references/failure-handling.md` の規則で分類する (status は `timeout` / `auth` / `limit` / `error` / `ok`。これは評価順で、判定は `failure-handling.md` を正とする)。
 - `limit` または一過性 `error` は **1 回だけ** 短いバックオフ後に再実行する。
 - 再試行後もダメなら当該エージェントを `status=limit/error` でスキップし、残りで続行する。
 
@@ -75,7 +75,9 @@ targets:
 ## 停止条件
 
 - `context/ai-agents.md` が読めない、または対象 `enabled` エージェントが 0 件
+- 必須フィールドや必須の共通既定 (timeout / 出力先 / `max_input_tokens` 等) が解決できない (レジストリ不備。`agent-registry-schema.md` の解決順を参照)
 - 投げるプロンプト本文が確定できない (生成元が空)
+- timeout runner も background runner も無く、各エージェントのハングを打ち切る手段が無い (`parallel-execution.md`)
 - 全エージェントが上限/失敗でスキップされ、成功結果が 1 件も無い
 - implement 用途で書き換え対象がユーザーに確認されていない
 

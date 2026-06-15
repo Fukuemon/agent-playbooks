@@ -4,21 +4,21 @@
 
 ## 分類規則
 
-各エージェントの `<id>.exit` と `<id>.out` を見て分類する。複数条件に一致しうるため、**上から順に最初に一致した status を採る** (評価順: `timeout` → `auth` → `limit` → `error` → `ok`)。例: 出力に `429` と `unauthorized` の両方を含む場合は `auth` を優先する。
+各エージェントの `<id>.exit` と `<id>.out` を見て分類する。複数条件に一致しうるため、**上から順に最初に一致した status を採る**。下表は **評価順に並んでおり、この順序が唯一の正** (例: exit=0 でも出力に認証エラー文字列を含めば、`ok` より先に `auth` が一致する)。例: 出力に `429` と `unauthorized` の両方を含む場合は `auth` を優先する。
 
-| status    | 判定                                                                           |
-| --------- | ------------------------------------------------------------------------------ |
-| `ok`      | exit=0 かつ出力が空でなく、`limit_patterns` に一致しない                       |
-| `limit`   | `limit_patterns` の文字列に一致、または exit が rate/quota を示す (例: 429 系) |
-| `auth`    | 出力に認証エラー (`unauthorized` / `not logged in` / `401`)                    |
-| `timeout` | exit=124 (`timeout` コマンドによる打ち切り)                                    |
-| `error`   | 上記以外の非 0 exit、または exit=0 でも出力が空/壊れている                     |
+| status (評価順) | 判定                                                                           |
+| --------------- | ------------------------------------------------------------------------------ |
+| `timeout`       | exit=124 (`timeout` コマンドによる打ち切り)                                    |
+| `auth`          | 出力に認証エラー (`unauthorized` / `not logged in` / `401`)                    |
+| `limit`         | `limit_patterns` の文字列に一致、または exit が rate/quota を示す (例: 429 系) |
+| `error`         | 上記以外の非 0 exit、または exit=0 でも出力が空/壊れている                     |
+| `ok`            | exit=0 かつ出力が空でなく、上記いずれにも一致しない                            |
 
 - `limit_patterns` は `context/ai-agents.md` の各エージェント定義から読む。
 
 ## リトライ方針
 
-- **対象**: `limit` と、一過性が疑われる `error` (ネットワーク系)。
+- **対象**: `limit` と、一過性が疑われる `error`。一過性とみなすのは出力が次のようなネットワーク系パターンを含むときに限る: `connection reset` / `connection refused` / `timed out` / `temporary failure` / `EAI_AGAIN` / `503` / `502`。これらに一致しない `error` (構文・flag 不正・パース不能など) はリトライせずスキップする。
 - **回数**: 1 回のみ。短いバックオフ (`sleep 5` 程度) を挟んで同一 invocation を再実行する。
 - **非対象**: `auth` はリトライしない (設定不備のため即スキップし、ユーザーへ認証を促す)。`timeout` は invocation/モデルの問題が多いので原則リトライせずスキップ (必要時のみユーザー判断)。
 
