@@ -16,6 +16,9 @@
 
 - 出力先 dir 既定: `.ai-out/agent-runs/<timestamp>/` (per-agent ファイル `<id>.out` / `<id>.exit` を置く)
 - timeout 既定: 600 秒 (各ブロックで上書き可)
+- timeout runner: GNU `timeout` (macOS では未搭載のため `gtimeout` / coreutils へフォールバック。`parallel-execution.md` 参照)
+- stdin: 各エージェントは `</dev/null` で起動する (stdin 待ちハング防止)
+- `max_input_tokens` 既定: 120k (各ブロックで上書き可。超える差分は `multi-agent-review` 側で chunk 分割)
 - 上限/失敗時ポリシー: **1 回リトライ後スキップ・部分成功許容** (`failure-handling.md` 参照)
 
 ## エージェント定義
@@ -25,7 +28,7 @@
 - `enabled`: yes
 - `model`: (CLI 既定)
 - `invocation`: `claude -p "$PROMPT" --output-format text`
-- `verified`: no <!-- 実行前に `claude --help` で確認 -->
+- `verified`: yes <!-- 2026-06-15 multi-agent-review 実行で確認 (`</dev/null` 起動必須) -->
 - `limit_patterns`: `usage limit`, `rate limit`, `429`
 - `auth_note`: ログイン済み or `ANTHROPIC_API_KEY`
 - `timeout`: 600
@@ -35,7 +38,7 @@
 - `enabled`: yes
 - `model`: (CLI 既定)
 - `invocation`: `codex exec "$PROMPT"`
-- `verified`: no <!-- 実行前に `codex --help` / `codex exec --help` で確認 -->
+- `verified`: yes <!-- 2026-06-15 確認。stdin パイプ誤検知でハングするため `</dev/null` 起動必須 -->
 - `limit_patterns`: `rate limit`, `quota`, `usage limit`, `429`
 - `auth_note`: `codex login` 済み or API key
 - `timeout`: 600
@@ -45,7 +48,7 @@
 - `enabled`: yes
 - `model`: `composer-2.5`
 - `invocation`: `agent --print --model composer-2.5 --output-format text "$PROMPT"`
-- `verified`: yes
+- `verified`: no <!-- 2026-06-15 `.cursor/cli.json` の schema validation 失敗で起動不可。後述「既知の問題」参照 -->
 - `limit_patterns`: `rate limit`, `usage limit`, `quota`, `429`
 - `auth_note`: `cursor` / `agent` CLI でログイン済み
 - `timeout`: 600
@@ -59,3 +62,7 @@
 
 - フォールバックは既定では行わず、上限/失敗エージェントはスキップして残りで続行する。
 - 用途ごとに使うエージェントを変える場合は skill 起動時に上書き指定する。
+
+## 既知の問題
+
+- **cursor (`agent`) 起動不可 (2026-06-15)**: 生成された `.cursor/cli.json` が cursor CLI の schema validation に失敗する (`permissions.deny` 必須欠落 / 未知キー `version`・`editor`)。`review` ルーティングで cursor は当面スキップされる。`rulesync` 生成出力と cursor CLI のスキーマ差が原因のため、`rulesync` のバージョン更新で再生成して解消するか、`.rulesync/permissions.json` 側の表現を調整する。`implement` ルーティングも cursor 依存のため影響する。

@@ -6,33 +6,50 @@
 
 - 各エージェントを background (`&`) で起動し、`wait` で全完了を待つ。
 - 出力は **エージェントごとに別ファイル** へ分離する (混線を防ぐ)。
-- 各エージェントに `timeout` を掛け、ハングで全体が止まらないようにする。
+- 各エージェントに timeout を掛け、ハングで全体が止まらないようにする。
+- 各エージェントの stdin は `</dev/null` で塞ぐ (stdin をパイプと誤検知して待機ハングする CLI がある)。
 - 終了コードを `<id>.exit` に保存し、後段の失敗分類が参照する。
 
 ## 正準シェルパターン
 
-```bash
-OUT=".ai-out/agent-runs/$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$OUT"
-PROMPT="$(cat "$OUT/prompt.txt")"   # 事前に固定したプロンプト本文
+`OUT` は呼び出し側 (step2 でプロンプトを固定した dir) から受け取り、同じ dir を共有する。timeout コマンド名と各エージェントの invocation は **すべて `context/ai-agents.md` から差し込む** ものとし、ここに CLI 名・モデル・flag を固定しない。
 
-run_agent() {           # $1=id  $2=timeout秒  $3...=invocation（$PROMPT 展開済み）
+```bash
+# OUT: step2 で prompt.txt を書き出した出力先 dir (呼び出し側から渡す)
+# TIMEOUT: 利用可能な timeout runner (下記「timeout runner の解決」で確定)
+PROMPT="$(cat "$OUT/prompt.txt")"   # step2 で固定済みのプロンプト本文
+
+run_agent() {           # $1=id  $2=timeout秒  $3...=invocation（registry から $PROMPT 展開済み）
   local id="$1" tmo="$2"; shift 2
-  timeout "$tmo" "$@" >"$OUT/$id.out" 2>&1
+  "$TIMEOUT" "$tmo" "$@" </dev/null >"$OUT/$id.out" 2>&1
   echo $? >"$OUT/$id.exit"
 }
 
-# レジストリの各 enabled エージェントについて起動（invocation は context/ai-agents.md から）
-run_agent claude 600 claude -p "$PROMPT" --output-format text &
-run_agent codex  600 codex exec "$PROMPT" &
-run_agent cursor 600 agent --print --model composer-2.5 --output-format text "$PROMPT" &
+# レジストリの各 enabled エージェントについて、invocation を argv に展開して起動する。
+# 下の <...> は context/ai-agents.md の invocation を展開した実引数 (CLI 名・flag をここに直書きしない)。
+run_agent <id_1> <timeout_1> <invocation_1 argv...> &
+run_agent <id_2> <timeout_2> <invocation_2 argv...> &
+# ...enabled エージェント分くり返す
 
 wait
 ls "$OUT"   # <id>.out / <id>.exit が揃う
 ```
 
-- 上記の各 `run_agent` 行は **レジストリの invocation をそのまま展開** する。CLI 名や flag を此処に固定しない。
-- `timeout` の終了コードは 124 (タイムアウト)。失敗分類で利用する。
+- 各 `run_agent` 行は **レジストリの invocation をそのまま展開** する。CLI 名や flag を此処に固定しない (`agent-registry-schema.md` の `$PROMPT` 展開規則に従う)。
+- timeout の終了コードは 124 (タイムアウト)。失敗分類で利用する。
+
+## timeout runner の解決
+
+GNU `timeout` は macOS に標準搭載されず (`command not found` で全エージェントが起動失敗する)。実行前に利用可能な runner を確定し `$TIMEOUT` に入れる:
+
+```bash
+if command -v timeout >/dev/null 2>&1; then TIMEOUT=timeout
+elif command -v gtimeout >/dev/null 2>&1; then TIMEOUT=gtimeout   # coreutils (brew)
+else TIMEOUT=""; fi   # どれも無ければ harness background 方式に切り替える
+```
+
+- `$TIMEOUT` が空のときは下記「harness background を使う場合」へ切り替え、harness 側の timeout に委ねる。
+- coreutils が multi-call binary (`coreutils timeout ...`) の環境では、その呼び出しを `$TIMEOUT` に読み替える。
 
 ## harness background を使う場合
 

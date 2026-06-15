@@ -12,8 +12,8 @@ description: >-
 
 ## いつ使うか
 
-- 同じプロンプトを Codex / Claude / Cursor など複数エージェントに並列で投げたい
-- 実装やレビューを特定エージェント (例: Cursor `composer-2.5`) に非対話で委譲したい
+- 「複数エージェントに並列で投げて」「クロス実行」「並列で委譲」と要求された
+- 実装やレビューを特定の 1 エージェントに非対話で委譲したい (どのエージェントを使うかはレジストリの用途別ルーティングで決める)
 - 一部エージェントが上限に達しても、残りの結果で前に進めたい
 - 上位 skill (`multi-agent-review` 等) から実行エンジンとして呼ばれた
 
@@ -24,7 +24,7 @@ description: >-
 - `references/parallel-execution.md` — 並列起動と出力収集の正準シェルパターン
 - `references/failure-handling.md` — 失敗分類とリトライ/スキップ方針、status テーブル様式
 - `references/aggregation.md` — 収集結果の汎用提示フォーマット
-- `AGENTS.md` の `Skill 共通契約` (固有値はレジストリを読む)
+- root rule の `Skill 共通契約` (正本 `.rulesync/rules/CLAUDE.md`、各 provider へ `AGENTS.md` / `CLAUDE.md` として生成) — 固有値はレジストリを読む
 
 ## 入力
 
@@ -46,13 +46,14 @@ description: >-
 ### 1. レジストリ解決
 
 - `context/ai-agents.md` を読み、対象エージェントの `invocation` / `limit_patterns` / `timeout` / `model` を取得する。
-- `enabled: no` と `verified: no` を確認する。`verified: no` のエージェントは初回に `<cli> --help` で flag を点検してから使う (スキーマは `references/agent-registry-schema.md`)。
+- `enabled: no` のエージェントは対象集合から **除外** する。
+- `verified: no` のエージェントは初回に `<cli> --help` / `<cli> <subcmd> --help` で各 flag が現行 CLI に存在するか点検してから使う (スキーマは `references/agent-registry-schema.md`)。
 - 対象が 0 件なら `停止条件` へ。
 
 ### 2. プロンプトの固定
 
-- 投げる本文を出力先 dir の `prompt.txt` に書き出す。
-- 各 `invocation` の `$PROMPT` を、この本文 (またはファイル参照) に展開する。引用符/改行のエスケープに注意する。
+- 投げる本文を出力先 dir の `prompt.txt` に書き出す。この dir (`OUT`) を step3 の並列起動へそのまま渡す。
+- 各 `invocation` の `$PROMPT` は、シェル変数経由 (`PROMPT="$(cat "$OUT/prompt.txt")"`) で渡し、起動時は必ず `"$PROMPT"` と引用したまま argv として展開する (`agent-registry-schema.md` の `$PROMPT` 展開規則)。`eval` でレジストリ文字列を再評価しない (本文中の特殊文字・改行が壊れる/誤実行する)。
 
 ### 3. 並列起動と収集
 
@@ -68,7 +69,7 @@ description: >-
 
 ### 5. 集約と報告
 
-- `references/aggregation.md` の様式で status テーブル (agent / status / output path) と各出力サマリを提示する。
+- `references/aggregation.md` / `failure-handling.md` の様式 (`agent / status / retries / output` の 4 列) で status テーブルと各出力サマリを提示する。
 - 上位 skill から呼ばれた場合は、成功エージェントの出力 path 一覧を返す。
 - 全エージェントが失敗した場合は `停止条件` に該当。
 
