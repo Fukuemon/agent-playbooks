@@ -21,7 +21,7 @@ targets:
 - `context/ai-agents.md` — `review` 用途のルーティングとエージェント定義
 - `references/review-prompt.md` — レビュープロンプトの組み立て方
 - `references/finding-merge.md` — エージェント横断の指摘マージ規則
-- `code-review` / `spec-review` skill — 流用するレビュー観点 (rubric)。利用可能なら参照し、無ければ `references/review-prompt.md` の rubric を正本とする (コード差分 = 正確性/再利用/効率、spec = 上位文書整合)
+- `references/review-prompt.md` の固定 rubric が観点の正本 (コード差分 = 正確性/再利用/効率、spec = 上位文書整合)。`spec-review` skill が利用可能なら spec 観点の補助として参照してよい
 - `styleguide-documents` skill — 出力レポートの文書品質基準
 
 ## 入力
@@ -31,18 +31,19 @@ targets:
   - PR 番号 / URL → `gh pr diff`
   - spec path → 当該 spec の内容
 - 対象エージェント集合 (省略時は `context/ai-agents.md` の `review` ルーティング)
-- 出力先 (既定: 標準出力。spec 対象時は任意で `specs/<issue>/reviews/`)
+- 出力先 (既定: 標準出力。spec 対象時は任意で `context/project.md` の spec review report 契約 `specs/<issue-id>-<slug>/review.md`)
 
 ## 実行フロー
 
 ### 1. レビュー対象の解決
 
-- 引数から diff / PR / spec を確定する (`references/review-prompt.md`)。
-- 差分を取得する (`git diff` または `gh pr diff`)。空なら `停止条件`。
+- 引数から対象種別 (diff / PR / spec) を確定する (`references/review-prompt.md` の取得表)。
+  - diff / PR: 差分を取得する (`git diff` または `gh pr diff`)。差分が空なら `停止条件`。
+  - spec: 当該 `specs/<issue-id>-<slug>/index.md` (+ 関連 design) を読む。spec 本体が見つからなければ `停止条件` (空 diff 判定は適用しない)。
 
 ### 2. レビュープロンプトの組み立て
 
-- `references/review-prompt.md` の雛形に、対象差分と rubric 観点 (`code-review` / `spec-review` から流用) を埋め込む。
+- `references/review-prompt.md` の雛形に、対象本文と rubric 観点 (対象種別で固定 rubric を切り替え、spec 時は `spec-review` が利用可能なら補助参照) を埋め込む。
 - 全エージェントへ **同一プロンプト** を渡す (公平な比較のため)。各指摘は `file:line + 重大度 + 根拠 + 提案` で返すよう指示する。
 
 ### 3. 並列レビュー実行
@@ -57,8 +58,8 @@ targets:
 
 ### 5. レポート出力
 
-- 統合レポートを提示する: status テーブル → 重大度順の統合指摘 → 各エージェント固有の指摘 → 未合意/相違点。
-- spec 対象かつ出力先指定時は `specs/<issue>/reviews/<timestamp>.md` に保存する。
+- `references/finding-merge.md` の出力レポート構成に従って提示する: status テーブル → 統合指摘 (重大度順) → 単一エージェントのみ (未合意) → エージェント間の相違 → 注記。
+- spec 対象かつ出力先指定時は `context/project.md` の契約に従い `specs/<issue-id>-<slug>/review.md` に保存する (複数回実行時は追記でなく上書き)。
 - スキップされたエージェントを明示し、部分結果である旨を断る。
 
 ## 停止条件
