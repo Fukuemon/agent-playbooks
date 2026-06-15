@@ -9,13 +9,13 @@
 
 <status テーブル — failure-handling.md の様式>
 
-### claude
+### <agent_id_1>
 <出力の要約 or 全文。長い場合は path を案内し要点のみ>
 
-### cursor
+### <agent_id_2>
 <同上>
 
-(skipped: codex — usage limit, retried 1x)
+(skipped: <agent_id_3> — usage limit, retried 1x)
 ```
 
 ## 規則

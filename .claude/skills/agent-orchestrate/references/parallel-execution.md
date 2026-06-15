@@ -21,7 +21,11 @@ PROMPT="$(cat "$OUT/prompt.txt")"   # step2 で固定済みのプロンプト本
 
 run_agent() {           # $1=id  $2=timeout秒  $3...=invocation（registry から $PROMPT 展開済み）
   local id="$1" tmo="$2"; shift 2
-  "$TIMEOUT" "$tmo" "$@" </dev/null >"$OUT/$id.out" 2>&1
+  if [ -n "$TIMEOUT" ]; then          # timeout runner があるとき
+    "$TIMEOUT" "$tmo" "$@" </dev/null >"$OUT/$id.out" 2>&1
+  else                                # runner 不在: timeout を付けずに起動 (背後の background runner 側で打ち切る)
+    "$@" </dev/null >"$OUT/$id.out" 2>&1
+  fi
   echo $? >"$OUT/$id.exit"
 }
 
@@ -45,16 +49,16 @@ GNU `timeout` は macOS に標準搭載されず (`command not found` で全エ�
 ```bash
 if command -v timeout >/dev/null 2>&1; then TIMEOUT=timeout
 elif command -v gtimeout >/dev/null 2>&1; then TIMEOUT=gtimeout   # coreutils (brew)
-else TIMEOUT=""; fi   # どれも無ければ harness background 方式に切り替える
+else TIMEOUT=""; fi   # どれも無ければ background runner 方式に切り替える
 ```
 
-- `$TIMEOUT` が空のときは下記「harness background を使う場合」へ切り替え、harness 側の timeout に委ねる。
+- `$TIMEOUT` が空のときは `run_agent` が自動で timeout なし起動に切り替わる (上記関数の分岐)。さらに下記「background runner を使う場合」へ寄せ、実行環境側の timeout に委ねてもよい。macOS は GNU `timeout` 非搭載が既定のため、この分岐は本リポジトリの想定 platform で頻繁に通る。
 - coreutils が multi-call binary (`coreutils timeout ...`) の環境では、その呼び出しを `$TIMEOUT` に読み替える。
 
-## harness background を使う場合
+## background runner を使う場合
 
-- Claude Code の Bash を `run_in_background: true` で 1 エージェント = 1 タスクとして起動してもよい。完了時に再呼び出しされるため、polling は不要。
-- ただし失敗分類とリトライを 1 箇所に集約したい場合は、上記の自己完結シェル (1 回の Bash 呼び出しで `wait` まで) の方が決定的で扱いやすい。
+- 実行している harness が background 実行を持つなら、1 エージェント = 1 バックグラウンドタスクとして起動してもよい (例: Claude Code の Bash `run_in_background`)。完了時に再通知される実装なら polling は不要。harness 名・呼び方は実行環境に依存するため、ここに特定 CLI の手順を固定しない。
+- ただし失敗分類とリトライを 1 箇所に集約したい場合は、上記の自己完結シェル (1 回の起動で `wait` まで) の方が決定的で扱いやすい。
 - どちらでも per-agent の `<id>.out` / `<id>.exit` を残す契約は守る。
 
 ## リトライ

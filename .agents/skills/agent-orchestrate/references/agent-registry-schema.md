@@ -26,8 +26,11 @@
 ## 既定値の解決順
 
 1. エージェントブロックの明示値
-2. `context/ai-agents.md` の「共通既定」
-3. それも無ければ skill 内ハード既定 (timeout=600、出力先 `.ai-out/agent-runs/<ts>/`)
+2. `context/ai-agents.md` の「共通既定」(timeout・出力先 dir・max_input_tokens 等の正本はここ)
+
+固有値 (timeout / 出力先 / token 上限) は skill 側に hard default を持たず、すべて
+`context/ai-agents.md` を正本とする。1・2 のどちらにも値が無いフィールドは
+**レジストリ不備** とみなし、skill の `停止条件` (レジストリを補完してから再実行) として扱う。
 
 ## verified フラグの扱い
 

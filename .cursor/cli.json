@@ -86,10 +86,11 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:zenn.dev)"
+    ],
+    "deny": [
+      "Shell(rm -rf /*)",
+      "Shell(rm -rf /:*)",
+      "Shell(rm -rf ~:*)"
     ]
-  },
-  "version": 1,
-  "editor": {
-    "vimMode": false
   }
 }

@@ -32,11 +32,11 @@
 報告は次の形式で出す:
 
 ```text
-| agent  | status | retries | output                         |
-| ------ | ------ | ------- | ------------------------------ |
-| claude | ok     | 0       | .ai-out/agent-runs/<ts>/claude.out |
-| codex  | limit  | 1       | (skipped: usage limit)             |
-| cursor | ok     | 0       | .ai-out/agent-runs/<ts>/cursor.out |
+| agent        | status | retries | output                             |
+| ------------ | ------ | ------- | ---------------------------------- |
+| <agent_id_1> | ok     | 0       | .ai-out/agent-runs/<ts>/<id_1>.out |
+| <agent_id_2> | limit  | 1       | (skipped: usage limit)             |
+| <agent_id_3> | ok     | 0       | .ai-out/agent-runs/<ts>/<id_3>.out |
 ```
 
 - `auth` のときは認証手順 (`auth_note`) を併記する。

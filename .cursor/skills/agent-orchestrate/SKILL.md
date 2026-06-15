@@ -1,6 +1,6 @@
 ---
 name: agent-orchestrate
-description: Fans out a single prompt to multiple non-interactive CLI agents (Codex / Claude / Cursor) in parallel, collects per-agent output, and tolerates token / rate-limit failures with retry-then-skip. Use as the base layer when delegating review or implementation work to several AI agents at once.
+description: Fans out a single prompt to multiple non-interactive CLI agents (e.g. Codex / Claude / Cursor; the actual set lives in context/ai-agents.md) in parallel, collects per-agent output, and tolerates token / rate-limit failures with retry-then-skip. Use as the base layer when delegating review or implementation work to several AI agents at once.
 ---
 # Agent Orchestrate
 
