@@ -1,5 +1,4 @@
 {
-  "version": 1,
   "permissions": {
     "allow": [
       "Shell(cat:*)",
@@ -88,8 +87,5 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:zenn.dev)"
     ]
-  },
-  "editor": {
-    "vimMode": false
   }
 }
