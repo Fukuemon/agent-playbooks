@@ -1,6 +1,6 @@
 ---
 name: multi-agent-review
-description: Reviews the current branch diff, a PR, or a spec by fanning it out to multiple CLI agents (Codex / Claude / Cursor) in parallel, then merges and ranks their findings into one report. Use when the user asks for a multi-agent review, "複数エージェントでレビュー", "Rv を並列で", or a cross-check review before merge.
+description: Reviews the current branch diff, a PR, or a spec by fanning it out to multiple registered CLI agents (e.g. Codex / Claude / Cursor; the actual set lives in context/ai-agents.md) in parallel, then merges and ranks their findings into one report. Use when the user asks for a multi-agent review, "複数エージェントでレビュー", "Rv を並列で", or a cross-check review before merge.
 ---
 # Multi-Agent Review
 

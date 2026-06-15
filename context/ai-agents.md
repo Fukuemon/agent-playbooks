@@ -47,8 +47,8 @@
 
 - `enabled`: yes
 - `model`: `composer-2.5`
-- `invocation`: `agent --print --model composer-2.5 --output-format text "$PROMPT"`
-- `verified`: no <!-- 2026-06-15 `.cursor/cli.json` の schema validation 失敗で起動不可。後述「既知の問題」参照 -->
+- `invocation`: `agent --print -f --model composer-2.5 --output-format text "$PROMPT"`
+- `verified`: yes <!-- 2026-06-15 cli.json 正規化 (scripts/fix-cursor-cli.sh) 後に PONG 応答で確認。非対話には信頼フラグ `-f` 必須 (未指定だと "To proceed..." で停止) -->
 - `limit_patterns`: `rate limit`, `usage limit`, `quota`, `429`
 - `auth_note`: `cursor` / `agent` CLI でログイン済み
 - `timeout`: 600
@@ -65,4 +65,4 @@
 
 ## 既知の問題
 
-- **cursor (`agent`) 起動不可 (2026-06-15)**: 生成された `.cursor/cli.json` が cursor CLI の schema validation に失敗する (`permissions.deny` 必須欠落 / 未知キー `version`・`editor`)。`review` ルーティングで cursor は当面スキップされる。`rulesync` 生成出力と cursor CLI のスキーマ差が原因のため、`rulesync` のバージョン更新で再生成して解消するか、`.rulesync/permissions.json` 側の表現を調整する。`implement` ルーティングも cursor 依存のため影響する。
+- **cursor cli.json schema 非互換 (2026-06-15 解決)**: `rulesync generate` (>=8.x) は `.cursor/cli.json` に top-level `version`・`editor` を常時出力し、`permissions.deny` を deny エントリがある時だけ出力する。一方 cursor-agent CLI は `version`・`editor` を未知キーとして拒否し `permissions.deny` を必須配列として要求するため、生成直後は起動不可だった。`rulesync` 側に抑止設定が無いため、(1) `.rulesync/permissions.json` に deny エントリを追加し deny 配列を出力、(2) 生成後に `scripts/fix-cursor-cli.sh` (jq で `version`/`editor` 除去・deny 配列保証) を通す、の 2 段で解消。`rulesync-sync` skill の generate 手順に正規化を組込み済み。`rulesync` 更新で `version`/`editor` を出さなくなれば (2) は不要になる。
