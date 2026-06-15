@@ -18,7 +18,7 @@ description: Reviews the current branch diff, a PR, or a spec by fanning it out 
 - `context/ai-agents.md` — `review` 用途のルーティングとエージェント定義
 - `references/review-prompt.md` — レビュープロンプトの組み立て方
 - `references/finding-merge.md` — エージェント横断の指摘マージ規則
-- `code-review` / `spec-review` skill — 流用するレビュー観点 (rubric)
+- `code-review` / `spec-review` skill — 流用するレビュー観点 (rubric)。利用可能なら参照し、無ければ `references/review-prompt.md` の rubric を正本とする (コード差分 = 正確性/再利用/効率、spec = 上位文書整合)
 - `styleguide-documents` skill — 出力レポートの文書品質基準
 
 ## 入力
@@ -45,7 +45,7 @@ description: Reviews the current branch diff, a PR, or a spec by fanning it out 
 ### 3. 並列レビュー実行
 
 - `agent-orchestrate` の並列実行パターンで `review` ルーティングのエージェントへプロンプトを投げる。
-- 各エージェントの出力を per-agent ファイルへ収集し、status を分類する (上限は 1 回リトライ後スキップ)。
+- 出力収集・失敗分類・リトライ/スキップは `agent-orchestrate` に委譲する (本 skill で挙動を再定義しない)。返ってきた status テーブルと成功エージェントの出力 path を受け取る。
 
 ### 4. 指摘のマージ
 

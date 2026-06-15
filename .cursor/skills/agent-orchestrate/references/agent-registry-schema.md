@@ -6,15 +6,16 @@
 
 各エージェントは `### <id>` 見出し 1 つで定義される。フィールド:
 
-| フィールド       | 必須 | 意味                                                       |
-| ---------------- | ---- | ---------------------------------------------------------- |
-| `enabled`        | yes  | `yes` のときだけ既定の対象集合に含める                     |
-| `model`          | no   | 使用モデル。`(CLI 既定)` のときは flag を付けない          |
-| `invocation`     | yes  | `$PROMPT` を含む **非対話** コマンドテンプレート           |
-| `verified`       | yes  | flag を実機確認済みか。`no` の初回は `<cli> --help` で点検 |
-| `limit_patterns` | yes  | token/rate 上限を示す stdout/stderr 文字列または exit code |
-| `auth_note`      | no   | 認証前提 (ログイン / API key)                              |
-| `timeout`        | no   | 秒。未指定なら共通既定 (600)                               |
+| フィールド         | 必須 | 意味                                                                     |
+| ------------------ | ---- | ------------------------------------------------------------------------ |
+| `enabled`          | yes  | `yes` のときだけ既定の対象集合に含める                                   |
+| `model`            | no   | 使用モデル。`(CLI 既定)` のときは flag を付けない                        |
+| `invocation`       | yes  | `$PROMPT` を含む **非対話** コマンドテンプレート                         |
+| `verified`         | yes  | flag を実機確認済みか。`no` の初回は `<cli> --help` で点検               |
+| `limit_patterns`   | yes  | token/rate 上限を示す stdout/stderr 文字列または exit code               |
+| `auth_note`        | no   | 認証前提 (ログイン / API key)                                            |
+| `timeout`          | no   | 秒。未指定なら共通既定 (600)                                             |
+| `max_input_tokens` | no   | プロンプト入力の目安上限。大きい差分の分割判断に使う。未指定なら共通既定 |
 
 ## `$PROMPT` の展開
 
