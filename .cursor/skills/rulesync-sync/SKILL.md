@@ -50,4 +50,4 @@ description: Edits AI configuration in `.rulesync/` (the single source of truth)
 - `npx rulesync@latest generate` が失敗し、エラーメッセージから原因を切り分けられない
 - 生成先の差分が `.rulesync/` の編集意図と一致せず、矛盾の原因が特定できない
 - 既存 skill の `name` / `description` を書き換えようとしているが、参照側 (他 skill / docs) の影響を確認していない
-- root rule (`.rulesync/rules/CLAUDE.md`) を編集しようとしているが、内容が Design Doc / PRD と矛盾している (先に `spec-sync` 提案を検討)
+- root rule (`.rulesync/rules/CLAUDE.md`) を編集しようとしているが、内容が Design Doc / PRD と矛盾している (先に `spec-lifecycle` の sync phase 提案を検討)

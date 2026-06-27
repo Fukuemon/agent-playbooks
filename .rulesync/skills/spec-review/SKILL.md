@@ -1,6 +1,6 @@
 ---
 name: spec-review
-description: Runs an independent reviewer agent with a fresh context over a spec or its generated prompts, returning PASS or NEEDS_WORK with specific findings. Use as a phase gate after spec-draft, spec-resolve, spec-prompts, or when the user asks for spec-review.
+description: Runs an independent reviewer agent with a fresh context over a spec or its generated prompts, returning PASS or NEEDS_WORK with specific findings. Use as a phase gate after a spec-lifecycle phase (scaffold / clarify / prompts), or when the user asks for spec-review.
 targets:
   - "*"
 ---
@@ -12,7 +12,7 @@ cwc-long-running-agents の "Fresh-Context Evaluator" パターンに沿った s
 
 ## いつ使うか
 
-- phase gate (`spec-draft` / `spec-resolve` / `spec-prompts` 完了時)
+- phase gate (`spec-lifecycle` の scaffold / clarify / prompts phase 完了時)
 - ユーザーが「spec のレビュー」「review」「PASS / NEEDS_WORK」を要求した
 - `spec-lifecycle` からの呼び出し
 

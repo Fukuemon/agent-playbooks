@@ -48,6 +48,17 @@
 
 `<module-a>`, `<module-b>`, ...
 
+## Glossary (ドメイン用語)
+
+製品固有のドメイン語を集約する **唯一の正本**。skill / rule / 生成物は製品固有名を直書きせず、
+固有名が要るときは本節を参照して解決する (CLAUDE.md `Forbidden Patterns` の「固有名直書き禁止」と対)。
+
+| 用語     | 定義     |
+| -------- | -------- |
+| `<用語>` | `<定義>` |
+
+<!-- 例: 備品 = 管理対象の物理アセット / 貸出 = 備品を一定期間ユーザーに割り当てる行為 -->
+
 ## Label Policy
 
 Issue / PR のラベル体系の **唯一の正本**。`workflow-git` skill はラベル付与時に本節を読む。命名は **名前空間付き** (`<axis>:<value>`) とし、軸ごとに色を揃える。
@@ -72,8 +83,12 @@ Issue / PR のラベル体系の **唯一の正本**。`workflow-git` skill は�
 
 ## Issue Tracker
 
-- Tracker: `<GitHub / GitLab / Redmine / Jira / ...>`
-- CLI: `<gh / glab / ...>`
+skill / 契約は tracker を抽象のまま扱い、固有値は本節を **唯一の制御点** として参照する
+(`spec-issue-read` / `spec-requirement` / `workflow-git` 等)。**既定は GitHub (`gh`)**。
+GitLab (`glab`) / Redmine / Jira 等へ切り替える場合も skill は変更せず、本節の値だけ差し替える。
+
+- Tracker: `GitHub` <!-- 既定。GitLab / Redmine / Jira 等へ切替可 -->
+- CLI: `gh` <!-- 既定。GitLab なら glab など、tracker に対応する CLI -->
 - Repo: `<org/repo or project path>`
 - Branch pattern: `<feature/<issue-id>>`
 

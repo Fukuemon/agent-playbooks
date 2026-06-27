@@ -31,6 +31,8 @@ globs:
 3. `rulesync-sync` skill で各 provider 設定を生成する。
 4. 以降は `spec-*` skill で issue 駆動の設計・実装を進める。
 
+> 共有テンプレートとして使う場合: 本テンプレ repo で `scripts/link.sh <消費 repo>` (または `make link ARGS=<消費 repo>`) を実行すると、skills / 本 contract / hooks を消費 repo へ symlink できる (live、双方向更新)。固有値 (`context/` 等) は消費 repo 側で実ファイルとして記入する。詳細は [README.md](README.md)。
+
 ## Repository / Commands / Naming
 
 - リポジトリマップ・Quick Commands・命名規約・対象ドメインは [context/project.md](context/project.md) を正本とする。
@@ -86,8 +88,8 @@ Spec Driven Development (SDD) skill 群 (`.rulesync/skills/spec-*/SKILL.md`) が
 
 spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / context / ADR) は **製本となる正本**。両者の正本関係はライフサイクルで遷移する:
 
-- **spec 作成〜clarify (`spec-draft` / `spec-resolve`)**: spec が自身の決定の作業正本でよい。design へはまだ反映しない。
-- **`spec-sync` 実行時 (正本ハンドオフ)**: durable な設計成果 (IA / データモデル / フロー / アーキ判断) を design 側へ反映したら、以後 **design 側が正本**。同時に spec の該当節を「決定時スナップショット」に降格し、design への正本リンクを張る。
+- **spec 作成〜clarify (`spec-lifecycle` の scaffold / clarify phase)**: spec が自身の決定の作業正本でよい。design へはまだ反映しない。
+- **sync phase 実行時 (正本ハンドオフ)**: durable な設計成果 (IA / データモデル / フロー / アーキ判断) を design 側へ反映したら、以後 **design 側が正本**。同時に spec の該当節を「決定時スナップショット」に降格し、design への正本リンクを張る。
 - **ハンドオフ後**: spec は論点 / 受け入れ基準 / レビュー / 実装分割 / 決定経緯のみを保持し、durable 成果の正本を二重に持たない (drift 防止)。
 
 判定の目安: 「issue が閉じても残り続ける設計情報」は design 正本、「この issue の意思決定の記録」は spec。
@@ -95,7 +97,7 @@ spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / c
 ### Phase Gate ルール
 
 - 各 phase 完了時に `spec-review` (fresh-context evaluator) を通す
-- PRD / Design Doc / feature doc / context / ADR と矛盾を検出したら `spec-sync` を先に提案し、未解決のまま下流 phase に進まない
+- PRD / Design Doc / feature doc / context / ADR と矛盾を検出したら sync phase を先に提案し、未解決のまま下流 phase に進まない
 - spec 内「設計フェーズ状況」表が状態 (`未着手 / 進行中 / 完了 / レビュー済 / 保留`) を管理する
 - 確定済みの判断 (解決済みの論点) を skill から上書きしない
 
@@ -111,17 +113,16 @@ spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / c
 
 ### SDD Skill 一覧
 
-| Skill              | 役割                                                                         | 対応 phase         |
-| ------------------ | ---------------------------------------------------------------------------- | ------------------ |
-| `spec-issue-read`  | Issue 取得 + 要約                                                            | intake             |
-| `spec-requirement` | 要求の対話整理 → requirements doc / Issue 起票                               | intake → specify   |
-| `spec-draft`       | spec dir + `index.md` を template から生成                                   | specify (scaffold) |
-| `spec-resolve`     | 論点を 1 件ずつ解決し spec 内全箇所を同期更新                                | clarify            |
-| `spec-diagrams`    | spec の flow / sequence を Mermaid 図に落とす                                | design             |
-| `spec-track`       | spec の「上位資料からの変更点」を更新                                        | design             |
-| `spec-sync`        | spec 決定を PRD / Design Doc / feature doc / context / ADR へ back-propagate | upstream sync      |
-| `spec-prompts`     | spec から自己完結な実装 prompt を生成                                        | tasks → implement  |
-| `spec-review`      | fresh-context evaluator が PASS / NEEDS_WORK を返す                          | review gate        |
-| `spec-lifecycle`   | 上記を phase 順に orchestration する半自律 runner                            | orchestrator       |
+| Skill              | 役割                                                | 対応 phase           |
+| ------------------ | --------------------------------------------------- | -------------------- |
+| `spec-issue-read`  | Issue 取得 + 要約                                   | intake               |
+| `spec-requirement` | 要求の対話整理 → requirements doc / Issue 起票      | intake → specify     |
+| `spec-lifecycle`   | 設計プロセスを集約した半自律 orchestrator           | scaffold 〜 tasks    |
+| `spec-review`      | fresh-context evaluator が PASS / NEEDS_WORK を返す | review gate (複数回) |
+
+設計プロセスの各 phase は `spec-lifecycle` に集約され、手順は `references/phase-*.md` で持つ:
+scaffold (`phase-scaffold.md`) / clarify (`phase-clarify.md`) / diagram (`phase-diagram.md`) /
+track (`phase-track.md`) / sync (`phase-sync.md`) / prompts (`phase-prompts.md`)。
+個別 skill (旧 `spec-draft` 等) としては起動せず、`spec-lifecycle` の単一コンテキストから phase を進める。
 
 orthogonal な Git / GitHub 操作は `workflow-git` を使う。
