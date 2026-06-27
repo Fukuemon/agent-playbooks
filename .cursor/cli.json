@@ -92,9 +92,5 @@
       "Shell(rm -rf /:*)",
       "Shell(rm -rf ~:*)"
     ]
-  },
-  "version": 1,
-  "editor": {
-    "vimMode": false
   }
 }

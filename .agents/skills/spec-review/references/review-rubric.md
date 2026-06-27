@@ -18,7 +18,7 @@
 - spec の決定が context (`context/<topic>.md`) の architecture / toolchain / engineering 規約 / testing / infrastructure と矛盾していないか
 - 関連 ADR の決定を覆していないか / 覆す場合に新規 ADR の提案があるか
 
-→ 矛盾を 1 件でも検出したら `NEEDS_WORK`、対応として `spec-sync` を提案する。
+→ 矛盾を 1 件でも検出したら `NEEDS_WORK`、対応として `spec-lifecycle` の sync phase を提案する。
 
 ## 2. 未解決論点 (Open Questions)
 
@@ -59,14 +59,14 @@
 
 → 観測不能な acceptance が混じっていれば `NEEDS_WORK`。
 
-## 6. Prompts の自己完結性 (spec-prompts レビュー時のみ)
+## 6. Prompts の自己完結性 (prompts phase レビュー時のみ)
 
 `prompts/` 配下を含めてレビューする場合:
 
 - 各 prompt に必須セクション 10 項目 (絶対ルール / 作業ステップ / 実装コンテキスト / 前提条件 / 不明点ハンドリング / タスク境界 / 設計仕様 / テスト観点 / 検証コマンド / 完了条件) があるか
 - 探索誘発表現 (「既存コードを参照」「既存実装を確認」) が含まれていないか
 - 別 app / package の追加探索を要求していないか
-- `## 絶対ルール` に `spec-prompts/references/antipatterns.md` の実装制約ブロック (スコープ厳守 / 観測可能契約の保持 / 推測排除 / fallback 最小化 / dead code 禁止 / 判断記録) が注入されているか
+- `## 絶対ルール` に `spec-lifecycle/references/antipatterns.md` の実装制約ブロック (スコープ厳守 / 観測可能契約の保持 / 推測排除 / fallback 最小化 / dead code 禁止 / 判断記録) が注入されているか
 - 命名規則 `P{phase}_{seq}_{target}_{scope}.md` を満たしているか
 - target が `Spec Workflow Contract` の target 一覧に含まれているか
 - phase 依存表 (並列可 / 依存先) が報告されているか
@@ -77,13 +77,13 @@
 
 `Spec Workflow Contract` の `正本境界` に従い、durable 成果の正本が spec から design へハンドオフ済かを確認する。判定は spec のライフサイクル段階で条件分岐する:
 
-- spec の `## 上位資料からの変更点` に design (feature doc 等) への **「反映済」行がない** (= 未 `spec-sync`) → 本観点は `N/A` (spec が作業正本でよい段階)。
-- 「反映済」行がある (= `spec-sync` 済) 場合:
+- spec の `## 上位資料からの変更点` に design (feature doc 等) への **「反映済」行がない** (= sync phase 未実行) → 本観点は `N/A` (spec が作業正本でよい段階)。
+- 「反映済」行がある (= sync phase 済) 場合:
   - durable 成果 (IA / サイトマップ / データモデル / フロー / アーキ判断) の正本が design 側にあり、spec はそれを参照しているか
   - spec の該当節が「決定時スナップショット」と明示され、design への正本リンクを持つか
   - 同一 durable 成果について spec と design が二重に「正本」を名乗っていないか
 
-→ sync 済なのに spec が durable 成果の正本を抱えたまま design へリンクしていなければ `NEEDS_WORK`、対応として `spec-sync` の正本ハンドオフを提案する。
+→ sync 済なのに spec が durable 成果の正本を抱えたまま design へリンクしていなければ `NEEDS_WORK`、対応として `spec-lifecycle` の sync phase (正本ハンドオフ) を提案する。
 
 ## 出力フォーマット
 

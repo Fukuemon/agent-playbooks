@@ -47,7 +47,7 @@
 | context       |               |                                   |
 | ADR (なら ID) |               |                                   |
 
-> 矛盾を検出した場合は `spec-sync` で PRD / Design Doc / feature doc / context / ADR への back-propagation を提案する。
+> 矛盾を検出した場合は `spec-lifecycle` の sync phase で PRD / Design Doc / feature doc / context / ADR への back-propagation を提案する。
 
 ## 関連資料
 
@@ -102,7 +102,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 
 ## 解決済みの論点
 
-(`spec-resolve` で確定したものをここに移動する)
+(`spec-lifecycle` の clarify phase で確定したものをここに移動する)
 
 -
 
@@ -209,7 +209,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 
 ## フロー / シーケンス
 
-(`spec-diagrams` で生成。spec の主要操作を Mermaid 図に落とす)
+(`spec-lifecycle` の diagram phase で生成。spec の主要操作を Mermaid 図に落とす)
 
 ### Flowchart (ユーザー操作起点)
 
@@ -238,7 +238,7 @@ sequenceDiagram
 
 ## 上位資料からの変更点
 
-本 spec で PRD / Design Doc / feature doc / context / 既存 ADR から変更・追加した内容を、反映先別に記録する。`spec-track` / `spec-sync` で更新する。
+本 spec で PRD / Design Doc / feature doc / context / 既存 ADR から変更・追加した内容を、反映先別に記録する。`spec-lifecycle` の track / sync phase で更新する。
 
 ### PRD への影響
 

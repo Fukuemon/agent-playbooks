@@ -25,6 +25,32 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 3. **AI 設定を同期する** — `rulesync-sync` skill。`.rulesync/` から各 provider 設定 (`AGENTS.md` / `CLAUDE.md` / `.cursor/` / `.codex/`) を生成する。
 4. **issue 駆動で進める** — `spec-*` skill 群 (intake → specify → clarify → design → sync → tasks → review)。`spec-lifecycle` が phase を orchestration する。
 
+## 消費 repo へ symlink で接続する (共有プロセス層)
+
+開発プロセスに関する資産 (skills / 操作契約 / hooks) は汎用なので、各プロダクト repo へ
+**コピーではなく symlink で共有** できる。live なソースへ直接リンクするため、どちらの repo で
+編集しても両方に反映される (「片方更新 → 両方更新」)。
+
+```bash
+# このテンプレ repo 上で実行
+make link ARGS=/path/to/your-product-repo
+# または: bash scripts/link.sh /path/to/your-product-repo
+```
+
+- symlink 対象 (共有): `.rulesync/skills/*` / `.rulesync/rules/CLAUDE.md` / `hooks/` / `scripts/{link,fix-cursor-cli}.sh`
+- symlink されない (消費 repo が所有する固有値): `context/` (`project.md` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
+- symlink パスは消費 clone の `.git/info/exclude` に登録され、commit 差分は出ない (per-clone)。
+
+接続後、消費 repo 側で各 provider 設定を生成する:
+
+```bash
+cd /path/to/your-product-repo
+npx rulesync@latest generate && bash scripts/fix-cursor-cli.sh   # = make generate
+```
+
+固有値 (`context/project.md` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
+実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。
+
 ## 文書品質
 
 すべての設計文書は `styleguide-documents` skill の 5 原則 (曖昧さ排除 / 意思決定理由 / AI 実装可能な粒度 / 可読構造 / 過剰装飾の回避) に従う。

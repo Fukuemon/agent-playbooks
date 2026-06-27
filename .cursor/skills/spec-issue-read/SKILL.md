@@ -52,7 +52,7 @@ Issue tracker から指定 issue を取得し、要約と推奨次アクショ�
 
    ### 推奨次アクション
 
-   - 新規 spec を起こす → `spec-draft`
+   - 新規 spec を起こす → `spec-lifecycle` の scaffold phase
    - 既存 spec を更新する → 既存 spec dir を提示
    ```
 
