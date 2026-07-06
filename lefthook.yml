@@ -6,6 +6,8 @@ pre-commit:
       run: hooks/format/run_prettier.sh
     repo-analysis:
       run: hooks/quality/validate_repo_analysis.sh
+    check-skills:
+      run: bash scripts/check-skills.sh
 
 pre-push:
   commands:
