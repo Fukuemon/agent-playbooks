@@ -1,6 +1,6 @@
 ---
 name: rulesync-sync
-description: Edits AI configuration in `.rulesync/` (the single source of truth) and regenerates AGENTS.md, CLAUDE.md, .codex/, .claude/, .cursor/ for every provider. Use when the user asks to change any AI rule, agent instruction, skill, or to update AGENTS.md / CLAUDE.md content.
+description: AI 設定の正本 `.rulesync/` を編集し、AGENTS.md / CLAUDE.md / .codex / .claude / .cursor を全 provider 向けに再生成する。AI rule / skill / subagent の追加・変更、"AGENTS.md 更新" / "CLAUDE.md 変えて" / "rulesync" で起動する。
 ---
 # Rulesync Sync
 
@@ -41,8 +41,9 @@ description: Edits AI configuration in `.rulesync/` (the single source of truth)
    - `git status` で生成先 (`AGENTS.md`, `CLAUDE.md`, `.codex/`, `.claude/`, `.cursor/`) に意図どおりの差分が出ているか
    - `git diff -- AGENTS.md CLAUDE.md` で内容を確認する
    - `.rulesync/` 側の編集と生成先の差分が一致していなければ、`.rulesync/` を修正して再実行する
-5. **生成失敗時**: 生成先を手作業で合わせず、`.rulesync/` 側の失敗理由を解消して再実行する
-6. 次アクションを提案: skill を追加した場合は `dev-commands` / `workflow-git` 経由でテスト・コミットを促す
+5. **検証**: `make check` を実行する (skill 契約の機械検査 + 生成物 drift 検査)。通らない状態で終わらない
+6. **生成失敗時**: 生成先を手作業で合わせず、`.rulesync/` 側の失敗理由を解消して再実行する
+7. 次アクションを提案: skill を追加した場合は `dev-commands` / `workflow-git` 経由でテスト・コミットを促す
 
 ## 停止条件
 
