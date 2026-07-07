@@ -29,6 +29,9 @@ targets:
 
 ## 実行フロー
 
+0. **repo 種別の判定**: `.rulesync/rules/CLAUDE.md` が symlink なら消費 repo で作業している。
+   - 編集は symlink 経由で **sdd-template 側の実体** に入る (消費 repo では未追跡のため commit できない)
+   - 変更の commit は sdd-template repo 側で行い、消費 repo では生成物のみ commit する (`AGENTS.md` の「共有プロセス層の正本」)
 1. **編集対象の決定** (`references/rulesync-layout.md`):
    - リポジトリ横断のルール → `.rulesync/rules/CLAUDE.md` (root rule)
    - 新規 skill → `.rulesync/skills/<skill-name>/SKILL.md` + `references/`
@@ -51,6 +54,7 @@ targets:
 ## 停止条件
 
 - `.rulesync/` 外を直接編集しようとしている
+- 消費 repo で `.rulesync/` 配下を commit しようとしている (正本は sdd-template repo)
 - `npx rulesync@latest generate` が失敗し、エラーメッセージから原因を切り分けられない
 - 生成先の差分が `.rulesync/` の編集意図と一致せず、矛盾の原因が特定できない
 - 既存 skill の `name` / `description` を書き換えようとしているが、参照側 (他 skill / docs) の影響を確認していない
