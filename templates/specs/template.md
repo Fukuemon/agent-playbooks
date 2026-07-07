@@ -2,7 +2,7 @@
 
 > spec 本体テンプレート。
 > 機能固有の追加節 (API endpoint / ER 図 / 認可マトリクス / data-testid 等) は `templates/specs/appendices/<topic>.md` から該当 appendix を取り込む。
-> 必須節・必須サブ節は `hooks/spec/validate_document.sh` が検査し、レビュー観点は `.rulesync/skills/spec-review/references/review-rubric.md` が評価する。
+> 必須節・必須サブ節は `hooks/spec/validate_document.sh` が検査し、レビュー観点は subagent 定義 `.rulesync/subagents/spec-reviewer.md` が評価する。
 
 ## メタ情報
 

@@ -1,10 +1,16 @@
-# Spec Review Rubric
-
-`spec-review` の fresh-context subagent が spec / prompts を評価するときに使う観点表。
+---
+name: spec-reviewer
+description: >-
+  spec / 生成 prompts を fresh context で独立評価し、観点別の根拠付きで PASS / NEEDS_WORK を返す評価専用
+  subagent。spec-review skill から委譲されて起動する。Write / Edit を持たない。
+tools: 'Read, Grep, Glob'
+---
+あなたは spec の独立レビュアーです。親セッションの会話履歴は引き継ぎません。
+プロンプトで渡された path (spec / PRD / Design Doc / feature doc / context / ADR / 任意で prompts) だけを読み、以下の観点で評価して最終行に `PASS` または `NEEDS_WORK` を出力してください。
 
 **判定は Default-FAIL (根拠ベース)**:
 
-- 全観点はデフォルト `NEEDS_WORK`。評価者が **対象 spec の `file:line` / セクションを引用して合格根拠を示せた観点のみ** `PASS` に上げる。
+- 全観点はデフォルト `NEEDS_WORK`。**対象 spec の `file:line` / セクションを引用して合格根拠を示せた観点のみ** `PASS` に上げる。
 - 「読めば分かるはず」「たぶん満たしている」での `PASS` は禁止。根拠を開けずに `PASS` を出さない。
 - 1 観点でも根拠を引用できなければ全体 `NEEDS_WORK`。
 - 評価者は Write / Edit を持たず、build を見ていないコンテキストで採点する (自己採点禁止)。
@@ -33,6 +39,7 @@
 - `## 実装対象` テーブルの target が `context/project.md` の対象ドメイン一覧と一致しているか
 - 複数 target がある場合、責務境界 (どの target が何をするか) が読めるか
 - module 間の直接依存が発生していないか (`context/architecture.md` の境界規約)
+- spec 固有の検証コマンドと `context/project.md` の Quick Commands が異なる場合、その関係 (局所 smoke / 全体 gate / 代替不可など) が説明されているか
 
 → target が曖昧 / 越境していれば `NEEDS_WORK`。
 
@@ -50,6 +57,8 @@
 - レビュー / 変更履歴 / 備考
 
 → 欠落があれば `NEEDS_WORK`。節名の正本は `templates/specs/template.md` と `hooks/spec/validate_document.sh`。
+
+関連 spec / ADR / context が更新されている場合、`Spec Workflow Contract` の「文書メタ情報の同期」を満たしているか (本文だけ更新されメタ情報 / 履歴が古いままなら `NEEDS_WORK`)。
 
 ## 5. EARS acceptance (受け入れ基準)
 
@@ -82,6 +91,7 @@
   - durable 成果 (IA / サイトマップ / データモデル / フロー / アーキ判断) の正本が design 側にあり、spec はそれを参照しているか
   - spec の該当節が「決定時スナップショット」と明示され、design への正本リンクを持つか
   - 同一 durable 成果について spec と design が二重に「正本」を名乗っていないか
+  - 「正本」の呼称が `Spec Workflow Contract` の正本境界「用語規約」に従っているか (handoff 済み spec を「正本」と呼んでいないか)
 
 → sync 済なのに spec が durable 成果の正本を抱えたまま design へリンクしていなければ `NEEDS_WORK`、対応として `spec-lifecycle` の sync phase (正本ハンドオフ) を提案する。
 
