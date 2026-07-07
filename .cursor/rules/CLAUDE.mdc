@@ -29,7 +29,14 @@ globs: **/*
 3. `rulesync-sync` skill で各 provider 設定を生成する。
 4. 以降は `spec-*` skill で issue 駆動の設計・実装を進める。
 
-> 共有テンプレートとして使う場合: 本テンプレ repo で `scripts/link.sh <消費 repo>` (または `make link ARGS=<消費 repo>`) を実行すると、skills / 本 contract / hooks を消費 repo へ symlink できる (live、双方向更新)。固有値 (`context/` 等) は消費 repo 側で実ファイルとして記入する。詳細は [README.md](README.md)。
+> 共有テンプレートとして使う場合: 本テンプレ repo で `scripts/link.sh <消費 repo>` (または `make link ARGS=<消費 repo>`) を実行すると、共有プロセス層を消費 repo へ接続できる。固有値 (`context/` 等) は消費 repo 側で実ファイルとして記入する。詳細は [README.md](README.md)。
+
+### 共有プロセス層の正本 (消費 repo で作業するとき)
+
+- **skills / rules / subagents / hooks の正本は sdd-template repo**。消費 repo の `.rulesync/*` は sdd-template への symlink であり、編集すると **テンプレ側の実体が変わる** (消費 repo では未追跡のため commit できない)。
+- したがって共有プロセス層の変更は: ① 編集 (symlink 経由でもテンプレ repo 直接でもよい) → ② **sdd-template repo 側で commit** → ③ 消費 repo で `rulesync generate` を再実行し **生成物だけを commit**、の順で行う。
+- 消費 repo に commit するのは生成物 (`AGENTS.md` / `.claude/` 等)・`hooks/` (実ファイルコピー)・`lefthook.yml`・`.template-version` のみ。`.rulesync/` 配下を消費 repo に commit しない。
+- 今いる repo がテンプレか消費側かは `.rulesync/rules/CLAUDE.md` が symlink かどうかで判定できる (symlink なら消費側)。
 
 ## Repository / Commands / Naming
 
@@ -61,6 +68,7 @@ skill は `.rulesync/skills/<name>/SKILL.md` が正本。直接呼び出すか s
 ## Forbidden Patterns
 
 - 生成物 (`AGENTS.md` / `CLAUDE.md` / `.codex/` / `.claude/` / `.cursor/`) の直接編集 (`rulesync-sync` 経由で `.rulesync/` を編集する)
+- 消費 repo への `.rulesync/` 配下の commit (正本は sdd-template repo。上記「共有プロセス層の正本」)
 - protected branch (例: `main` / `develop`) への直接コミット
 - skill / rule へのプロジェクト固有名の直書き (`context/project.md` を読む)
 - プロダクト固有の禁止事項は [context/project.md](context/project.md) / [context/](context/) に追記する

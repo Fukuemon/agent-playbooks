@@ -8,6 +8,7 @@ description: >-
 
 skill / rule / subagent を **使っている最中に見つけた** 不具合 (手順のズレ / 古い前提 / 誤誘導 / 抜け) や改善点を、その場の回避で終わらせず正本 `.rulesync/` に書き戻す skill。
 消費 repo (link.sh で symlink 接続) から実行しても、symlink は live なのでテンプレ側の正本がそのまま直る。
+ただし **変更の commit は sdd-template repo 側で行う** (消費 repo の `.rulesync/*` は未追跡。`AGENTS.md` の「共有プロセス層の正本」)。
 
 ## いつ使うか
 
