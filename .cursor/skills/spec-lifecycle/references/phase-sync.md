@@ -52,6 +52,8 @@ durable な設計成果を design 側へ反映したときは、正本を design
 
 - 反映済の変更提案は `## 上位資料からの変更点` の該当行に「反映済: <PR/コミット予定>」と注記する
 - 新規 ADR を起こした場合は ADR ID を spec の `## 上位文書整合` テーブルに追記する
+- 関連 spec / ADR / context を更新した場合は `Spec Workflow Contract` の「文書メタ情報の同期」に従い、対象文書のメタ情報も更新する
+- handoff 後の spec の呼称は `Spec Workflow Contract` の正本境界「用語規約」に従い書き換える
 
 ### 5. ユーザー報告
 
