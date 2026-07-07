@@ -1,6 +1,6 @@
 ---
 name: spec-lifecycle
-description: Drives a spec through intake → scaffold → clarify → diagram → track → sync → tasks → review in a half-autonomous loop, stopping at every phase gate for user approval. Use when the user asks to "通しで設計" / "spec-lifecycle" / "spec-full" / "spec を最後まで".
+description: spec を intake → scaffold → clarify → diagram → track → sync → tasks → review の順に半自律で進め、各 phase gate でユーザー承認を待つ orchestrator。"通しで設計" / "spec-lifecycle" / "spec-full" / "spec を最後まで" で起動する。
 ---
 # Spec Lifecycle
 
@@ -103,16 +103,16 @@ intake (phase 1) と review gate (phase 8) のみ、再利用ユーティリテ�
   → [PhaseStatus 更新] → [次 phase 提案] → [ユーザー同意] → …
 ```
 
-| Phase | 実行 (Read する reference / 呼ぶ skill)          | 必須停止タイミング                 |
-| ----- | ----------------------------------------------- | ---------------------------------- |
-| 1     | skill: `spec-issue-read` または `spec-requirement` | 要件曖昧なら停止                |
-| 2     | `references/phase-scaffold.md`                   | 上位文書と矛盾で停止               |
-| 3     | `references/phase-clarify.md` (全件)             | **全論点で毎回停止** (必須)        |
-| 4     | `references/phase-diagram.md`                    | 未確定論点があれば停止             |
-| 5     | `references/phase-track.md`                      | 未確定論点があれば停止             |
-| 6     | `references/phase-sync.md` (該当時のみ)          | 上位文書反映先の判断が読めない場合 |
-| 7     | `references/phase-prompts.md`                    | 未確定論点があれば停止             |
-| 8     | skill: `spec-review` (phase 2 以降の完了時)      | NEEDS_WORK 残存                    |
+| Phase | 実行 (Read する reference / 呼ぶ skill)            | 必須停止タイミング                 |
+| ----- | -------------------------------------------------- | ---------------------------------- |
+| 1     | skill: `spec-issue-read` または `spec-requirement` | 要件曖昧なら停止                   |
+| 2     | `references/phase-scaffold.md`                     | 上位文書と矛盾で停止               |
+| 3     | `references/phase-clarify.md` (全件)               | **全論点で毎回停止** (必須)        |
+| 4     | `references/phase-diagram.md`                      | 未確定論点があれば停止             |
+| 5     | `references/phase-track.md`                        | 未確定論点があれば停止             |
+| 6     | `references/phase-sync.md` (該当時のみ)            | 上位文書反映先の判断が読めない場合 |
+| 7     | `references/phase-prompts.md`                      | 未確定論点があれば停止             |
+| 8     | skill: `spec-review` (phase 2 以降の完了時)        | NEEDS_WORK 残存                    |
 
 ### 3. レビュー (各 phase 完了時)
 

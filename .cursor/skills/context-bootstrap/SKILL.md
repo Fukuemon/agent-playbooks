@@ -1,6 +1,6 @@
 ---
 name: context-bootstrap
-description: Bootstraps the project profile (context/project.md) and the initial context library (context/*.md) from the Design Doc plus a short interview. Use when setting up this template for a new product, or when context/ is empty or still contains placeholders.
+description: Design Doc と短いインタビューからプロジェクトプロファイル (context/project.md) と初期 context ライブラリ (context/*.md) を生成する。新規プロダクトでテンプレートを使い始めるとき、context/ が空またはプレースホルダのままのとき、"context-bootstrap" / "context 初期化" で起動する。
 ---
 # Context Bootstrap
 
