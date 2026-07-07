@@ -1,0 +1,22 @@
+# 消費 repo 向け git hooks (sdd-template が配布する初期値)。
+# link.sh が消費 repo に「無い場合だけ」コピーする。以後は消費 repo が所有・編集してよい。
+# テンプレ側の lefthook.yml とは別物 (check-skills 等のテンプレ著作用検査は含めない)。
+# 有効化: npx lefthook install
+
+pre-commit:
+  commands:
+    protected-branch:
+      run: python3 hooks/protected-branch/git_hook.py pre-commit
+    format:
+      run: hooks/format/run_prettier.sh
+
+pre-push:
+  commands:
+    protected-branch:
+      run: python3 hooks/protected-branch/git_hook.py pre-push
+
+commit-msg:
+  commands:
+    ticket-number:
+      glob: "**/*"
+      run: hooks/commit-msg/check_ticket_number.sh {1}

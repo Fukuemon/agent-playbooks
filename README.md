@@ -25,11 +25,12 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 3. **AI 設定を同期する** — `rulesync-sync` skill。`.rulesync/` から各 provider 設定 (`AGENTS.md` / `CLAUDE.md` / `.cursor/` / `.codex/`) を生成する。
 4. **issue 駆動で進める** — `spec-*` skill 群 (intake → specify → clarify → design → sync → tasks → review)。`spec-lifecycle` が phase を orchestration する。
 
-## 消費 repo へ symlink で接続する (共有プロセス層)
+## 消費 repo へ接続する (共有プロセス層)
 
-開発プロセスに関する資産 (skills / 操作契約 / hooks) は汎用なので、各プロダクト repo へ
-**コピーではなく symlink で共有** できる。live なソースへ直接リンクするため、どちらの repo で
-編集しても両方に反映される (「片方更新 → 両方更新」)。
+開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。配布形式は 2 層に分かれる:
+
+- **ソース層 (`.rulesync/`) = live symlink**: skills / 操作契約 / subagents。どちらの repo で編集しても両方に反映される (「片方更新 → 両方更新」)。symlink は消費 clone の `.git/info/exclude` に登録され、commit 差分は出ない (per-clone)。
+- **実行時参照される層 (`hooks/` / `lefthook.yml`) = 実ファイルコピー**: commit 済みの `.claude/settings.json` 等が実行時に `hooks/...` を参照するため、clone しただけの環境 (CI / クラウドエージェント / テンプレ未 clone のマシン) でも実在する必要がある。消費 repo が commit して所有する。
 
 ```bash
 # このテンプレ repo 上で実行
@@ -37,16 +38,20 @@ make link ARGS=/path/to/your-product-repo
 # または: bash scripts/link.sh /path/to/your-product-repo
 ```
 
-- symlink 対象 (共有): `.rulesync/skills/*` / `.rulesync/rules/CLAUDE.md` / `hooks/` / `scripts/{link,fix-cursor-cli}.sh`
-- symlink されない (消費 repo が所有する固有値): `context/` (`project.md` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
-- symlink パスは消費 clone の `.git/info/exclude` に登録され、commit 差分は出ない (per-clone)。
+- 共有されない固有値 (消費 repo が所有): `context/` (`project.md` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
+- `.template-version` に配布元テンプレの commit SHA が記録される (更新の追跡用)。
 
-接続後、消費 repo 側で各 provider 設定を生成する:
+接続後、消費 repo 側で各 provider 設定を生成し、生成物・hooks を commit する:
 
 ```bash
 cd /path/to/your-product-repo
 npx rulesync@latest generate && bash scripts/fix-cursor-cli.sh   # = make generate
+npx lefthook install                                             # git hooks の有効化
+git add hooks lefthook.yml .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
 ```
+
+生成物と hooks を commit するのは、clone-and-go (CI / クラウドエージェント) でも設定と hook が
+効くようにするため。テンプレ側の hook 更新は `link.sh` の再実行で取り込み、差分を commit する。
 
 固有値 (`context/project.md` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
 実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。

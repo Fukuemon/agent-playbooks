@@ -2,19 +2,21 @@
 # Link this sdd-template's shared process layer into a consumer repo via symlinks.
 #
 # Why: the development-process assets (skills + operating contract + hooks) are
-# generic. Instead of copying them into every product repo (which drifts), we
-# symlink the LIVE source here so editing either side updates both. The consumer
-# then runs `rulesync generate` to emit provider configs from the symlinked input.
+# generic. The SOURCE layer (.rulesync/) is symlinked LIVE so editing either
+# side updates both. The consumer then runs `rulesync generate` to emit
+# provider configs from the symlinked input and COMMITS the generated files.
 #
-# This template keeps `.rulesync/` as the single source of truth (no dist build),
-# so unlike the dist-based reference model we link the live tree directly and do
-# NOT make it read-only — bidirectional editing is the whole point.
+# hooks/ is different: the committed .claude/settings.json references
+# `hooks/...` scripts at runtime, so they must exist in a bare clone
+# (CI / cloud agents / machines without this template). Therefore hooks are
+# COPIED as real files and committed by the consumer — not symlinked.
+# Re-run link.sh to pull hook updates; .template-version records the source SHA.
 #
-# Product-specific values stay OWNED by the consumer and are never symlinked:
+# Product-specific values stay OWNED by the consumer and are never shared:
 #   context/ (project.md etc.), PRD.md, design/, specs/, adr/.
 #
 # Run from anywhere:  bash scripts/link.sh <consumer-repo-path>
-# Idempotent. Re-run after adding/removing skills to refresh links.
+# Idempotent. Re-run after adding/removing skills or updating hooks.
 set -euo pipefail
 
 TEMPLATE_DIR="${TEMPLATE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -48,7 +50,6 @@ CANDIDATES=(
   ".rulesync/subagents"
   "scripts/link.sh"
   "scripts/fix-cursor-cli.sh"
-  "hooks"
 )
 for skill in "$TEMPLATE_DIR"/.rulesync/skills/*/; do
   [ -d "$skill" ] || continue
@@ -81,6 +82,45 @@ for rel in "${CANDIDATES[@]}"; do
   LINKED+=("$rel")
   echo "  link: $rel"
 done
+
+# --- 実ファイルコピー配布 (消費 repo が commit する) -------------------------
+# hooks/ は commit 済み .claude/settings.json 等から実行時に参照されるため、
+# clone しただけの環境 (CI / クラウドエージェント) でも実在する必要がある。
+# symlink ではなく実ファイルとしてコピーし、消費側で commit する。
+COPIED=()
+
+copy_tree() { # $1=rel path (directory)
+  local rel="$1" src="$TEMPLATE_DIR/$1" dst="$CONSUMER/$1"
+  [ -e "$src" ] || { echo "  skip (source 無し): $rel"; return; }
+  [ -L "$dst" ] && rm -f "$dst" # 旧 symlink 配布からの移行
+  mkdir -p "$dst"
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a --delete "$src/" "$dst/"
+  else
+    rm -rf "$dst" && cp -R "$src" "$dst"
+  fi
+  COPIED+=("$rel")
+  echo "  copy: $rel"
+}
+
+copy_tree "hooks"
+
+# 消費側 git hooks (lefthook) の初期値: 無い場合だけ置く (以後は消費側が所有)
+if [ ! -e "$CONSUMER/lefthook.yml" ]; then
+  cp "$TEMPLATE_DIR/templates/consumer/lefthook.yml" "$CONSUMER/lefthook.yml"
+  COPIED+=("lefthook.yml")
+  echo "  copy: lefthook.yml (初期値。以後は消費 repo が所有)"
+fi
+
+# どの時点のテンプレ由来かを記録 (更新の追跡用。消費側で commit する)
+TEMPLATE_SHA="$(git -C "$TEMPLATE_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+{
+  echo "# sdd-template の配布元バージョン (scripts/link.sh が更新)"
+  echo "sha: $TEMPLATE_SHA"
+  echo "linked_at: $(date +%Y-%m-%d)"
+} >"$CONSUMER/.template-version"
+COPIED+=(".template-version")
+echo "  write: .template-version ($TEMPLATE_SHA)"
 
 # --- .git/info/exclude に管理ブロックを設置 (commit しない) ------------------
 EXCLUDE="$(git -C "$CONSUMER" rev-parse --git-path info/exclude)"
@@ -124,11 +164,18 @@ cat <<EOF
 次のステップ (消費 repo 側で実行):
   cd "$CONSUMER"
   npx rulesync@latest generate && bash scripts/fix-cursor-cli.sh
+  npx lefthook install        # git hooks (lefthook.yml) の有効化
+  git add hooks lefthook.yml .template-version <生成物> && commit
+    → 生成物と hooks は commit する (clone しただけの CI / エージェント環境でも
+       hook・設定が効くようにするため)
 
-固有値 (symlink されない / 消費 repo が所有):
+固有値 (共有されない / 消費 repo が所有):
   context/ (project.md 等), PRD.md, design/, specs/, adr/
   → 実ファイルとして記入・commit する。
 
-双方向更新: 共有 skill / contract / hook は live symlink。どちらの repo で編集しても
-両方に反映される。
+更新の反映:
+  - .rulesync/ (skill / contract) は live symlink。どちらの repo で編集しても両方に反映
+    (編集後は消費側で rulesync generate → 生成物を commit)。
+  - hooks/ は実ファイルコピー。テンプレ側の hook 更新は link.sh 再実行で取り込み、
+    差分を commit する (.template-version で由来 SHA を追跡)。
 EOF
