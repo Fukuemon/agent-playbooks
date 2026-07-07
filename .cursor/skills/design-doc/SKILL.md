@@ -1,6 +1,6 @@
 ---
 name: design-doc
-description: Creates or updates the product PRD and the top-level Design Doc from templates. Decides whether a standalone PRD is needed, or whether Why/What should be merged into the Design Doc. Use when the user asks to draft a PRD, a Design Doc, or to define a product's Why/What/How.
+description: テンプレートからプロダクトの PRD とトップレベル Design Doc を作成・更新し、独立 PRD の要否 (Why/What を Design Doc に統合するか) を判定する。"PRD 書いて" / "Design Doc 作って" / "Why/What/How を整理" で起動する。
 ---
 # Design Doc
 

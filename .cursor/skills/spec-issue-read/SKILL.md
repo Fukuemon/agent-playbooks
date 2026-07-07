@@ -1,6 +1,6 @@
 ---
 name: spec-issue-read
-description: Fetches an issue from the repository's tracker and returns a structured summary. Use when the user references an issue by number, URL, or asks to "read issue" / "issue 確認".
+description: リポジトリのトラッカーから issue を取得し、構造化された要約を返す。issue 番号 / URL の言及、"issue 確認" / "issue 読んで" / "read issue" で起動する。
 ---
 # Spec Issue Read
 
