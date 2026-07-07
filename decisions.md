@@ -9,6 +9,20 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-07 消費 repo への配布は 2 層 (ソース = live symlink / hooks = 実ファイルコピー) + .template-version で追跡
+
+- **背景**: 消費 repo への配布形式として、参考 repo (Fukuemon/skills) の dist worktree symlink 方式 (消費側 commit ゼロ) に寄せるかが論点になった。また hooks/ を symlink 配布すると、commit 済みの `.claude/settings.json` が実行時に参照する `hooks/...` が clone しただけの環境 (CI / クラウドエージェント / link.sh 未実行マシン) に存在せず、protected-branch ガードや文書検証が **silent に効かなくなる** (参考 repo に「hook が数ヶ月 no-op でも silent fail で気付けなかった」という前例がある)。
+- **判断**: ① ソース層 (`.rulesync/` の skills / contract / subagents) は従来どおり live symlink (双方向編集・未追跡)。② 実行時に参照される層 (`hooks/`) は link.sh が **実ファイルとしてコピーし消費側が commit** する。③ 消費側 git hooks は `templates/consumer/lefthook.yml` を初期値として「無い場合だけ」コピー (テンプレ著作用の check-skills は含めない。以後は消費側所有)。④ 配布元テンプレの commit SHA を `.template-version` に記録し、更新は link.sh 再実行 → 差分 commit で取り込む。
+- **理由**: 判断基準は「repo を clone しただけの環境で動くか」。生成物と hook 実体が commit されていれば CI / クラウドエージェント / 新規メンバーの clone で即座に効く。dist worktree 方式は「消費側が rulesync を持たない」制約を中央で吸収するためのもので、消費側でも rulesync generate を回す本テンプレの設計では利点が薄い。symlink 経由のスクリプト実行は sandbox で拒否されうる点、commit された実ファイルは PR diff で監査できる点も commit 方式を後押しする。
+- **今後**: 「hooks も symlink に戻す」提案は clone-and-go の破綻と silent fail を理由に却下。dist worktree symlink への移行は「消費 repo が増えて再 generate commit が苦痛になった」時点で再検討する。消費側 lefthook.yml へのテンプレ著作用検査の追加は却下 (消費側の関心事ではない)。
+
+## 2026-07-07 hook command は project root へ cd してから相対 path で実行する (cwd 非依存化)
+
+- **背景**: `.rulesync/hooks.json` の command が `bash hooks/...` の cwd 相対だったため、エージェントが `cd` して session の cwd が変わると hook スクリプトを見つけられず発火に失敗する。hook スクリプト内部にも `templates/specs/...` 等の project root 相対参照がある。
+- **判断**: 全 command を `cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}" && <従来の相対 command>` に統一した。Claude Code は hook 実行時に `$CLAUDE_PROJECT_DIR` (プロジェクトルート) を提供するためこれを第一に使い、変数が無い provider では cwd の git root、git repo 外では現 cwd (従来挙動) に順にフォールバックする。
+- **理由**: スクリプトの位置解決と内部の相対参照の両方が、command 側の 1 箇所の cd で同時に直る (各スクリプトへの root 解決コードの重複追加を避ける)。`$0` / `BASH_SOURCE` による root 解決は symlink 配布時に配布元へ寄る問題があるため採らない (参考 repo の hook 実装規約と同判断)。
+- **今後**: 新しい hook を hooks.json に足すときは必ず同じ cd prefix を付ける。スクリプト側で `$0` から repo root を解決する実装は却下。`git rev-parse` フォールバックは cwd が別 repo のときその repo を root とみなす限界があるが、第一解決の `$CLAUDE_PROJECT_DIR` が効く Claude Code では発生しない。
+
 ## 2026-07-07 PR レビューコメントは統合レポート 1 本 + 対応記録の返信 1 本 / 外来語を平易な日本語に統一
 
 - **背景**: 参考 repo (Fukuemon/skills) は pr-agent の MR レビューと「ディスポジション」(指摘への対応可否・理由の記録コメント) を運用している。本リポジトリの `multi-agent-review` に同等の PR コメント投稿を足すにあたり、コメントの粒度と用語が論点になった。
