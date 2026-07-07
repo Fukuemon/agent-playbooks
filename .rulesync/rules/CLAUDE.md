@@ -21,6 +21,8 @@ globs:
 - プロジェクト固有値: [context/project.md](context/project.md)
 - 個別の意思決定: [adr/](adr/)
 - 機能単位の作業文書: [specs/](specs/)
+- 開発プロセス (skill 連鎖) の俯瞰図: [architecture.md](architecture.md)
+- skill / rule 著作の非自明な判断記録: [decisions.md](decisions.md)
 
 迷ったら **PRD (or 統合 DesignDoc の Why/What) → Design Doc → feature doc / context → ADR → spec** の順に読む。AGENTS.md と内容が衝突したら **Design Doc が正**。
 
@@ -40,17 +42,19 @@ globs:
 
 ## Skills (workflow 入口)
 
-| Skill                  | 用途                                                                   |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `design-doc`           | PRD / Design Doc を作る (Why/What/How、PRD 要否判定)                   |
-| `context-bootstrap`    | `context/project.md` と context library を初期生成                     |
-| `styleguide-documents` | 文書の品質基準・分割粒度 (doc を書く skill が参照)                     |
-| `dev-commands`         | コマンド / スコープ / E2E env を解決 (`context/project.md` 基準)       |
-| `rulesync-sync`        | AI 設定 (`.rulesync/` → 各 provider) の編集と生成                      |
-| `workflow-git`         | branch / commit / issue / PR の Git 運用                               |
-| `agent-orchestrate`    | 複数 CLI エージェントを非対話・並列に呼ぶ基盤 (`context/ai-agents.md`) |
-| `multi-agent-review`   | diff / PR / spec を複数エージェントで並列 Rv し指摘を統合              |
-| `spec-*`               | Spec Driven Development 一式 (下記 `Spec Workflow Contract`)           |
+| Skill                  | 用途                                                                     |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `design-doc`           | PRD / Design Doc を作る (Why/What/How、PRD 要否判定)                     |
+| `context-bootstrap`    | `context/project.md` と context library を初期生成                       |
+| `styleguide-documents` | 文書の品質基準・分割粒度 (doc を書く skill が参照)                       |
+| `dev-commands`         | コマンド / スコープ / E2E env を解決 (`context/project.md` 基準)         |
+| `rulesync-sync`        | AI 設定 (`.rulesync/` → 各 provider) の編集と生成                        |
+| `workflow-git`         | branch / commit / issue / PR の Git 運用                                 |
+| `agent-orchestrate`    | 複数 CLI エージェントを非対話・並列に呼ぶ基盤 (`context/ai-agents.md`)   |
+| `multi-agent-review`   | diff / PR / spec を複数エージェントで並列 Rv し指摘を統合                |
+| `skill-feedback`       | 利用中に見つけた skill / rule の不具合・改善点を `.rulesync/` に書き戻す |
+| `context-harvest`      | 作業で得た横断的な知見を `context/` / feature doc / ADR に書き戻す       |
+| `spec-*`               | Spec Driven Development 一式 (下記 `Spec Workflow Contract`)             |
 
 skill は `.rulesync/skills/<name>/SKILL.md` が正本。直接呼び出すか slash command で起動する。
 
@@ -94,6 +98,12 @@ spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / c
 
 判定の目安: 「issue が閉じても残り続ける設計情報」は design 正本、「この issue の意思決定の記録」は spec。
 
+**用語規約 (呼称)**: 「正本」の語は feature doc / context / ADR など durable な文書にのみ使う。handoff 後の spec を「正本」と呼ばない。他 spec への参照は「決定経緯」「決定時スナップショット」「issue 単位の作業記録」など位置づけが分かる語を使う。
+
+### 文書メタ情報の同期
+
+spec / ADR / context の本文を更新したら、対象文書の `更新日` / `ステータス` / `## 設計フェーズ状況` / `## レビュー` / `## 変更履歴` (存在するもの) を同時に更新する。他 issue / 他 spec への参照を追加した場合は、関連資料・未確定事項の状態も同期する。本文だけ更新してメタ情報が古いまま、を残さない。
+
 ### Phase Gate ルール
 
 - 各 phase 完了時に `spec-review` (fresh-context evaluator) を通す
@@ -104,12 +114,16 @@ spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / c
 ### Skill 共通契約
 
 - skill 内に project 固有名を直書きしない (本 contract と `context/project.md` を読む)
-- skill 本体 (SKILL.md) は **200 行未満**、詳細は `references/<topic>.md` へ 1 階層深さで分離
-- description は third-person、「何をする + いつ起動」を含める。`いつ使うか` は description の言い換えにせず、追加のトリガー語 / 文脈のみ書く
+- skill 本体 (SKILL.md) は **200 行未満**、詳細は `references/<topic>.md` へ 1 階層深さで分離。100 行を超える reference は冒頭に目次を置く
+- description は日本語・third-person で「何をする + いつ起動」を含め、発動トリガー語を引用符で列挙する。`いつ使うか` は description の言い換えにせず、追加のトリガー語 / 文脈のみ書く
 - 必須セクション (正規名のみ使用): `いつ使うか` / `先に読むもの` / `実行フロー` / `停止条件`。`実行手順` / `生成手順` / `終了条件` 等の同義異名を使わない
 - 任意セクション: `入力` / `中核原則` / `禁止事項` 等は追加してよい。手順の全体像は ASCII 図でなく `実行フロー` 内の番号付きステップ (複雑なら冒頭にコピー可能なチェックリスト) で示し、`ワークフロー` 節を重複して置かない
-- **例外**: 品質基準のみを提供する reference 型 skill (例: `styleguide-documents`) は `実行フロー` / `停止条件` を省略してよい
+- **例外**: 品質基準のみを提供する reference 型 skill (例: `styleguide-documents`) は `先に読むもの` / `実行フロー` / `停止条件` を省略してよい
 - 文書を書く skill は `styleguide-documents` skill を「先に読むもの」で参照する
+- 同じ規範を複数ファイルに再掲しない。正本を 1 箇所に置き、他は 1 行で参照する
+- 本契約の機械検査は `make check` (`scripts/check-skills.sh` + 生成物 drift 検査)。skill / rule / subagent を変更したら `make check` を通す
+- skill の連鎖挙動 (呼び出し関係 / phase gate / 状態遷移) を変えたら、同 PR で [architecture.md](architecture.md) のシーケンスを更新する
+- 非自明な著作判断 (token コスト / ツール制約 / スコープの線引き) は [decisions.md](decisions.md) に 1 判断 1 セクション (`背景 / 判断 / 理由 / 今後`) で記録し、逆戻しの前に読む
 
 ### SDD Skill 一覧
 
@@ -124,5 +138,8 @@ spec は **issue 単位** の文書、design (PRD / Design Doc / feature doc / c
 scaffold (`phase-scaffold.md`) / clarify (`phase-clarify.md`) / diagram (`phase-diagram.md`) /
 track (`phase-track.md`) / sync (`phase-sync.md`) / prompts (`phase-prompts.md`)。
 個別 skill (旧 `spec-draft` 等) としては起動せず、`spec-lifecycle` の単一コンテキストから phase を進める。
+
+レビュー観点の正本は subagent 定義 [.rulesync/subagents/spec-reviewer.md](.rulesync/subagents/spec-reviewer.md)。
+`spec-review` skill は委譲と集約のみを担い、観点を skill 側で再記述しない。
 
 orthogonal な Git / GitHub 操作は `workflow-git` を使う。
