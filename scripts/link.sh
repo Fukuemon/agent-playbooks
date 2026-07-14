@@ -6,11 +6,13 @@
 # side updates both. The consumer then runs `rulesync generate` to emit
 # provider configs from the symlinked input and COMMITS the generated files.
 #
-# hooks/ is different: the committed .claude/settings.json references
-# `hooks/...` scripts at runtime, so they must exist in a bare clone
-# (CI / cloud agents / machines without this template). Therefore hooks are
+# hooks/ and the provider-normalizer scripts (scripts/generate.sh and its
+# scripts/fix-*.sh dependencies) are different: they must run in a bare clone
+# (CI / cloud agents / machines without this template) — hooks via the
+# committed .claude/settings.json referencing `hooks/...` at runtime, and
+# generate.sh via `make -f sdd-template.mk generate`. Therefore both are
 # COPIED as real files and committed by the consumer — not symlinked.
-# Re-run link.sh to pull hook updates; .template-version records the source SHA.
+# Re-run link.sh to pull updates; .template-version records the source SHA.
 #
 # Product-specific values stay OWNED by the consumer and are never shared:
 #   context/ (project.md etc.), PRD.md, design/, specs/, adr/.
@@ -49,9 +51,6 @@ CANDIDATES=(
   ".rulesync/.aiignore"
   ".rulesync/subagents"
   "scripts/link.sh"
-  "scripts/fix-cursor-cli.sh"
-  "scripts/fix-codex-config.sh"
-  "scripts/fix-claude-settings.sh"
 )
 for skill in "$TEMPLATE_DIR"/.rulesync/skills/*/; do
   [ -d "$skill" ] || continue
@@ -72,12 +71,10 @@ for rel in "${CANDIDATES[@]}"; do
   if [ -L "$dst" ]; then
     rm -f "$dst"                                   # 既存 symlink は安全置換
   elif [ -e "$dst" ]; then
+    mv "$dst" "$dst.pre-link.bak"                  # tracked / 未追跡を問わず退避 (削除しない)
+    BACKED_UP+=("$rel")
     if git -C "$CONSUMER" ls-files --error-unmatch "$rel" >/dev/null 2>&1; then
-      TRACKED_WARN+=("$rel")                       # tracked 実体は消さず警告
-      rm -rf "$dst"
-    else
-      mv "$dst" "$dst.pre-link.bak"                # 未追跡実体は退避
-      BACKED_UP+=("$rel")
+      TRACKED_WARN+=("$rel")                       # tracked 実体は警告対象として記録
     fi
   fi
   ln -sfn "$src" "$dst"
@@ -106,6 +103,21 @@ copy_tree() { # $1=rel path (directory)
 }
 
 copy_tree "hooks"
+
+# rulesync 生成シーケンスと provider 別 normalizer は `make -f sdd-template.mk generate`
+# から実行時に呼ばれるため、hooks/ と同様に実ファイルとしてコピーする (symlink だと
+# link.sh 未実行のクローンで欠落し、generate が失敗する)。
+mkdir -p "$CONSUMER/scripts"
+for rel in "scripts/generate.sh" "scripts/fix-cursor-cli.sh" "scripts/fix-codex-config.sh" "scripts/fix-claude-settings.sh"; do
+  src="$TEMPLATE_DIR/$rel"
+  [ -e "$src" ] || { echo "  skip (source 無し): $rel"; continue; }
+  dst="$CONSUMER/$rel"
+  [ -L "$dst" ] && rm -f "$dst" # 旧 symlink 配布からの移行
+  cp "$src" "$dst"
+  chmod +x "$dst"
+  COPIED+=("$rel")
+  echo "  copy: $rel"
+done
 
 # rulesync と provider 別 normalizer を 1 コマンドで実行する consumer 用 Makefile。
 # 既存 Makefile と衝突させないため、独立した -f 対象として配布する。
@@ -160,11 +172,11 @@ echo "  exclude: $EXCLUDE に管理ブロックを設置 (${#LINKED[@]} entries)
 echo ""
 echo "── 完了 ───────────────────────────────────────────────"
 if [ "${#BACKED_UP[@]}" -gt 0 ]; then
-  echo "NOTE: 未追跡の既存ファイルを *.pre-link.bak に退避しました:"
+  echo "NOTE: 既存ファイルを *.pre-link.bak に退避しました (削除はしていません):"
   printf '  %s.pre-link.bak\n' "${BACKED_UP[@]}"
 fi
 if [ "${#TRACKED_WARN[@]}" -gt 0 ]; then
-  echo "WARN: 次のパスは git に commit 済みです。一度 untrack してください:"
+  echo "WARN: 次のパスは git に commit 済みです。退避した内容を確認のうえ一度 untrack してください:"
   printf '  git -C "%s" rm -r --cached %s\n' "$CONSUMER" "${TRACKED_WARN[*]}"
 fi
 cat <<EOF
@@ -173,9 +185,9 @@ cat <<EOF
   cd "$CONSUMER"
   make -f sdd-template.mk generate
   npx lefthook install        # git hooks (lefthook.yml) の有効化
-  git add hooks lefthook.yml sdd-template.mk .template-version <生成物> && commit
-    → 生成物と hooks は commit する (clone しただけの CI / エージェント環境でも
-       hook・設定が効くようにするため)
+  git add hooks scripts lefthook.yml sdd-template.mk .template-version <生成物> && commit
+    → 生成物・hooks・scripts/generate.sh 系は commit する (clone しただけの CI / エージェント
+       環境でも hook・設定・generate が効くようにするため)
 
 固有値 (共有されない / 消費 repo が所有):
   context/ (project.md 等), PRD.md, design/, specs/, adr/
@@ -184,6 +196,6 @@ cat <<EOF
 更新の反映:
   - .rulesync/ (skill / contract) は live symlink。どちらの repo で編集しても両方に反映
     (編集後は消費側で make -f sdd-template.mk generate → 生成物を commit)。
-  - hooks/ は実ファイルコピー。テンプレ側の hook 更新は link.sh 再実行で取り込み、
-    差分を commit する (.template-version で由来 SHA を追跡)。
+  - hooks/ と scripts/generate.sh 系は実ファイルコピー。テンプレ側の更新は link.sh 再実行で
+    取り込み、差分を commit する (.template-version で由来 SHA を追跡)。
 EOF
