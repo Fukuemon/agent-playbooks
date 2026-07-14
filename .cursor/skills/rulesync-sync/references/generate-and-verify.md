@@ -5,14 +5,13 @@
 ## 1. 生成コマンド
 
 ```sh
-npx rulesync@latest generate
-bash scripts/fix-cursor-cli.sh   # cursor cli.json を cursor-agent 互換へ正規化
+make generate
 ```
 
 - 引数なしで全 provider に展開する
 - `@latest` を明示するのは旧キャッシュ版を踏まないため
 - 生成先は `AGENTS.md` / `CLAUDE.md` / `.codex/` / `.claude/` / `.cursor/`
-- **生成後に必ず `scripts/fix-cursor-cli.sh` を実行する** (理由は下記)
+- target は rulesync の後に Cursor / Codex / Claude 用 normalizer を必ず実行する
 
 ### cursor cli.json の正規化が必要な理由
 
@@ -23,6 +22,23 @@ bash scripts/fix-cursor-cli.sh   # cursor cli.json を cursor-agent 互換へ正
 `scripts/fix-cursor-cli.sh` (jq で `version`/`editor` を除去し `deny` 配列を保証) を通す。
 冪等なので何度実行してもよい。`.rulesync/permissions.json` に deny エントリを持たせると
 deny 配列は rulesync 側でも出力される (スクリプトは欠落時の保険)。
+
+### codex config.toml の正規化が必要な理由
+
+`rulesync generate` (>=8.x) は `.codex/config.toml` に `default_permissions = "rulesync"` と
+`[permissions.rulesync.filesystem]` を出力する。この profile が `":minimal" = "read"` のみを
+持つ場合、Codex Desktop では repository path が cwd として見えていても、`specs/` / `context/` /
+`design/` / `.rulesync/` など通常の project file read が `Operation not permitted` になることがある。
+rulesync 側に Codex の workspace read policy を表現する安定した設定が無いため、生成直後に
+`scripts/fix-codex-config.sh` で `default_permissions = "rulesync"` と
+`[permissions.rulesync.filesystem]` block を除去する。MCP / hooks / network permissions は残す。
+冪等なので何度実行してもよい。
+
+### Claude settings の正規化が必要な理由
+
+Claude Code は commit と PR に attribution を既定で付ける。公式設定の `attribution.commit` と
+`attribution.pr` を空文字にすると両方を無効化できるため、`scripts/fix-claude-settings.sh` が
+生成後の `.claude/settings.json` にこの値を設定する。冪等なので何度実行してもよい。
 
 ## 2. 差分確認チェックリスト
 

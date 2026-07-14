@@ -4,7 +4,7 @@
 
 > **メンテ必須**: skill の連鎖挙動 (呼び出し関係・phase gate・PhaseStatus の増減 / 遷移・正本ハンドオフのタイミング) を変えたら、**同 PR で本シーケンスと遷移表を必ず更新する** (`Skill 共通契約`)。図が実 skill とズレると、全体像の唯一の俯瞰図が腐り誤った前提で逆戻しされる。
 
-構成要素の正本: skill 実体は `.rulesync/skills/`、レビュー観点は `.rulesync/subagents/spec-reviewer.md`、運用ルールは `AGENTS.md` の `Spec Workflow Contract`、プロジェクト固有値は `context/project.md`。
+構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/spec-reviewer.md`、運用ルールは `AGENTS.md` の `Spec Workflow Contract`、プロジェクト固有値は `context/project.md`。
 
 ## 要求 → 実装 prompt 生成の全体シーケンス
 

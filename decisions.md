@@ -9,6 +9,27 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-12 共通 workflow とプロジェクト選択型 skill を配布経路で分ける
+
+- **背景**: Effective Go のような言語・framework 固有 skill は、対象外プロジェクトにも rulesync で常時配布すると skill listing と生成物を不要に増やす。
+- **判断**: 全プロジェクト共通の開発プロセスは `.rulesync/skills/` から rulesync 配布し、選択型 skill は `skills/` に置いて消費側が `npx skills add <repo> --skill <name>` で導入する。`skills/effective-go` を最初の選択型 skill とする。
+- **理由**: workflow contract の一貫性は維持しながら、技術スタック固有の知識だけを opt-in にできる。`npx skills` は repository 内の特定 skill と複数 agent への導入を扱える。
+- **今後**: skill 追加時は「全消費 repo で必須か」を境界判定に使う。選択型 skill を `.rulesync/skills/` に重複配置しない。
+
+## 2026-07-12 rulesync 後処理を Make target に集約して消費 repo に配布する
+
+- **背景**: rulesync 後に Cursor / Codex 固有の正規化が必要で、Claude Code の commit / PR attribution も無効化したい。個別 script の手動列挙は追加漏れを起こしやすい。
+- **判断**: template 側は `make generate`、消費側は配布する `sdd-template.mk` の `make -f sdd-template.mk generate` を唯一の実行入口とする。Claude は公式の `attribution: {commit: "", pr: ""}` を生成後に適用する。
+- **理由**: rulesync と provider 固有後処理を原子的に実行でき、既存の消費側 Makefile と target 名を衝突させず配布できる。
+- **今後**: provider 固有 workaround の追加・削除は両 Make target と drift check を同時に更新する。
+
+## 2026-07-08 Codex config は rulesync generate 後に workspace read を阻害する permission だけ正規化する
+
+- **背景**: `rulesync generate` が `.codex/config.toml` に `default_permissions = "rulesync"` と `[permissions.rulesync.filesystem]` (`":minimal" = "read"`) を出力し、Codex Desktop で repo root は cwd として見えているのに `specs/` / `context/` / `.rulesync/` などの通常ファイル read が `Operation not permitted` になるケースが発生した。rulesync の現行 schema では Codex Desktop の workspace read policy を安定して表現できない。
+- **判断**: `scripts/fix-codex-config.sh` を追加し、`rulesync generate` 後に `default_permissions = "rulesync"` と `[permissions.rulesync.filesystem]` block だけを除去する。MCP / hooks / network permissions は残す。`make generate`、`scripts/check-generated.sh`、`rulesync-sync` の生成手順、`link.sh` の消費 repo 案内に組み込む。
+- **理由**: `.codex/config.toml` を手編集すると次回 generate で戻る。一方、permissions feature 全体を外すと Claude / Cursor など他 provider の権限生成にも影響する。既に Cursor CLI 互換化で post-generate normalizer を使っており、同じ層で Codex 固有差分を吸収するのが最小影響で監査しやすい。
+- **今後**: Codex の workspace read policy を rulesync 側で直接表現できるようになるまでは normalizer を維持する。「生成物を手で直す」「permissions feature を丸ごと外す」提案は却下。rulesync の対応が入ったら normalizer の削除を再検討する。
+
 ## 2026-07-07 消費 repo への配布は 2 層 (ソース = live symlink / hooks = 実ファイルコピー) + .template-version で追跡
 
 - **背景**: 消費 repo への配布形式として、参考 repo (Fukuemon/skills) の dist worktree symlink 方式 (消費側 commit ゼロ) に寄せるかが論点になった。また hooks/ を symlink 配布すると、commit 済みの `.claude/settings.json` が実行時に参照する `hooks/...` が clone しただけの環境 (CI / クラウドエージェント / link.sh 未実行マシン) に存在せず、protected-branch ガードや文書検証が **silent に効かなくなる** (参考 repo に「hook が数ヶ月 no-op でも silent fail で気付けなかった」という前例がある)。

@@ -45,13 +45,24 @@ make link ARGS=/path/to/your-product-repo
 
 ```bash
 cd /path/to/your-product-repo
-npx rulesync@latest generate && bash scripts/fix-cursor-cli.sh   # = make generate
+make -f sdd-template.mk generate                                # rulesync + provider 別正規化
 npx lefthook install                                             # git hooks の有効化
-git add hooks lefthook.yml .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
+git add hooks lefthook.yml sdd-template.mk .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
 ```
 
 生成物と hooks を commit するのは、clone-and-go (CI / クラウドエージェント) でも設定と hook が
 効くようにするため。テンプレ側の hook 更新は `link.sh` の再実行で取り込み、差分を commit する。
+
+## プロジェクト選択型 skill
+
+言語・framework など、プロジェクトによって要否が分かれる skill は `.rulesync/skills/` に含めず、
+リポジトリ直下の `skills/` で配布する。必要な消費 repo だけで次を実行する。
+
+```bash
+npx skills add Fukuemon/sdd-template --skill effective-go
+```
+
+`npx skills add` が生成する agent 別 skill は、その消費 repo 側で管理する。
 
 固有値 (`context/project.md` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
 実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。
@@ -64,6 +75,7 @@ git add hooks lefthook.yml .template-version AGENTS.md CLAUDE.md .agents .claude
 
 ```text
 .rulesync/   # AI 設定の単一情報源 (rules / skills / hooks / permissions / mcp)
+skills/      # 言語・framework 固有の選択導入型 skill (`npx skills add` 用)
 context/     # 技術規約・運用契約 + project.md (固有値)
 design/      # Design Doc (landscape) と feature 設計
 templates/   # PRD / Design Doc / context / spec / feature / requirements / adr のテンプレート
