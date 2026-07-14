@@ -3,7 +3,8 @@
 # Run after `npx rulesync@latest generate`. Idempotent.
 set -euo pipefail
 
-SETTINGS_FILE="${1:-.claude/settings.json}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SETTINGS_FILE="${1:-$ROOT/.claude/settings.json}"
 [ -f "$SETTINGS_FILE" ] || {
   echo "ERROR: Claude settings not found: $SETTINGS_FILE" >&2
   exit 1

@@ -7,10 +7,7 @@ link: ## 消費 repo へ共有プロセス層を symlink する (ARGS=<consumer-
 	@bash scripts/link.sh $(ARGS)
 
 generate: ## .rulesync から各 provider 設定を生成し provider 別の差分を整形
-	@npx rulesync@latest generate \
-		&& bash scripts/fix-cursor-cli.sh \
-		&& bash scripts/fix-codex-config.sh \
-		&& bash scripts/fix-claude-settings.sh
+	@bash scripts/generate.sh
 
 check: check-skills check-generated ## skill 契約 + 生成物 drift をまとめて検査 (CI と同じ)
 

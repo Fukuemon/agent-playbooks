@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-14 rulesync 後処理を hooks/ と同じ「実行時参照は実ファイルコピー」原則に揃える
+
+- **背景**: 2026-07-12 の Make target 集約で `scripts/fix-cursor-cli.sh` / `fix-codex-config.sh` / `fix-claude-settings.sh` を追加したが、`link.sh` はこれらを (`.rulesync/` と同様の) live symlink として配布していた。`templates/consumer/sdd-template.mk` の `generate` target はこれらのスクリプトを実行時に呼ぶため、2026-07-07 決定の「repo を clone しただけの環境で動くか」という判断基準に反し、link.sh を再実行していない bare clone (CI / クラウドエージェント) で `make -f sdd-template.mk generate` が `No such file or directory` で失敗する欠陥があった。また 3 スクリプトの実行列 (`rulesync generate` → 3 normalizer) が Makefile / sdd-template.mk / check-generated.sh の 3 箇所に手動列挙で複製され、同期漏れのリスクがあった。
+- **判断**: ① `scripts/generate.sh` を新設し、生成シーケンスを 1 箇所に集約する。Makefile / sdd-template.mk / check-generated.sh はすべてこれを呼ぶ。② `scripts/generate.sh` と 3 つの `fix-*.sh` は hooks/ と同じく **実ファイルコピーで配布**し、消費 repo が commit する (CANDIDATES symlink から除外)。③ `check-generated.sh` は git diff ベースの検査に戻し (未 commit 検出も含む)、独自の before/after ディレクトリスナップショット方式は廃止する。④ `link.sh` の tracked 宛先ファイル上書きは、コメントどおり削除せず `.pre-link.bak` に退避してから symlink へ置換する (未追跡ファイルと同じ扱いに統一)。
+- **理由**: 2026-07-07 決定の原則 (「実行時に参照されるものは実ファイルコピー」) を rulesync 後処理スクリプトにも一貫適用することで、clone-and-go を壊さない。生成シーケンスの単一化は、provider 固有ワークアラウンドを増減する際の同期漏れ (2026-07-12 決定の「今後」で認識されていたリスク) を構造的に解消する。git diff ベースの drift 検査は、手製スナップショット比較より安価かつ untracked ファイル検出を両立できる。
+- **今後**: 新しい provider normalizer を追加する場合は `scripts/generate.sh` に 1 行足すだけでよく、Makefile / sdd-template.mk / check-generated.sh を個別に触らない。「正規化スクリプトを symlink 配布に戻す」提案は clone-and-go の破綻を理由に却下。
+
 ## 2026-07-12 共通 workflow とプロジェクト選択型 skill を配布経路で分ける
 
 - **背景**: Effective Go のような言語・framework 固有 skill は、対象外プロジェクトにも rulesync で常時配布すると skill listing と生成物を不要に増やす。

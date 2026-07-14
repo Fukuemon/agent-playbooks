@@ -5,16 +5,19 @@ project 共通の SDD 流れと、プロジェクト固有の論点を分けて�
 
 ## Phase 一覧 (project 共通)
 
-| Phase            | 作業                                                                            | 完了条件                                                         | 次アクション    |
-| ---------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------- |
-| 1. intake        | issue / requirements doc を読み、対象機能を確認                                 | 要求の起点が明確                                                 | `spec-draft`    |
-| 2. scaffold      | `templates/specs/template.md` を埋める / 上位文書整合                           | 背景 / スコープ / 論点 / 実装対象がある                          | draft review    |
-| 3. clarify       | `spec-resolve` で未確定論点を 1 件ずつ確定                                      | 未解決論点ゼロ                                                   | diagram         |
-| 4. diagram       | `spec-diagrams` で flow / sequence を描く                                       | 図と機能仕様が整合する                                           | track           |
-| 5. track         | `spec-track` で `## 上位資料からの変更点` を最新化                              | 差分が PRD / Design Doc / feature doc / context / ADR 別に整理済 | sync (任意)     |
-| 6. upstream sync | `spec-sync` で PRD / Design Doc / feature doc / context / ADR に back-propagate | 変更提案行がゼロ                                                 | tasks           |
-| 7. tasks         | `spec-prompts` で実装 prompt を生成                                             | 各 prompt が自己完結 / phase 依存表                              | review          |
-| 8. review        | `spec-review` で fresh-context evaluator を通す                                 | PASS                                                             | 実装 or handoff |
+各 phase (intake / review を除く) は `spec-lifecycle` の単一コンテキストから
+`references/phase-*.md` の手順で進める。個別 skill (旧 `spec-draft` 等) としては起動しない。
+
+| Phase            | 作業                                                                                | 完了条件                                                         | 次アクション      |
+| ---------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------- |
+| 1. intake        | issue / requirements doc を読み、対象機能を確認                                     | 要求の起点が明確                                                 | scaffold phase    |
+| 2. scaffold      | `phase-scaffold.md`: `templates/specs/template.md` を埋める / 上位文書整合          | 背景 / スコープ / 論点 / 実装対象がある                          | draft review      |
+| 3. clarify       | `phase-clarify.md` で未確定論点を 1 件ずつ確定                                      | 未解決論点ゼロ                                                   | diagram phase     |
+| 4. diagram       | `phase-diagram.md` で flow / sequence を描く                                        | 図と機能仕様が整合する                                           | track phase       |
+| 5. track         | `phase-track.md` で `## 上位資料からの変更点` を最新化                              | 差分が PRD / Design Doc / feature doc / context / ADR 別に整理済 | sync phase (任意) |
+| 6. upstream sync | `phase-sync.md` で PRD / Design Doc / feature doc / context / ADR に back-propagate | 変更提案行がゼロ                                                 | tasks phase       |
+| 7. tasks         | `phase-prompts.md` で実装 prompt を生成                                             | 各 prompt が自己完結 / phase 依存表                              | review            |
+| 8. review        | `spec-review` で fresh-context evaluator を通す                                     | PASS                                                             | 実装 or handoff   |
 
 ## Phase Gate (review が必須なタイミング)
 
@@ -26,7 +29,7 @@ project 共通の SDD 流れと、プロジェクト固有の論点を分けて�
 
 ## プロジェクトで毎回確認する論点
 
-スコープに応じて該当する論点だけを `spec-resolve` で確定する。各論点の正本は `context/`。
+スコープに応じて該当する論点だけを clarify phase (`phase-clarify.md`) で確定する。各論点の正本は `context/`。
 
 - performance / runtime budget をどう抑えるか ([context/architecture.md](../../../../context/architecture.md))
 - 共有コードへ昇格する範囲と module / feature 固有に閉じる範囲の境界 ([context/architecture.md](../../../../context/architecture.md))

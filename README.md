@@ -30,7 +30,7 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。配布形式は 2 層に分かれる:
 
 - **ソース層 (`.rulesync/`) = live symlink**: skills / 操作契約 / subagents。どちらの repo で編集しても両方に反映される (「片方更新 → 両方更新」)。symlink は消費 clone の `.git/info/exclude` に登録され、commit 差分は出ない (per-clone)。
-- **実行時参照される層 (`hooks/` / `lefthook.yml`) = 実ファイルコピー**: commit 済みの `.claude/settings.json` 等が実行時に `hooks/...` を参照するため、clone しただけの環境 (CI / クラウドエージェント / テンプレ未 clone のマシン) でも実在する必要がある。消費 repo が commit して所有する。
+- **実行時参照される層 (`hooks/` / `scripts/generate.sh` 系 / `lefthook.yml`) = 実ファイルコピー**: commit 済みの `.claude/settings.json` 等が実行時に `hooks/...` を参照し、`make -f sdd-template.mk generate` が実行時に `scripts/generate.sh` (と `scripts/fix-*.sh`) を参照するため、clone しただけの環境 (CI / クラウドエージェント / テンプレ未 clone のマシン) でも実在する必要がある。消費 repo が commit して所有する。
 
 ```bash
 # このテンプレ repo 上で実行
@@ -47,11 +47,11 @@ make link ARGS=/path/to/your-product-repo
 cd /path/to/your-product-repo
 make -f sdd-template.mk generate                                # rulesync + provider 別正規化
 npx lefthook install                                             # git hooks の有効化
-git add hooks lefthook.yml sdd-template.mk .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
+git add hooks scripts lefthook.yml sdd-template.mk .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
 ```
 
-生成物と hooks を commit するのは、clone-and-go (CI / クラウドエージェント) でも設定と hook が
-効くようにするため。テンプレ側の hook 更新は `link.sh` の再実行で取り込み、差分を commit する。
+生成物・hooks・scripts/generate.sh 系を commit するのは、clone-and-go (CI / クラウドエージェント) でも
+設定・hook・generate が効くようにするため。テンプレ側の更新は `link.sh` の再実行で取り込み、差分を commit する。
 
 ## プロジェクト選択型 skill
 

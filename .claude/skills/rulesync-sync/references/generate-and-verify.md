@@ -5,13 +5,15 @@
 ## 1. 生成コマンド
 
 ```sh
-make generate
+make generate                      # sdd-template repo
+make -f sdd-template.mk generate   # 消費 repo
 ```
 
+- 実体は `scripts/generate.sh` (両 target が共通で呼ぶ唯一の生成シーケンス)
 - 引数なしで全 provider に展開する
 - `@latest` を明示するのは旧キャッシュ版を踏まないため
 - 生成先は `AGENTS.md` / `CLAUDE.md` / `.codex/` / `.claude/` / `.cursor/`
-- target は rulesync の後に Cursor / Codex / Claude 用 normalizer を必ず実行する
+- `scripts/generate.sh` は rulesync の後に Cursor / Codex / Claude 用 normalizer を必ず実行する
 
 ### cursor cli.json の正規化が必要な理由
 
