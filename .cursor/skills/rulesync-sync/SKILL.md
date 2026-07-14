@@ -35,10 +35,9 @@ description: AI 設定の正本 `.rulesync/` を編集し、AGENTS.md / CLAUDE.m
    - 既存 skill の修正 → 該当 `.rulesync/skills/<skill-name>/` 配下
    - ❌ `AGENTS.md` / `CLAUDE.md` / `.claude/` / `.codex/` / `.cursor/` を直接編集してはいけない
 2. **編集**: `.rulesync/` 配下の対象ファイルだけを編集する
-3. **生成**: 次を実行する (生成後に cursor cli.json の正規化を必ず通す。理由は `references/generate-and-verify.md`)
+3. **生成**: provider 別 normalizer を含む Make target を実行する (理由は `references/generate-and-verify.md`)
    ```sh
-   npx rulesync@latest generate
-   bash scripts/fix-cursor-cli.sh
+   make generate
    ```
 4. **差分確認** (`references/generate-and-verify.md`):
    - `git status` で生成先 (`AGENTS.md`, `CLAUDE.md`, `.codex/`, `.claude/`, `.cursor/`) に意図どおりの差分が出ているか

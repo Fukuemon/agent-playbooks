@@ -63,7 +63,9 @@ globs:
 | `context-harvest`      | 作業で得た横断的な知見を `context/` / feature doc / ADR に書き戻す       |
 | `spec-*`               | Spec Driven Development 一式 (下記 `Spec Workflow Contract`)             |
 
-skill は `.rulesync/skills/<name>/SKILL.md` が正本。直接呼び出すか slash command で起動する。
+全プロジェクト共通の workflow skill は `.rulesync/skills/<name>/SKILL.md` が正本。言語・framework など
+プロジェクトごとに要否が分かれる skill は `skills/<name>/` で配布し、消費側が `npx skills add` で選択導入する。
+導入済み skill は直接呼び出すか slash command で起動する。
 
 ## Decision Priority
 

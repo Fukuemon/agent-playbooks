@@ -50,6 +50,8 @@ CANDIDATES=(
   ".rulesync/subagents"
   "scripts/link.sh"
   "scripts/fix-cursor-cli.sh"
+  "scripts/fix-codex-config.sh"
+  "scripts/fix-claude-settings.sh"
 )
 for skill in "$TEMPLATE_DIR"/.rulesync/skills/*/; do
   [ -d "$skill" ] || continue
@@ -104,6 +106,12 @@ copy_tree() { # $1=rel path (directory)
 }
 
 copy_tree "hooks"
+
+# rulesync と provider 別 normalizer を 1 コマンドで実行する consumer 用 Makefile。
+# 既存 Makefile と衝突させないため、独立した -f 対象として配布する。
+cp "$TEMPLATE_DIR/templates/consumer/sdd-template.mk" "$CONSUMER/sdd-template.mk"
+COPIED+=("sdd-template.mk")
+echo "  copy: sdd-template.mk"
 
 # 消費側 git hooks (lefthook) の初期値: 無い場合だけ置く (以後は消費側が所有)
 if [ ! -e "$CONSUMER/lefthook.yml" ]; then
@@ -163,9 +171,9 @@ cat <<EOF
 
 次のステップ (消費 repo 側で実行):
   cd "$CONSUMER"
-  npx rulesync@latest generate && bash scripts/fix-cursor-cli.sh
+  make -f sdd-template.mk generate
   npx lefthook install        # git hooks (lefthook.yml) の有効化
-  git add hooks lefthook.yml .template-version <生成物> && commit
+  git add hooks lefthook.yml sdd-template.mk .template-version <生成物> && commit
     → 生成物と hooks は commit する (clone しただけの CI / エージェント環境でも
        hook・設定が効くようにするため)
 
@@ -175,7 +183,7 @@ cat <<EOF
 
 更新の反映:
   - .rulesync/ (skill / contract) は live symlink。どちらの repo で編集しても両方に反映
-    (編集後は消費側で rulesync generate → 生成物を commit)。
+    (編集後は消費側で make -f sdd-template.mk generate → 生成物を commit)。
   - hooks/ は実ファイルコピー。テンプレ側の hook 更新は link.sh 再実行で取り込み、
     差分を commit する (.template-version で由来 SHA を追跡)。
 EOF
