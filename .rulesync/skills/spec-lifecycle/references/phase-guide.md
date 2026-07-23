@@ -7,6 +7,7 @@ project 共通の SDD 流れと、プロジェクト固有の論点を分けて�
 
 各 phase (intake / review を除く) は `spec-lifecycle` の単一コンテキストから
 `references/phase-*.md` の手順で進める。個別 skill (旧 `spec-draft` 等) としては起動しない。
+phase の採否・順序は `context/project.yml` の `spec.phases` が正本 (下表は既定列)。
 
 | Phase            | 作業                                                                                | 完了条件                                                         | 次アクション      |
 | ---------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------- |
@@ -21,11 +22,12 @@ project 共通の SDD 流れと、プロジェクト固有の論点を分けて�
 
 ## Phase Gate (review が必須なタイミング)
 
-- Phase 2 完了後: draft として読み手が背景 / スコープ / 論点を追えるか
-- Phase 3 完了後: 重要論点が未解決のまま残っていないか
-- Phase 5 完了後: 差分が上位文書側と矛盾していないか
-- Phase 7 完了後: prompts が自己完結かつ実装可能か
-- Phase 8: 最終 review (`PASS` で終端)
+gate の正本は `spec-lifecycle` SKILL.md の phase レジストリ。gate phase の完了時に
+前の gate 以降の未レビュー分を累積して `spec-review` に渡す (既定列での観点):
+
+- clarify gate (scaffold〜clarify を累積): draft として背景 / スコープ / 論点を追えるか、重要論点が未解決のまま残っていないか
+- track gate (diagram〜track を累積): 図と機能仕様が整合するか、差分が上位文書側と矛盾していないか
+- prompts gate = 最終 (sync〜prompts を累積): 正本ハンドオフが完了しているか、prompts が自己完結かつ実装可能か (`PASS` で終端)
 
 ## プロジェクトで毎回確認する論点
 
@@ -42,7 +44,7 @@ project 共通の SDD 流れと、プロジェクト固有の論点を分けて�
 
 ## Phase を止めるべき条件
 
-- 実装対象 module が特定できない (`context/project.md` の対象ドメインから外れる)
+- 実装対象 module が特定できない (`context/project.yml` の対象ドメインから外れる)
 - 変更が `PRD.md` (Why/What) か `design/DesignDoc.md` / feature doc / context (How) のどちらで扱うべきか逆転している
 - spec 自体が module をまたいだ要求追跡に使えない
 - secret / runtime boundary が `context/infrastructure.md` / `context/architecture.md` と矛盾
