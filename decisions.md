@@ -9,6 +9,71 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-24 spec は issue close 時に削除する (closeout)。sync を唯一の救出点として精度を上げる
+
+- **背景**: 従来は sync 後の spec を「決定時スナップショット」として永続させていたが、残すと design 側に spec への索引が積もって認知負荷が上がり、現行実装と食い違った古い spec がドリフトの温床になる (ユーザー提案 2026-07-24)。決定経緯・受け入れ基準は issue / PR / git history に残るため、削除しても追跡可能。
+- **判断**: ① 正本境界にライフサイクル最終段「issue close 後 (closeout): spec を削除する」を追加し、手順・前提条件 (sync 完了 / issue closed / open な派生 issue なし / prompts 完了) を `spec-lifecycle/references/closeout.md` に置く。PR merge 後の案内は `workflow-git` の pr-workflow に接続。② 削除前提に耐えるよう sync の精度を強化: 「変更提案」行だけでなく **解決済みの論点を全行棚卸し**し、各行に「反映先 or spec で閉じる」の判定を必須化。**選択肢を比較して決めた判断は影響範囲が小さくても ADR 化を既定**とする (削除後に「なぜこうしたか」を再現できる場所が ADR しかないため)。③ 取りこぼし検査を二重化: `spec-reviewer` の正本境界観点に「未判定の論点行 = NEEDS_WORK」を追加し、closeout の最終刈り取りを最後の検出点とする。④ impact-index の `source_refs:` は closeout で ADR / feature doc に差し替える。
+- **理由**: 「durable な情報は design が正本、spec は作業文書」という既存の正本境界の論理的帰結。スナップショットを残す方式は「二重正本を防ぐ」ためのリンク規律を永続的に要求するが、削除すればその規律ごと不要になる。git history が保存庫なので情報は失われない。
+- **今後**: 「削除せずアーカイブ dir に移す」提案は、索引が残り認知負荷が下がらないため却下。sync 未完のまま削除する運用は情報喪失なので、closeout の前提条件を緩める提案も却下。closeout で ADR 未起票の意思決定が頻繁に見つかるようなら、sync の棚卸し手順側を先に疑う。
+
+## 2026-07-24 contract (AGENTS.md) を agents.md ベストプラクティスに沿って整理
+
+- **背景**: agents.md (公式) の推奨は「エージェントが実行を試せるコマンド・セキュリティ考慮・PR 規約を root の Markdown で」。照合すると、変更ループ (編集 → generate → check) が節をまたいで分散し、Security 節が無く、一方で project.yml へのポインタが複数節に重複していた。本テンプレはサンプルなので repo 自身の固有値の記入はしない (ユーザー判断)。
+- **判断**: ① Setup 直後に「共有プロセス層を変更するとき: `.rulesync/` 編集 → `make generate` → `make check` → 生成物ごと commit」の 1 行を追加。② `Security` 節 (secret / 個人 PC 絶対パスの禁止 + infrastructure.md への委譲) を追加。③ 重複していた `Repository / Commands / Naming` 節と `Decision Priority` 節を削除 (冒頭の固有値段落と project.yml に集約済み。dev-commands への導線は Skills 表が持つ)。④ workflow-git の「先に読むもの」にあった存在しない節への参照 (`Repository Reference Rules`) を project.yml の `repos` / `labels` に修正。
+- **理由**: contract は消費 repo へ symlink 共有されるため固有値は書けない。汎用のまま追加できるもの (変更ループ / Security) だけを足し、ポインタの重複は「正本 1 箇所 + 1 行参照」の原則で畳んだ。
+- **今後**: contract に節を足すときは agents.md の推奨セクション (コマンド / スタイル / セキュリティ / PR 規約) との対応を確認する。project.yml へのポインタを複数節に再掲する提案は却下。
+
+## 2026-07-24 読み物向けライティング規範を styleguide-documents の reference として統合 (常時ロードはポインタのみ)
+
+- **背景**: 外部の skill (gist: k16shikano/eb2929f13ed19c97188393d297be8432 の cognitive-rhythm-writing) を styleguide として取り入れ、読み物系の文章を書くとき必ず読ませたい、という要望。当初は独立 skill `styleguide-prose` として導入したが、参考 repo の skill 化基準「人間が単独で起動する価値があるか」に照らすと、文書品質のハブは `styleguide-documents` 1 つで足り、起動トリガー語も description 側に足せるため、同日中に reference 統合へ変更した (ユーザー指示)。
+- **判断**: ① 規範本文を `styleguide-documents/references/prose-rhythm.md` として統合 (原文をほぼそのまま維持し、100 行超のため冒頭に目次。原文の誤参照 1 箇所〔拍がない→点検手順 3〕は 4 に修正)。独立 skill は置かない。② 適用対象を「読み物として読ませる文章 (記事 / 解説 / 章立ての文章)」に限定し、spec / ADR / context 等の技術文書は**対象外**と明記 (5 原則の曖昧さの排除と衝突するため)。③「必ず読ませる」は、常時ロードされる contract の Skill 共通契約と `styleguide-documents` 冒頭・`いつ使うか` の必読注記による 2 経路のポインタで実装。規範本文 (約 130 行) の常時ロードは採らない。
+- **理由**: 常時ロード rules は毎ターン token を消費する (2026-07-07 決定)。ポインタ (数行) を常時ロードし本文はオンデマンド Read にすれば、「必ず読む」導線と token コストを両立できる。原文を書き換えない理由は、この規範自体が語彙・例文単位で自己参照的に設計されており (漏出テスト等)、部分的な言い換えが規範の整合を壊すため。
+- **今後**: 読み物系の文書を書く skill を将来追加する場合は「先に読むもの」に `styleguide-documents` (+ prose-rhythm.md) を明記する。規範本文を要約・圧縮する提案は却下 (2026-07-07「references は常時ロード rules ほどの圧縮を強制しない」)。独立 skill への再分離は、読み物執筆が独自の実行フロー (phase / 停止条件) を持つようになったときのみ再検討する。
+
+## 2026-07-24 issue の status ラベル遷移 + 状態遷移コメントを簡約 3 状態で導入 (イベント記録は不採用)
+
+- **背景**: 参考 repo は要求〜実装の節目で 6 状態の状態ラベル遷移・状態遷移コメント・イベント記録コメント (FourKey リードタイム計測の節目) を issue に残す。本テンプレは進捗の正本が spec 内の `## 設計フェーズ状況` 表 + WIP commit のみで、issue だけを見ても設計の進捗が見えなかった。
+- **判断**: ① `status:designing / status:ready-to-implement / status:implementing` の **3 状態に簡約**して `project.yml` の `labels` に追加 (6 状態は企画/開発/検証の分業前提のため採らない)。② 遷移は 3 節目のみ: scaffold 開始 (spec-lifecycle) / 最終 gate レビュー済 (spec-lifecycle) / 実装 prompt ステップ 0。close は PR の `Closes #N` に任せラベル操作しない。③ 遷移のたびに状態遷移コメントを 1 件残す (正本: `workflow-git/references/issue-status.md`)。④ **イベント記録 (リードタイム計測) は不採用** — 個人利用前提で計測の需要がないため (ユーザー判断 2026-07-24)。
+- **理由**: spec の表 (phase 単位の詳細) と issue ラベル (粗い要約) の 2 層にし、同じ粒度を二重管理しない。遷移点を 3 つに絞ることで、承認の取り方 (3 択) を挟んでも運用が重くならない。
+- **今後**: チーム利用でリードタイム計測が必要になったら、イベント記録コメント (固定文字列) と集計 skill (参考 repo の productivity-report 相当) をセットで再検討する。状態を 6 値に増やす提案は分業体制が実際に生まれるまで却下。
+
+## 2026-07-24 参考 repo から 7 機構を追加移植 (突合ゲート / 派生 issue / frontmatter 契約 / 読み取り索引ほか)
+
+- **背景**: 参考 repo (Fukuemon/skills) の網羅調査で、既取り込み分 (phase 配列駆動・選択的 gate 等) 以外に移植価値の高い機構が特定された。移植にあたり Anthropic 公式の skill 著作ベストプラクティス (SKILL.md は目次役・references は 1 階層・100 行超は冒頭に目次・チェックリスト + 検証ループ・用語は 1 つに統一) を確認し、これに沿って構成した。
+- **判断**: 次の 7 機構を移植した。用語は平易な日本語に変換している (括弧内が参考 repo での呼称):
+  1. **実装との突合ゲート** (設計時ドリフト突合): scaffold で増分判定 → clarify 冒頭で spec × 実装 × ADR × context を 1 回突合し、食い違いはユーザーが正を確定 (`phase-scaffold.md` §7 / `phase-clarify.md` §0)
+  2. **差分修正モード** (修正デルタモード): prompts 生成の最初に「変更対象の既存実装コードが在るか」で新規実装 / 差分修正を判定し、差分修正では機能全体の再実装・migration 再作成を禁止 (`phase-prompts.md`)
+  3. **派生 issue + 品質ラベル**: 前段 phase の取りこぼし (要求漏れ / 設計漏れ) は進行中 issue に吸収せず `quality:requirement-gap` / `quality:design-gap` 付き派生 issue を起票、双方向リンク + 発覚理由必須 (`workflow-git/references/derived-issue.md`、労力の正本は project.yml `labels`)
+  4. **prompt の機械可読 frontmatter**: `phase / seq / target / issue / depends_on` を必須化し、`depends_on` は実依存列挙 (phase 隣接で近似しない)。将来の実装オーケストレーション (jisso-run 相当) の前提 (`prompt-rules.md` / `prompt-template.md`)
+  5. **読み取り索引** (読み取りコントラクト / impact-index): `context/impact-index.yaml` の「索引 → 該当 feature の read: だけ読む」契約。sync phase と context-harvest が索引を育てる
+  6. **prompt 検証 hook 強化**: `hooks/spec/validate_prompts.sh` に frontmatter 5 キー検査と探索誘発表現の grep 検出を追加
+  7. **承認の取り方** (承認プロンプト規約) と **受け入れ再検証** (sekkei-pickup の引き取りゲート): 前者は contract の新節 (Y/N 禁止・3 択以上・既定を進める側にしない)、後者は spec-lifecycle intake での intake-checklist 再検証 + 差し戻し
+- **移植時に落としたもの**: GitLab 固有の milestone 継承・状態ラベル遷移・registry.md 依存 (テンプレは registry 未導入のため、既存ファイル特定は spec の差分の名指しに依拠)。認可マスター突合は authorization appendix の範囲として汎用化せず見送り。
+- **理由**: いずれも「増分開発」「後戻り要求」「token 削減」というテンプレの弱点を突く機構で、phase レジストリ構造にそのまま載る。呼称の日本語化は 2026-07-07 決定 (外来語を平易な日本語に) に従う。
+- **今後**: 読み取り索引は「索引が実態とずれる」のが最大の失敗モード。sync / context-harvest の索引更新ステップを外す提案は却下。品質ラベルの付与先を変更元 issue 側に広げる提案は「派生側にのみ付与」の原則を崩すため却下。
+
+## 2026-07-24 固有値の正本を context/project.yml 1 本に統合 (project.md / project-config.yaml を廃止)
+
+- **背景**: 2026-07-23 に機械可読値を `project-config.yaml`、散文の規約を `project.md` に分ける 2 ファイル構成を採ったが、実際には project.md の内容 (Repository Map / Naming / Quick Commands / Label Policy / Source of Truth / Templates / Decision Priority) もほぼ全て構造化可能な値で、「どちらに書くか」の判断コストと参照の二重化 (契約や skill が両ファイルを指す) が残った。参考 repo (Fukuemon/skills) も固有値は `project-config.yaml` 1 本で、散文の別ファイルを持たない。
+- **判断**: `context/project.yml` 1 本に統合 (ユーザー指定の命名)。旧 project.md の全セクションを yaml キーに写像した: Repository Map→`repos` (layout はブロックスカラー) / Naming→`naming` / Quick Commands→`commands` / Issue Tracker→`tracker` / 対象ドメイン→`domains` / Label Policy→`labels` (axes + minimum) / Source of Truth→`paths` / Templates→`templates` / Decision Priority→`decision_priority`。説明的な文はキー横のコメントで持つ。契約・skill・context/*.md・テンプレの参照は全て `project.yml` の該当キー名 (例: 「Quick Commands 表」→「`commands`」) に更新した。
+- **理由**: 正本 1 ファイル・キー参照 1 形式にすることで、「同じ規範を複数ファイルに再掲しない」原則を固有値にも適用できる。yaml コメントで散文の説明力は十分保て、skill 側は常にキー名で決め打ち参照できる。
+- **今後**: 固有値の追加はまず `project.yml` のキー追加で表現できないか検討する。「散文用に project.md を復活させたい」提案は二重管理の再発として却下 (長い説明が必要なら context/*.md の該当 topic に置き、project.yml からコメントで参照する)。
+
+## 2026-07-24 rulesync を 14.2.0 に pin する (fix-codex-config.sh は維持)
+
+- **背景**: `scripts/generate.sh` は `rulesync@latest` を呼んでいたため、上流リリースで生成物が変わると repo 側の変更なしに drift 検査が壊れ、消費 repo でも generate 結果の再現性が無かった (実際に 14.2.0 で `.codex/config.toml` に `approval_policy` 等の新キーが増え、HEAD 生成時との差分が発生した)。あわせて fix-codex-config.sh の要否を再調査した: 14.2.0 の素の出力は依然 `default_permissions = "rulesync"` と `":minimal" = "read"` を含む `[permissions.rulesync.filesystem]` block を出力しており (2026-07-08 決定の除去対象と同形)、normalizer は no-op になっていない。`extends = ":workspace"` が併記されるようになったため阻害が解消された可能性はあるが、Codex Desktop での実機確認はできていない。
+- **判断**: ① `scripts/generate.sh` の rulesync を `14.2.0` に pin し、更新は動作確認込みの bump commit で行う。② `fix-codex-config.sh` は維持する (削除条件 = Codex Desktop で素の 14.x 出力のまま workspace read が通ることの実機確認)。
+- **理由**: pin により generate は入力 (`.rulesync/`) だけの関数になり、CI の drift 検査が本来の目的 (正本と生成物の同期) だけを検査できる。normalizer の削除は「生成物の見た目」でなく「実機挙動の確認」を条件にする — 適用後の config だけ見て no-op と誤認しかけた経緯があるため。
+- **今後**: rulesync bump 時は `.codex/config.toml` の permissions 出力の変化と workspace read への影響を確認する。`@latest` に戻す提案は再現性の喪失を理由に却下。
+
+## 2026-07-23 参考 repo の sekkei / youken 構成から phase 配列の設定駆動化・選択的 gate・project-config.yaml を取り込む
+
+- **背景**: 参考 repo (Fukuemon/skills) の `sekkei` は phase の集合・順序を `context/project-config.yaml` の `sekkei.phases` で外部化し、`gate: true` の phase のみレビューして残りは次 gate で累積レビューする (token 節約)。`youken` は公開前のトラッカー操作をユーザー承認まで禁止する起票ゲートを持つ。本テンプレの `spec-lifecycle` は phase 固定・全 phase レビューで、固有値は `context/project.md` (散文) のみだった。さらに `phase-guide.md` には選択的 gate の記述が既にあり、SKILL.md の「全 phase レビュー」と不整合だった。
+- **判断**: ① 機械可読な固有値 (product / repos / tracker / domains / spec.phases / glossary) を `context/project-config.yaml` に分離し、散文の規約 (命名 / コマンド / Label Policy / 正本パス) は `project.md` に残す。tracker / domains は yaml を正本とし、project.md・各 skill は参照に畳む。② `spec-lifecycle` に phase レジストリ (識別子 / kind / gate) を置き、実行列は `spec.phases` が決める。gate は既定で clarify / track / prompts の 3 箇所、非 gate phase は次 gate で累積レビュー。ハンドオフ基準・停止テンプレは `references/handoff.md` に分離 (SKILL.md 200 行制約)。③ `spec-requirement` に youken 方式の起票ゲート (承認前のトラッカー操作禁止・「そのまま進めて」でも緩めない) と完了時の案内を追加。
+- **理由**: phase の採否・順序をデータにすることで、消費 repo ごとの差 (diagram 不要・独自 phase 追加等) を skill 本体の編集なしに吸収できる。全 phase レビューは fresh-context evaluator の起動コストが phase 数ぶん掛かるが、累積 gate なら同じカバレッジを 3 回で得られる。yaml / md の分割は「skill が分岐に使う値」と「人が読む規約」で参照特性が違うため。
+- **取り込まなかったもの**: `review_scope` (観点別レビュー委譲) は、レビュー観点の正本を `spec-reviewer` subagent 1 本に集約した 2026-07-07 決定と競合するため見送り。youken の CRITICAL / HIGH / MEDIUM 件数閾値は、`spec-review` が PASS / NEEDS_WORK の二値で severity 体系を持たないため見送り (導入するなら subagent 定義の出力契約ごと変える必要があり、コストに見合わない)。
+- **今後**: phase を追加する場合はレジストリに 1 行 + `references/phase-*.md` を足し、`spec.phases` 既定列を更新する。「全 phase でレビューに戻す」提案は token コストを理由に却下 (必要なら消費 repo が gate を増やすのではなく、レビュー観点を subagent 側で強化する)。機械可読値を project.md に再掲する提案は二重管理を招くため却下。
+
 ## 2026-07-14 rulesync 後処理を hooks/ と同じ「実行時参照は実ファイルコピー」原則に揃える
 
 - **背景**: 2026-07-12 の Make target 集約で `scripts/fix-cursor-cli.sh` / `fix-codex-config.sh` / `fix-claude-settings.sh` を追加したが、`link.sh` はこれらを (`.rulesync/` と同様の) live symlink として配布していた。`templates/consumer/sdd-template.mk` の `generate` target はこれらのスクリプトを実行時に呼ぶため、2026-07-07 決定の「repo を clone しただけの環境で動くか」という判断基準に反し、link.sh を再実行していない bare clone (CI / クラウドエージェント) で `make -f sdd-template.mk generate` が `No such file or directory` で失敗する欠陥があった。また 3 スクリプトの実行列 (`rulesync generate` → 3 normalizer) が Makefile / sdd-template.mk / check-generated.sh の 3 箇所に手動列挙で複製され、同期漏れのリスクがあった。
