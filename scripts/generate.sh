@@ -8,7 +8,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-npx rulesync@latest generate
+# バージョンは pin する (@latest だと上流リリースで生成物が変わり、repo 側の変更なしに
+# drift 検査が壊れる)。更新は動作確認のうえ本行の bump commit で行う。
+npx rulesync@14.2.0 generate
 bash "$ROOT/scripts/fix-cursor-cli.sh"
 bash "$ROOT/scripts/fix-codex-config.sh"
 bash "$ROOT/scripts/fix-claude-settings.sh"
