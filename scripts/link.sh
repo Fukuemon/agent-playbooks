@@ -15,7 +15,7 @@
 # Re-run link.sh to pull updates; .template-version records the source SHA.
 #
 # Product-specific values stay OWNED by the consumer and are never shared:
-#   context/ (project.md etc.), PRD.md, design/, specs/, adr/.
+#   context/ (project.yml etc.), PRD.md, design/, specs/, adr/.
 #
 # Run from anywhere:  bash scripts/link.sh <consumer-repo-path>
 # Idempotent. Re-run after adding/removing skills or updating hooks.
@@ -39,7 +39,7 @@ fi
 
 # --- 共有プロセス層 (symlink 対象) を組み立てる -----------------------------
 # 固定パス + `.rulesync/skills/*` を動的に列挙する。
-# `context/` (project.md 等) / PRD.md / design/ / specs/ / adr/ は消費 repo 所有 = symlink しない。
+# `context/` (project.yml 等) / PRD.md / design/ / specs/ / adr/ は消費 repo 所有 = symlink しない。
 # permissions.json / mcp.json は汎用デフォルトとして共有する。製品固有にしたい場合は
 # 消費側で symlink を実ファイルに置き換える (link.sh 再実行で上書きされない: backup される)。
 CANDIDATES=(
@@ -190,7 +190,7 @@ cat <<EOF
        環境でも hook・設定・generate が効くようにするため)
 
 固有値 (共有されない / 消費 repo が所有):
-  context/ (project.md 等), PRD.md, design/, specs/, adr/
+  context/ (project.yml 等), PRD.md, design/, specs/, adr/
   → 実ファイルとして記入・commit する。
 
 更新の反映:

@@ -114,7 +114,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 
 ## 実装対象
 
-正規 target は `context/project.md` の対象ドメイン一覧を正本とする。
+正規 target は `context/project.yml` の対象ドメイン一覧を正本とする。
 
 | モジュール   | 実装有無 | 主な責務 |
 | ------------ | :------: | -------- |
@@ -233,7 +233,7 @@ sequenceDiagram
 
 ### prompts 生成方針
 
-- `context/project.md` の対象ドメインのどこで分けるか
+- `context/project.yml` の対象ドメインのどこで分けるか
 - 並列実装できる境界
 
 ## 上位資料からの変更点

@@ -12,7 +12,7 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 | How (全体像)      | [design/DesignDoc.md](design/DesignDoc.md)    | system landscape / モジュール責務 / 横断方針       |
 | How (feature)     | [design/features/](design/features/)          | feature 単位の設計                                 |
 | How (規約 / 契約) | [context/](context/)                          | 技術規約・codebase architecture・運用契約          |
-| 固有値            | [context/project.md](context/project.md)      | repo / 命名 / コマンド / 対象ドメイン / トラッカー |
+| 固有値            | [context/project.yml](context/project.yml)      | repo / 命名 / コマンド / 対象ドメイン / トラッカー |
 | 意思決定          | [adr/](adr/)                                  | 長期参照する技術選定・境界                         |
 | 作業文書          | [specs/](specs/)                              | issue / 機能単位の要求・設計・テスト観点           |
 
@@ -21,7 +21,7 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 ## はじめかた (新規プロダクトへの適用)
 
 1. **PRD / Design Doc を作る** — `design-doc` skill。要件規模から PRD の要否を判定し、分離モード (PRD.md + DesignDoc.md) か統合モード (DesignDoc に Why/What を内包) を選ぶ。
-2. **context を初期化する** — `context-bootstrap` skill。Design Doc と短い対話から [context/project.md](context/project.md) と `context/*.md` を生成する。`<PLACEHOLDER>` を埋める。
+2. **context を初期化する** — `context-bootstrap` skill。Design Doc と短い対話から [context/project.yml](context/project.yml) と `context/*.md` を生成する。`<PLACEHOLDER>` を埋める。
 3. **AI 設定を同期する** — `rulesync-sync` skill。`.rulesync/` から各 provider 設定 (`AGENTS.md` / `CLAUDE.md` / `.cursor/` / `.codex/`) を生成する。
 4. **issue 駆動で進める** — `spec-*` skill 群 (intake → specify → clarify → design → sync → tasks → review)。`spec-lifecycle` が phase を orchestration する。
 
@@ -38,7 +38,7 @@ make link ARGS=/path/to/your-product-repo
 # または: bash scripts/link.sh /path/to/your-product-repo
 ```
 
-- 共有されない固有値 (消費 repo が所有): `context/` (`project.md` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
+- 共有されない固有値 (消費 repo が所有): `context/` (`project.yml` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
 - `.template-version` に配布元テンプレの commit SHA が記録される (更新の追跡用)。
 
 接続後、消費 repo 側で各 provider 設定を生成し、生成物・hooks を commit する:
@@ -64,7 +64,7 @@ npx skills add Fukuemon/sdd-template --skill effective-go
 
 `npx skills add` が生成する agent 別 skill は、その消費 repo 側で管理する。
 
-固有値 (`context/project.md` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
+固有値 (`context/project.yml` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
 実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。
 
 ## 文書品質
@@ -76,7 +76,7 @@ npx skills add Fukuemon/sdd-template --skill effective-go
 ```text
 .rulesync/   # AI 設定の単一情報源 (rules / skills / hooks / permissions / mcp)
 skills/      # 言語・framework 固有の選択導入型 skill (`npx skills add` 用)
-context/     # 技術規約・運用契約 + project.md (固有値)
+context/     # 技術規約・運用契約 + project.yml (固有値)
 design/      # Design Doc (landscape) と feature 設計
 templates/   # PRD / Design Doc / context / spec / feature / requirements / adr のテンプレート
 adr/         # Architecture Decision Records
