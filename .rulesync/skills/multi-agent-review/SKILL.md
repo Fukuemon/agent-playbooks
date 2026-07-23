@@ -32,7 +32,7 @@ targets:
   - PR 番号 / URL → `gh pr diff`
   - spec path → 当該 spec の内容
 - 対象エージェント集合 (省略時は `context/ai-agents.md` の `review` ルーティング)
-- 出力先 (既定: 標準出力。spec 対象時は任意で `context/project.md` の spec review report 契約 `specs/<issue-id>-<slug>/review.md`)
+- 出力先 (既定: 標準出力。spec 対象時は任意で `context/project.yml` の spec review report 契約 `specs/<issue-id>-<slug>/review.md`)
 - `--comment` (任意・PR 対象時のみ): 統合レポートを PR コメントとして投稿する。「PR にコメントして」等の指示も同義
 
 ## 実行フロー
@@ -61,7 +61,7 @@ targets:
 ### 5. レポート出力
 
 - `references/finding-merge.md` の出力レポート構成に従って提示する: status テーブル → 統合指摘 (重大度順) → 単一エージェントのみ (未合意) → エージェント間の相違 → 注記。
-- spec 対象かつ出力先指定時は `context/project.md` の契約に従い `specs/<issue-id>-<slug>/review.md` に保存する (複数回実行時は追記でなく上書き)。
+- spec 対象かつ出力先指定時は `context/project.yml` の契約に従い `specs/<issue-id>-<slug>/review.md` に保存する (複数回実行時は追記でなく上書き)。
 - スキップされたエージェントを明示し、部分結果である旨を断る。
 
 ### 6. PR へのコメント投稿 (`--comment` 指定時のみ)
