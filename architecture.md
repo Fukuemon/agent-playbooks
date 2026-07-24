@@ -54,8 +54,8 @@ sequenceDiagram
 - intake は入力を `intake-checklist` で **受け入れ再検証** し、欠落があれば `spec-requirement` へ差し戻す (作成時の自己申告を信用しない)。
 - scaffold で **増分判定** した spec は、clarify 冒頭で **実装との突合ゲート** (spec × 実装 × ADR × context) を通し、食い違いはユーザーが正を確定する。prompts は **生成モード判定** (新規実装 / 差分修正) で既存資産との衝突を防ぐ。
 - どの phase でも **前段の取りこぼし (要求漏れ / 設計漏れ)** を検知したら、進行中 spec に吸収せず派生 issue (`quality:*` ラベル) を起票する (`workflow-git` の `derived-issue.md`)。
-- レビュー観点・Default-FAIL 判定の正本は `spec-reviewer` subagent 定義。
-- 実装後のクロスチェックは `multi-agent-review` (基盤は `agent-orchestrate`)。
+- レビュー観点の正本は subagent 定義に一元化: spec / 文書 = `spec-reviewer` (Default-FAIL)、コード差分 = `review-{architecture,quality,security,performance}` (敵対的姿勢: 好意的解釈をせず、迷ったら指摘に倒す)。
+- 実装後のクロスチェックは `multi-agent-review` (基盤は `agent-orchestrate`)。コード差分は `review-routing.md` の表で観点を選び、外部 CLI 不在時は Claude の `review-*` subagent に degrade して観点別レビューだけは回す。
 
 ## PhaseStatus (設計フェーズ状況) の遷移
 

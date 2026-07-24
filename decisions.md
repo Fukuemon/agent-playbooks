@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-24 コードレビューを観点別 subagent 4 本 + 敵対的姿勢 + degrade 構成にする
+
+- **背景**: レビュー観点は spec / 文書側 (`spec-reviewer` の 7 観点 + Default-FAIL) に偏っており、コード差分は `multi-agent-review` の固定 rubric 5 行を全部入り 1 プロンプトで外部 CLI に同報するだけだった。俯瞰的な観点 (依存方向・境界・責務の置き場・生成物編集) が無く、外部 CLI 不在の環境ではコードレビュー自体が回らなかった。参考 repo (Fukuemon/skills) は観点別 `review-*` subagent + 敵対的姿勢 + degrade 設計で解決している。
+- **判断**: ① `review-{architecture,quality,security,performance}` subagent を新設 (Read / Grep / Glob のみ)。参考 repo の Go / クリーンアーキ固有条件は直書きせず、`context/architecture.md` / `context/testing.md` / `context/infrastructure.md` / `project.yml` への参照に汎用化。② 敵対的レビュー姿勢 (「性弱く見逃さない。好意的解釈をせず、迷ったら指摘に倒す。問題のみ報告」) を全 review subagent と `review-prompt.md` の前文に固定 — 文書側 Default-FAIL のコード版。③ 観点の選択は `review-routing.md` の対象差分シグナル表で行い、小さい差分で全観点を回さない (quality のみ常時)。④ degrade 規則: 外部 CLI 2 台以上 = 並列クロスチェック → 1 台 → 0 台なら Claude の `review-*` subagent に degrade → subagent も無ければフォールバック rubric。孤立環境でも観点別レビューは回る。
+- **理由**: 観点の正本を subagent 定義に置くのは spec-reviewer と同じ既定路線 (2026-07-07 決定)。外部 CLI 向けには定義本文をプロンプトにインライン注入する (CLI は subagent を spawn できないため)。レビュー姿勢の 3 行を各 subagent に再掲するのは「正本 1 箇所」原則の例外だが、subagent は実行時に他文書を読めない自己完結プロンプトであり、参照渡しでは姿勢が効かないため許容する。
+- **今後**: 観点の追加・変更は `review-*.md` のみを編集し、routing 表には行を足すだけにする (skill 側に観点を再記述しない)。stack 固有の検証条件 (ORM / framework 名) を subagent に直書きする提案は却下 — `context/` の規約を育てて参照させる。
+
 ## 2026-07-24 spec は issue close 時に削除する (closeout)。sync を唯一の救出点として精度を上げる
 
 - **背景**: 従来は sync 後の spec を「決定時スナップショット」として永続させていたが、残すと design 側に spec への索引が積もって認知負荷が上がり、現行実装と食い違った古い spec がドリフトの温床になる (ユーザー提案 2026-07-24)。決定経緯・受け入れ基準は issue / PR / git history に残るため、削除しても追跡可能。
