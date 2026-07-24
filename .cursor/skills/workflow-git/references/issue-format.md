@@ -32,14 +32,14 @@ GitHub Issue のタイトル・本文フォーマット。
 
 ## ラベル
 
-ラベル体系の正本は **`context/project.md` の `Label Policy`**。本ファイルに固有値を直書きしない。起票時 (`gh issue create --label ...`) に最低限:
+ラベル体系の正本は **`context/project.yml` の `labels`**。本ファイルに固有値を直書きしない。起票時 (`gh issue create --label ...`) に最低限:
 
 - `type:*` を 1 件 (上表の type ラベルと一致)
-- 実装対象が定まるなら該当する `domain:*` (`context/project.md` の「対象ドメイン」に対応)
+- 実装対象が定まるなら該当する `domain:*` (`context/project.yml` の `domains` に対応)
 - SDD の設計フェーズなら `phase:design`、実装フェーズなら `phase:implementation`
 - 複数 phase / spec にまたがる大きい要件 (親) には `epic`
 
-ラベルが repo に未作成なら `gh label create` で先に作る (定義は Label Policy)。
+ラベルが repo に未作成なら `gh label create` で先に作る (定義は `labels`)。
 
 ## メッセージ生成の原則
 

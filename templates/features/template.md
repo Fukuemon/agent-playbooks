@@ -13,7 +13,7 @@ Feature 単位の設計 doc。仕様 (What) をどう実現するか (How) を�
 | 関連 context   | <context/\*.md の該当ファイル>                          |
 | 関連 ADR       | <adr/NNNN-\*.md>                                        |
 | 関連 spec      | <specs/<issue>-<slug>/>                                 |
-| 対象モジュール | <context/project.md の対象ドメインから選ぶ>             |
+| 対象モジュール | <context/project.yml の対象ドメインから選ぶ>             |
 
 ## 背景・要件解釈
 
