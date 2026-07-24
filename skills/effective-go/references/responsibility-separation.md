@@ -17,8 +17,6 @@ This guide intentionally avoids architectural layers, framework assumptions, and
 
 ### Base principles
 
-- [Design Principles: Separation of Concerns](../sourcecodes/design-principles-separation-of-concerns.md)
-- [Design Principles: Separation of Concerns in Iteration](../sourcecodes/design-principles-for-sliced-iterations.md)
 
 ### Referencability equals separation of concerns
 

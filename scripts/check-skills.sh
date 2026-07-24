@@ -29,8 +29,12 @@ is_reference_type() {
   return 1
 }
 
-frontmatter_value() { # $1=file $2=key → 値 (先頭一致の 1 行)
-  awk -v key="$2" -F': ' '$1 == key { sub($1 FS, ""); print; exit }' "$1"
+frontmatter_value() { # $1=file $2=key → 値 (先頭の --- 〜 --- ブロック内のみ)
+  awk -v key="$2" -F': ' '
+    NR == 1 { if ($0 != "---") exit; next }
+    /^---$/ { exit }
+    $1 == key { sub($1 FS, ""); print; exit }
+  ' "$1"
 }
 
 for dir in .rulesync/skills/*/; do

@@ -21,7 +21,7 @@
 選んだ各観点について、実行形態ごとに次のとおり観点を解決する:
 
 - **外部 CLI エージェント** (`agent-orchestrate` 経由): subagent を spawn できないため、
-  該当 `review-*.md` の「レビュー姿勢」「検証観点」節をプロンプトの rubric としてインライン注入する
+  該当 `review-*.md` の「検証観点」節のみをプロンプトの rubric としてインライン注入する (レビュー姿勢は雛形の固定前文が担う。二重注入しない)
   (`review-prompt.md` の雛形に埋める)。定義ファイルが読めない場合のみ同雛形のフォールバック rubric を使う。
 - **Claude subagent** (degrade 時): `review-*` subagent に Task で直接委譲する
   (差分ファイル path を渡す。複数観点は並列起動)。

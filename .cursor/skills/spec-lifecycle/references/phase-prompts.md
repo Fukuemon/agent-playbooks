@@ -79,7 +79,7 @@ P{phase}_{seq}_{target}_{scope}.md
 
 1. **生成モード判定** (上記): 差分修正モードなら以降の分割・タスク境界・作業ステップを差分修正規則に従わせる
 2. spec の `未確定事項` がゼロであることを確認 (1 件でも残れば停止)
-3. spec の review 結果が PASS であることを確認 (なければ `spec-review` を先に呼ぶ)
+3. 直前 gate (既定列では track) のレビューが PASS であることを確認 (なければ `spec-review` を先に呼ぶ。prompts 自体のレビューは本 phase 完了後の最終 gate)
 4. **最終検知ガード**: spec 全体を読み「要求 / 設計段階で書かれているべきだったが漏れている」内容がないかを確認する
    (設計完了直前の最後の検出点)。検知したら `workflow-git` の `references/derived-issue.md` に従い停止して
    派生 issue を提案する — spec が未完のまま prompt を生成すると手戻りが大きい
@@ -103,7 +103,7 @@ P{phase}_{seq}_{target}_{scope}.md
 
 - spec の `未確定事項` がゼロでない
 - `spec-review` が PASS でない (NEEDS_WORK のまま prompts を作らない)
-- target が `Spec Workflow Contract` の target 一覧から特定できない
+- target が `context/project.yml` の `domains` から特定できない
 - 絶対ガード (frontmatter + 10 セクション) を満たせない prompt が残っている
 - 差分修正モードの対象なのに、機能全体を作り直す prompt を生成しようとしている
 - 別 app / package の追加探索を要求する prompt になっている (自己完結性違反)

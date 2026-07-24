@@ -19,7 +19,7 @@ phase: prompts (`phase-prompts.md`) で生成する prompt の粒度 / 責務境
 - 明示された path 以外の探索を前提にしない
 - 依存関係は phase で大分けし、実依存は frontmatter `depends_on` に列挙する
 - 同一 phase 内の prompt は **並列可** または **並列不可** を明示する
-- target を無理に 1 本にまとめない (`Spec Workflow Contract` の target 一覧で分ける)
+- target を無理に 1 本にまとめない (`context/project.yml` の `domains` で分ける)
 - 未確定事項が残るなら prompt を作らず、spec 側へ戻す
 
 ## 自己完結性ルール
@@ -67,7 +67,7 @@ P{phase}_{seq}_{target}_{scope}.md
 
 - `phase`: 整数 (1 始まり)
 - `seq`: 2 桁ゼロ埋め (`01`, `02`, ...)
-- `target`: `Spec Workflow Contract` の target 一覧から 1 つ
+- `target`: `context/project.yml` の `domains` から 1 つ
 - `scope`: ケバブケースで責務を表す (`page_shell` / `button_variants` / `contact_flow` 等)
 
 ## phase の決め方

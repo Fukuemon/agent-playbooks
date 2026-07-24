@@ -33,7 +33,7 @@
 
 - **skills / rules / subagents / hooks の正本は sdd-template repo**。消費 repo の `.rulesync/*` は sdd-template への symlink であり、編集すると **テンプレ側の実体が変わる** (消費 repo では未追跡のため commit できない)。
 - したがって共有プロセス層の変更は: ① 編集 (symlink 経由でもテンプレ repo 直接でもよい) → ② **sdd-template repo 側で commit** → ③ 消費 repo で `rulesync generate` を再実行し **生成物だけを commit**、の順で行う。
-- 消費 repo に commit するのは生成物 (`AGENTS.md` / `.claude/` 等)・`hooks/` (実ファイルコピー)・`lefthook.yml`・`.template-version` のみ。`.rulesync/` 配下を消費 repo に commit しない。
+- 消費 repo に commit するのは生成物 (`AGENTS.md` / `.claude/` 等)・実ファイルコピー配布分 (`hooks/`・`scripts/generate.sh` 系・`sdd-template.mk`)・`lefthook.yml`・`.template-version` のみ。`.rulesync/` 配下を消費 repo に commit しない。
 - 今いる repo がテンプレか消費側かは `.rulesync/rules/CLAUDE.md` が symlink かどうかで判定できる (symlink なら消費側)。
 
 ## Skills (workflow 入口)
@@ -58,7 +58,7 @@
 
 ## Forbidden Patterns
 
-- 生成物 (`AGENTS.md` / `CLAUDE.md` / `.codex/` / `.claude/` / `.cursor/`) の直接編集 (`rulesync-sync` 経由で `.rulesync/` を編集する)
+- 生成物 (`AGENTS.md` / `CLAUDE.md` / `.agents/` / `.codex/` / `.claude/` / `.cursor/` / `.mcp.json`) の直接編集 (`rulesync-sync` 経由で `.rulesync/` を編集する)
 - 消費 repo への `.rulesync/` 配下の commit (正本は sdd-template repo。上記「共有プロセス層の正本」)
 - protected branch (例: `main` / `develop`) への直接コミット
 - skill / rule へのプロジェクト固有名の直書き (`context/project.yml` を読む)
@@ -143,7 +143,7 @@ spec / ADR / context の本文を更新したら、対象文書の `更新日` /
 | ------------------ | --------------------------------------------------- | -------------------- |
 | `spec-issue-read`  | Issue 取得 + 要約                                   | intake               |
 | `spec-requirement` | 要求の対話整理 → requirements doc / Issue 起票      | intake → specify     |
-| `spec-lifecycle`   | 設計プロセスを集約した半自律 orchestrator           | scaffold 〜 tasks    |
+| `spec-lifecycle`   | 設計プロセスを集約した半自律 orchestrator           | scaffold 〜 prompts  |
 | `spec-review`      | fresh-context evaluator が PASS / NEEDS_WORK を返す | review gate (複数回) |
 
 設計プロセスの各 phase は `spec-lifecycle` に集約され、手順は `references/phase-*.md` で持つ:

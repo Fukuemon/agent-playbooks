@@ -74,7 +74,7 @@ description: spec / 生成 prompts を fresh context で独立評価し、観点
 - 別 app / package の追加探索を要求していないか
 - `## 絶対ルール` に `spec-lifecycle/references/antipatterns.md` の実装制約ブロック (スコープ厳守 / 観測可能契約の保持 / 推測排除 / fallback 最小化 / dead code 禁止 / 判断記録) が注入されているか
 - 命名規則 `P{phase}_{seq}_{target}_{scope}.md` を満たしているか
-- target が `Spec Workflow Contract` の target 一覧に含まれているか
+- target が `context/project.yml` の `domains` に含まれているか
 - phase 依存表 (並列可 / 依存先) が報告されているか
 
 → いずれか違反があれば `NEEDS_WORK`。

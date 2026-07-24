@@ -5,10 +5,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SETTINGS_FILE="${1:-$ROOT/.claude/settings.json}"
-[ -f "$SETTINGS_FILE" ] || {
-  echo "ERROR: Claude settings not found: $SETTINGS_FILE" >&2
-  exit 1
-}
+[ -f "$SETTINGS_FILE" ] || { echo "no $SETTINGS_FILE; skip"; exit 0; }
 
 python3 - "$SETTINGS_FILE" <<'PY'
 import json

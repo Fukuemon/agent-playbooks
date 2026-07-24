@@ -6,7 +6,7 @@ File separation improves **referencability** and **cognitive clarity** by organi
 
 This guide defines five standard file patterns for Go packages. Following these patterns makes code easier to understand, maintain, and test.
 
-See also: [Responsibility Separation](responsibility-separation.md), [Separation of Concerns](../sourcecodes/design-principles-separation-of-concerns.md)
+See also: [Responsibility Separation](responsibility-separation.md)
 
 ## Core Principles
 
