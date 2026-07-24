@@ -14,12 +14,12 @@
 # feature の追加・変更時にエントリを更新する。coverage: partial は未整備の印。
 
 features:
-  - name: <feature 名 (例: contact-form)>
-    keywords: [<検索の手掛かり>, <API 名>, <画面名>]
+  - name: "<feature 名 (例: contact-form)>"
+    keywords: ["<検索の手掛かり>", "<API 名>", "<画面名>"]
     read: # このエントリを触るとき最初に読むファイル (小さく保つ)
-      - <context/<topic>.md の該当ファイル>
-      - <design/features/<feature>/DesignDoc_<feature>.md>
+      - "<context/<topic>.md の該当ファイル>"
+      - "<design/features/<feature>/DesignDoc_<feature>.md>"
     source_refs: # 必要時のみ読む (初回は読まない)。spec は issue close 時に削除されるため、closeout で ADR / feature doc に差し替える
-      - <specs/<issue-id>-<slug>/index.md (作業中のみ)>
-      - <adr/NNNN-*.md>
-    coverage: <full / partial> # partial = context 未整備の印 (context-harvest で補完する)
+      - "<specs/<issue-id>-<slug>/index.md (作業中のみ)>"
+      - "<adr/NNNN-*.md>"
+    coverage: "<full / partial>" # partial = context 未整備の印 (context-harvest で補完する)
