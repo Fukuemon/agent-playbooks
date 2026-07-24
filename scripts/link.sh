@@ -94,10 +94,13 @@ copy_tree() { # $1=rel path (directory)
   [ -e "$src" ] || { echo "  skip (source 無し): $rel"; return; }
   [ -L "$dst" ] && rm -f "$dst" # 旧 symlink 配布からの移行
   mkdir -p "$dst"
+  # --delete を使わない: 消費 repo がローカル hook を同 dir に追加している場合があり、
+  # テンプレ同期でそれを消すと git hook が silent に壊れる (テンプレ側で削除した
+  # ファイルの掃除は消費側の diff レビューに委ねる)
   if command -v rsync >/dev/null 2>&1; then
-    rsync -a --delete "$src/" "$dst/"
+    rsync -a "$src/" "$dst/"
   else
-    rm -rf "$dst" && cp -R "$src" "$dst"
+    cp -R "$src/." "$dst/"
   fi
   COPIED+=("$rel")
   echo "  copy: $rel"
