@@ -4,7 +4,7 @@
 
 > **メンテ必須**: skill の連鎖挙動 (呼び出し関係・phase gate・PhaseStatus の増減 / 遷移・正本ハンドオフのタイミング) を変えたら、**同 PR で本シーケンスと遷移表を必ず更新する** (`Skill 共通契約`)。図が実 skill とズレると、全体像の唯一の俯瞰図が腐り誤った前提で逆戻しされる。
 
-構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/spec-reviewer.md`、運用ルールは `.rulesync/rules/CLAUDE.md` の `Spec Workflow Contract` (AGENTS.md はその生成物)、プロジェクト固有値は `context/project.yml`。
+構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/` (spec = spec-reviewer / コード差分 = review-*)、運用ルールは `.rulesync/rules/CLAUDE.md` の `Spec Workflow Contract` (AGENTS.md はその生成物)、プロジェクト固有値は `context/project.yml`。
 
 ## 要求 → 実装 prompt 生成の全体シーケンス
 
@@ -24,7 +24,7 @@ sequenceDiagram
     REQ->>SPEC: requirements doc 起案
     REQ->>GIT: (任意) issue 起票
     U->>LC: 通しで設計 (issue 番号 / spec path)
-    LC->>IR: Phase 1: intake (issue 取得 + 要約)
+    LC->>IR: intake (issue 取得 + 要約)
 
     loop 各 phase (集合・順序は context/project.yml の spec.phases。既定: scaffold / clarify / diagram / track / sync / prompts)
         Note over LC: 該当 references/phase-*.md を Read<br/>未確定論点があれば停止して質問 [STOP]
@@ -40,9 +40,9 @@ sequenceDiagram
         LC-->>U: 進捗報告 → 次 phase の同意を待つ [STOP]
     end
 
-    Note over LC,DSGN: Phase 6: sync = 正本ハンドオフ<br/>durable 成果 (IA / データモデル / フロー / アーキ判断) を design 側へ反映し、<br/>以後 design が正本・spec は決定時スナップショットに降格<br/>(ユーザー承認必須)
+    Note over LC,DSGN: sync phase = 正本ハンドオフ<br/>durable 成果 (IA / データモデル / フロー / アーキ判断) を design 側へ反映し、<br/>以後 design が正本・spec は決定時スナップショットに降格<br/>(ユーザー承認必須)
 
-    LC->>SPEC: Phase 7: prompts/ に自己完結プロンプト生成
+    LC->>SPEC: prompts phase (最終 gate): prompts/ に自己完結プロンプト生成
     LC-->>U: サマリ + 実装セッション起動の提案
     U->>GIT: 実装 → PR (multi-agent-review で並列 Rv 可)
 

@@ -10,7 +10,7 @@ GENERATED_PATHS=(AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json)
 bash scripts/generate.sh
 
 drift=0
-if ! git diff --quiet -- "${GENERATED_PATHS[@]}"; then
+if ! git diff --quiet HEAD -- "${GENERATED_PATHS[@]}"; then
   echo "NG: 生成物が .rulesync/ と drift しています (再生成で差分が出ました):" >&2
   git --no-pager diff --stat -- "${GENERATED_PATHS[@]}" >&2
   drift=1

@@ -5,7 +5,7 @@ PRD / Design Doc / feature doc / context / ADR と整合をとった上でスキ
 
 ## 先に読むもの
 
-- `AGENTS.md` の `Spec Workflow Contract` — 正本 path / templates / target 一覧
+- `AGENTS.md` の `Spec Workflow Contract` — 正本 path / templates (target は `context/project.yml` の `domains`)
 - `reconcile-upstream.md` (同 dir) — 上位文書整合の手順
 - 対象 issue (なければ phase 1 intake で `spec-issue-read` を先に呼ぶ)
 
@@ -27,7 +27,7 @@ PRD / Design Doc / feature doc / context / ADR と整合をとった上でスキ
    - 設計フェーズ状況 (intake = 完了, scaffold = 進行中)
    - 上位文書整合 (PRD / Design Doc / feature doc / context / ADR の節と整合方針)
    - 関連資料 / 背景 / スコープ / 要件の解釈
-   - 実装対象 (target 一覧から該当を ◯)
+   - 実装対象 (`context/project.yml` の `domains` から該当を ◯)
    - 機能仕様の各サブセクション (該当しない場合は空のまま残す)
 6. **Appendix 取り込み判定**: 機能種別に応じて `templates/specs/appendices/<topic>.md` を取り込むか確認:
    - API endpoint がある → `appendices/api.md`
@@ -51,6 +51,6 @@ PRD / Design Doc / feature doc / context / ADR と整合をとった上でスキ
 
 - 上位文書 (PRD / Design Doc / feature doc / context / 既存 ADR) と矛盾しており、解決方針が決まらない
 - 対象 issue または spec dir が決まらない
-- 実装対象 app / package が `Spec Workflow Contract` の target 一覧から特定できない
+- 実装対象 app / package が `context/project.yml` の `domains`から特定できない
 - `templates/specs/template.md` が見つからない
 - 既存 spec を上書きしようとしている

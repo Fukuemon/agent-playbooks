@@ -25,6 +25,7 @@ TEMPLATE_DIR="${TEMPLATE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 CONSUMER="${1:-}"
 if [ -z "$CONSUMER" ]; then
+  [ -t 0 ] || { echo "ERROR: 非対話実行ではパス引数が必須です: bash scripts/link.sh <consumer-repo-path>" >&2; exit 1; }
   read -r -p "接続先 (消費 repo) のパス: " CONSUMER
 fi
 [ -n "$CONSUMER" ] || { echo "ERROR: 消費 repo のパスを指定してください" >&2; exit 1; }
@@ -163,7 +164,7 @@ fi
   [ -n "$BODY" ] && printf '%s\n' "$BODY"
   printf '%s\n' "$BEGIN"
   printf '# sdd-template への symlink (per-clone)。commit しない。link.sh 再実行で復元。\n'
-  for rel in "${LINKED[@]}"; do printf '/%s\n' "$rel"; done
+  for rel in ${LINKED[@]+"${LINKED[@]}"}; do printf '/%s\n' "$rel"; done # bash 3.2 の set -u で空配列展開が abort するのを防ぐ
   printf '%s\n' "$END"
 } >"$EXCLUDE"
 echo "  exclude: $EXCLUDE に管理ブロックを設置 (${#LINKED[@]} entries)"

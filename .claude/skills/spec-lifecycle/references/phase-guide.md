@@ -16,9 +16,8 @@ phase の採否・順序は `context/project.yml` の `spec.phases` が正本 (�
 | 3. clarify       | `phase-clarify.md` で未確定論点を 1 件ずつ確定                                      | 未解決論点ゼロ                                                   | diagram phase     |
 | 4. diagram       | `phase-diagram.md` で flow / sequence を描く                                        | 図と機能仕様が整合する                                           | track phase       |
 | 5. track         | `phase-track.md` で `## 上位資料からの変更点` を最新化                              | 差分が PRD / Design Doc / feature doc / context / ADR 別に整理済 | sync phase (任意) |
-| 6. upstream sync | `phase-sync.md` で PRD / Design Doc / feature doc / context / ADR に back-propagate | 変更提案行がゼロ                                                 | tasks phase       |
-| 7. tasks         | `phase-prompts.md` で実装 prompt を生成                                             | 各 prompt が自己完結 / phase 依存表                              | review            |
-| 8. review        | `spec-review` で fresh-context evaluator を通す                                     | PASS                                                             | 実装 or handoff   |
+| 6. upstream sync | `phase-sync.md` で PRD / Design Doc / feature doc / context / ADR に back-propagate | 変更提案行がゼロ                                                 | prompts phase     |
+| 7. prompts       | `phase-prompts.md` で実装 prompt を生成 (最終 gate)                                 | 各 prompt が自己完結 / phase 依存表 / gate レビュー PASS         | closeout (実装後) |
 
 ## Phase Gate (review が必須なタイミング)
 
