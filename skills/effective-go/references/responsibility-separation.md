@@ -1,268 +1,97 @@
-# Go Style Guide — Responsibility Separation by package, struct, interface, func
+# 責務分離 (package / struct / interface / func の切り方)
 
-## Abstract/Summary
+目次: 目的と 2 層の規範 / 基本原則 / 判断ルール (公開面・関数 vs メソッド・パッケージ分割・interface・命名・パッケージ変数) / パターン / レビューチェックリスト
 
-This document defines design rules for separating responsibilities in Go using `package`, `struct`, `interface`, and `func`.
+## 目的と 2 層の規範
 
-The primary goal is to reduce cognitive load by improving *referencability* (how easily a reader can understand where to look and what to use), while keeping responsibilities thin and tests simple.
+責務分離の評価軸は **参照容易性** — 読者が「どの入口を使うか」「名前から責務を推測できるか」
+「状態と依存がどこにあるか」を探索なしに掴めること。分離はそのための手段であって目的ではない。
 
-This guide intentionally avoids architectural layers, framework assumptions, and abstract categorizations. All rules are derived from practical concerns:
+本 reference は「公式の推奨 (出典付き)」と「運用ルール (house rule)」を区別して示す。
+house rule は公式が形を定めていない領域の標準化であり、公式と衝突したら公式を優先する。
 
-- Can a reader quickly understand *what to use*?
-- Is state easy to reason about?
-- Are changes localized and tests simple?
-- Can both humans and AI agents reach the same design decision?
+## 基本原則
 
-## Principles
+- **参照容易性 = 関心の分離**: 使い方の特定に探索が要るなら、分離が足りていない
+- **状態を推論しやすく保つ**: 状態は明示的に、所有者を明確に。隠れた ambient な変数に依存しない
+- **責務を薄く保ちテストを単純にする**: テストが複雑・脆くなったら責務境界を見直すサイン
+- **早すぎる分割をしない**: `package` と `interface` は分離の道具であって既定ではない。参照容易性・責務の明確さ・テストの単純さを守るのに必要になってから導入する (公式: 「実需要が出るまで interface を作らない」Google Decisions / CodeReviewComments — Interfaces)
 
-### Base principles
+## 判断ルール
 
+### 公開面の最小化 (house rule)
 
-### Referencability equals separation of concerns
+- 各パッケージの公開エントリポイント関数は **1 つ** を既定とする
+- 複数の公開関数を許すのは「同じ関心事 / 異なる利用目的 / 共存が必要」を満たすときだけ
+  (例: `mp3tag.Read` と `mp3tag.Write`)
+- 必要性の定義: `internal/` パッケージなら実際に内部で使われていること。非 `internal/` ならライブラリ API として提供する明確な意図があること
 
-Separation of concerns is evaluated by how easily a reader can:
+> 公式は「1 つ」とまでは定めないが、公開面を最小に保つ方向 (unexported を既定にし詳細を隠す) は
+> Google Best Practices と一致する。
 
-- Identify the correct entrypoint
-- Infer responsibility from names
-- Understand where state and dependencies live
+### パッケージ関数 vs struct メソッド
 
-If code is difficult to reference or requires exploration to determine usage, concerns are insufficiently separated.
+関心事の大きさで選ぶ:
 
-### Keep state easy to reason about
+- **パッケージ関数**: 単発・stateless / 設定・接続・キャッシュ・環境依存が無い / 依存を `io.Reader` 等の軽量抽象で渡せる / パッケージ変数が不要 — 典型: パース、エンコード / デコード、形式変換
+- **struct メソッド**: 設定・接続・キャッシュ・環境の状態が絡む / 呼び出しをまたいで状態が残る / 外部システム (DB / API / filesystem) が絡む — struct を状態の所有者とし、依存と設定はすべて private フィールドに入れ、振る舞いはメソッドで公開する
 
-Design structures so that:
+### パッケージ分割
 
-- State is explicit
-- Ownership of state is clear
-- Execution does not rely on hidden or ambient variables
+**分割は参照容易性が劣化してから** (house rule)。サイン: 公開面が育ち続ける / 名前が冗長・反復的になる / 関心事の混在でテストの setup が肥大する / 内部責務が乖離してきた。
 
-The goal is **state that is easy to see and reason about, resulting in low cognitive load**.
+**禁止 (公式)**:
 
-### Keep responsibilities thin to simplify testing
+- 無情報な名前のパッケージ: `util` / `common` / `helper` / `model` / `types` / `interfaces` 等 (CodeReviewComments — Package Names / Google Decisions)。「何であるか」ではなく「**何をするか**」で命名する
+- レイヤ名 (`model` / `usecase` / `repository` 等) の機械的なパッケージ分割も同じ理由で避ける
 
-When responsibilities are thin:
+**統合の基準 (公式)**: 2 つのパッケージを意味のある使い方で必ず両方 import するなら統合する。密結合な型群は同一パッケージに置き、unexported で詳細を隠す (Google Best Practices)。
 
-- Tests become linear and deterministic
-- External dependencies are isolated
-- Behavior changes affect fewer tests
+### interface の導入
 
-If testing becomes complex or brittle, responsibility boundaries should be reconsidered.
+**公式の推奨** (CodeReviewComments — Interfaces / Google Decisions):
 
-### Do not split packages or interfaces prematurely
+- **実需要が出るまで定義しない**。mock のために先に interface を作らない。まず具体実装で始める
+- **consumer 側 (使う側のパッケージ) に定義**し、実装側は具体型を返す
+- **interface を受け取り、具体型を返す**
+- 小さく保つ (1〜2 メソッド)。単メソッドは `-er` 命名 (`Reader` / `Writer`)
 
-`package` and `interface` are tools for separation, not defaults.
+**運用ルール (house rule) — 最小から合成へ**:
 
-They should be introduced **only when required** to preserve referencability, responsibility clarity, or test simplicity.
+- 必要になったら最小能力の interface (`io.Reader` 型) で定義し、呼び出し側が本当に複数能力を要るときだけ合成 (`io.ReadSeeker` 型) する
+- 能力が「一部の経路でだけ必要」なら、既定の契約を膨らませず、API を分けるか別関数・別メソッドの後ろに置く
+- 無関係なメソッドを束ねた「便利 interface」は作らない (mock も実装も難しくなり、育ち続ける)
 
-## Decision Rules
+### 命名 (公式)
 
-### Public surface minimization
+パッケージ名と識別子で意味を重複させない (stutter 禁止。Effective Go — Package names / CodeReviewComments):
 
-**Rule**
+- ❌ `graphql.NewGraphqlHandler` → ✅ `graphql.NewHandler`
+- ❌ `chat.NewChatUsecase` → ✅ `chatusecase.New`
+- ❌ `i2s.HardwareWriter` → ✅ `i2s.Writer`
 
-- Each package should expose **one public entrypoint function**.
+名前は役割を伝えるもので、文脈を繰り返すものではない。
 
-**Decision**
+### パッケージ変数 (house rule)
 
-- If one public function is sufficient, keep the package closed.
-- If more are required, evaluate whether the exception conditions are met.
+**パッケージレベル変数を定義しない**。状態の所有が見えなくなり、テストを複雑にし、隠れた結合を生む。
 
-**Allowed (Exception)**
+例外: 定数 / 不変のエラー値 (`var ErrNotFound = errors.New(...)`) / 事実上の定数 (コンパイル済み regex 等)。
+設定と依存はコンストラクタで注入し、struct の private フィールドに持つ。
 
-Multiple public functions are allowed **only if**:
+> 公式も mutable なグローバル状態を避ける方向 (Google Best Practices — Global state) で、本 rule はそれを既定化したもの。
 
-- They serve the same concern
-- They provide different usage purposes
-- Their coexistence is necessary
+## パターン
 
-Example:
+- **薄い入口**: 公開関数 1 つ。struct を返すか単一操作を実行し、内部は private のまま
+- **状態を持つ struct**: struct が設定と依存を所有。グローバル状態なし。振る舞いはメソッド
+- **軽量パッケージ関数**: stateless・依存最小。関数型スタイルのテストに向く (例: `mp3tag.Read(r io.Reader)`)
+- **境界 interface**: 依存境界に置き、実装を隠して抽象の漏れなしに差し替え可能にする
 
-- `mp3tag.Read`
-- `mp3tag.Write`
+## レビューチェックリスト
 
-**Necessity definition**
-
-- For `internal/` packages: the functions are actually used internally
-- For non-`internal/` packages: there is a clear intention to provide them as a library API
-
-### Package function vs struct method
-
-**Rule**
-
-Choose between package-level functions and struct methods based on the *size of the concern*.
-
-**Package function is appropriate when**:
-
-- Execution is single-shot and stateless
-- No configuration, connection, cache, or environment dependency is required
-- Dependencies can be passed as lightweight abstractions (`io.Reader`, `io.Writer`, etc.)
-- No package-level variables are required
-
-**Typical examples**
-
-- Parsing
-- Encoding / decoding
-- Format transformation
-- Simple I/O-bound utilities
-
-**Struct method is required when**:
-
-- Configuration, connection, cache, or environment state is involved
-- State must persist across calls
-- Behavior depends on execution context
-- External systems are involved (DB, API, filesystem, etc.)
-
-In such cases:
-
-- Define a struct as the state owner
-- Store all dependencies and configuration as private fields
-- Expose behavior through methods
-
-This avoids leaking state through package-level variables.
-
-### Package splitting rules
-
-**Rule**
-
-Split packages only when referencability degrades.
-
-**Signals for splitting**
-
-- Public surface is growing
-- Names become verbose or repetitive
-- Tests require excessive setup due to mixed concerns
-- Internal responsibilities diverge
-
-**Prohibited split criteria**
-
-- Generic architectural categories (`model`, `usecase`, `repository`, etc.)
-
-Packages should be named after *what they do*, not *what they are*.
-
-### Interface introduction rules
-
-**Rule**
-
-Do not define interfaces until there is a concrete need.
-
-**Valid reasons to introduce an interface**
-
-- External dependency isolation
-- Explicit substitution point
-- Test replacement necessity
-
-**Guidelines**
-
-- Start with concrete implementations
-- Introduce interfaces at the boundary
-- Keep interfaces small (often one verb)
-
-**Minimal-first, compose-as-needed**
-
-When an interface is necessary in production code, define it as narrowly as possible, then compose capabilities only when the caller truly needs them.
-
-- Prefer minimal capability interfaces (similar to `io.Reader`)
-- When additional capabilities are required, use compositional interfaces (similar to `io.ReadSeeker`)
-
-This improves referencability: a reader can infer required behavior from the smallest possible contract.
-
-**Decision**
-
-- If the consumer only needs a single capability, accept the minimal interface
-- If the consumer needs multiple independent capabilities, accept a composed interface
-- If capabilities are optional (only required in some paths), split the API or move the optional capability behind a separate function/method rather than inflating the default contract
-
-**Notes**
-
-- Avoid “convenience” interfaces that bundle unrelated methods because they are harder to mock, harder to implement, and tend to grow
-- Prefer defining interfaces at the point of use (consumer side) unless the package is intentionally providing a public library contract
-
-### Naming rules
-
-**Rule**
-
-Avoid semantic duplication between package names and identifiers.
-
-**Examples**
-
-- ❌ `graphql.NewGraphqlHandler`
-
-- ✅ `graphql.NewHandler`
-
-- ❌ `chat.NewChatUsecase`
-
-- ✅ `chatusecase.New`
-
-- ❌ `i2s.HardwareWriter`
-
-- ✅ `i2s.Writer`
-
-Names should convey role, not repeat context.
-
-### Package-level variables
-
-**Rule**
-
-Do not define package-level variables.
-
-**Rationale**
-
-- They obscure state ownership
-- They complicate tests
-- They introduce hidden coupling
-
-**Permitted exceptions**
-
-- Constants
-- Immutable error values
-- Effectively-constant values (e.g. compiled regex)
-
-All configuration and dependencies must be injected via constructors and stored in struct private fields.
-
-## Patterns
-
-### Thin Entrypoint Pattern
-
-- One public function
-- Returns a struct or performs a single operation
-- Internals remain private
-
-### Stateful Struct Pattern
-
-- Struct owns configuration and dependencies
-- No global state
-- Methods express behavior
-
-### Lightweight Package Function Pattern
-
-- Stateless
-- Minimal dependencies
-- Suitable for functional-style testing
-
-### Boundary Interface Pattern
-
-- Interface placed at dependency boundary
-- Implementation hidden
-- Enables substitution without abstraction leakage
-
-## Examples
-
-### Lightweight package function
-
-- `mp3tag.Read(r io.Reader)`
-- `mp3tag.Write(w io.Writer, tag Tag)`
-
-### Stateful repository
-
-- `userrepository.RepositoryImpl`
-- Holds config, connection, cache
-- Methods: `Find`, `Search`
-
-## Review Checklist
-
-- Does the package expose only one public entrypoint?
-- Are multiple public functions justified by Decision Rules?
-- Is state visible and easy to reason about?
-- Are all dependencies injected, not global?
-- Are names free from semantic duplication?
-- Is responsibility thin enough to simplify tests?
+- パッケージの公開エントリポイントは 1 つか (複数なら判断ルールの例外条件を満たすか)
+- 状態は見えるか・推論しやすいか。依存はすべて注入されているか (グローバルにないか)
+- interface は実需要から生まれたか。consumer 側にあるか。最小か
+- 名前に意味の重複 (stutter) がないか。無情報なパッケージ名 (`util` 等) がないか
+- 責務はテストを単純に保てる薄さか

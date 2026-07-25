@@ -1,41 +1,44 @@
 ---
 name: effective-go
-description: Apply Go best practices, idioms, and conventions from golang.org/doc/effective_go. Use when writing, reviewing, or refactoring Go code to ensure idiomatic, clean, and efficient implementations.
+description: Go コードの作成・レビュー・リファクタリング時に、公式ベストプラクティス (Effective Go / Google Go Style Guide / Go Doc Comments) と本 skill の運用ルール (ファイル分割・責務分離・godoc) を適用する。"Go を書く" / "Go のレビュー" / "godoc" / "effective-go" で起動する。
 source: https://github.com/openshift/hypershift/tree/main/.claude/skills/effective-go
 ---
 
 # Effective Go
 
-Apply best practices and conventions from the official [Effective Go guide](https://go.dev/doc/effective_go) to write clean, idiomatic Go code.
+Go コードを公式ベストプラクティスに沿って書くための reference 型 skill。
+本 skill の規範は 2 層に分かれる。references 内でもこの区別を明示している:
 
-## When to Apply
+- **公式の推奨**: Effective Go / Google Go Style Guide / Go Doc Comments / CodeReviewComments に実際に書かれている規範 (出典付き)
+- **運用ルール (house rule)**: 公式が基準だけ示して形を定めていない領域 (ファイル構成等) を、本 skill が参照容易性のために標準化したもの。公式と衝突したら公式を優先する
 
-Use this skill automatically when:
-- Writing new Go code
-- Reviewing Go code
-- Refactoring existing Go implementations
+## いつ使うか
 
-## References
+- 新しい Go コードを書くとき
+- Go コードをレビュー・リファクタリングするとき
+- godoc コメントを書く・直すとき
 
-Read the following file first.
+## 中核原則 (常に適用)
 
-- [file-separation](./references/file-separation.md)
-- [godoc](./references/godoc.md)
-- [responsibility-separation](./references/responsibility-separation.md)
+- **フォーマット**: `gofmt` に常に従う (交渉の余地なし)
+- **命名**: アンダースコアを使わない。exported は MixedCaps、unexported は mixedCaps。Getter に `Get` プレフィックスを付けない
+- **エラー処理**: エラーは必ず検査して返す。panic で代用しない
+- **並行性**: メモリ共有ではなく通信で共有する (channel を使う)
+- **interface**: 小さく保つ (1〜2 メソッド)。**interface を受け取り、具体型を返す**。実需要が出るまで定義しない
+- **ドキュメント**: exported な識別子すべてに、宣言名で始まる完全な文の doc comment を書く
 
-## Key Reminders
+## References (作業内容に応じて読む)
 
-Follow the conventions and patterns documented at https://go.dev/doc/effective_go, with particular attention to:
+| 作業                                            | 読む reference                                                                     |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| パッケージ内のファイルをどう割るか              | [references/file-separation.md](references/file-separation.md)                     |
+| パッケージ / struct / interface / func の切り方 | [references/responsibility-separation.md](references/responsibility-separation.md) |
+| doc comment (godoc) の書き方                    | [references/godoc.md](references/godoc.md)                                         |
 
-- **Formatting**: Always use `gofmt` - this is non-negotiable
-- **Naming**: No underscores, use MixedCaps for exported names, mixedCaps for unexported
-- **Error handling**: Always check errors; return them, don't panic
-- **Concurrency**: Share memory by communicating (use channels)
-- **Interfaces**: Keep small (1-3 methods ideal); accept interfaces, return concrete types
-- **Documentation**: Document all exported symbols, starting with the symbol name
+## 情報源 (公式)
 
-## References
-
-- Official Guide: https://go.dev/doc/effective_go
-- Code Review Comments: https://github.com/golang/go/wiki/CodeReviewComments
-- Standard Library: Use as reference for idiomatic patterns
+- Effective Go: https://go.dev/doc/effective_go
+- Google Go Style Guide: https://google.github.io/styleguide/go/
+- Go Doc Comments: https://go.dev/doc/comment
+- Code Review Comments: https://go.dev/wiki/CodeReviewComments
+- 標準ライブラリ: idiomatic なパターンの参照実装として使う

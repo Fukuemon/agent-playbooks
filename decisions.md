@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-25 選択導入型 skills/ にも Skill 共通契約を適用し、effective-go を日本語化・公式/house rule 分離で再構成
+
+- **背景**: `skills/effective-go` は外部 repo (openshift/hypershift) からの移植のままで、英語 description・非正規セクション名・重複見出しなど Skill 共通契約に非準拠、かつ `check-skills.sh` の走査対象外で silent に素通りしていた (2026-07-24 レビューの指摘)。さらに内容面では、自家製の運用規約 (5 ファイルパターン・1 パッケージ 1 公開関数・パッケージ変数禁止) が「Go Style Guide」として公式規範と区別なく提示されており、公式 (Google Style Guide は形でなく「見つけやすさ」の基準のみ・`types`/`interfaces` の種類別命名に否定的) と緊張関係があった。godoc reference は「公式を読め」だけで実質が薄かった。
+- **判断**: ① Skill 共通契約の適用範囲を「`.rulesync/skills/` と選択導入型 `skills/` の両方」と契約に明記し、`check-skills.sh` の走査対象に `skills/*/` を追加 (effective-go は reference 型例外に登録)。外部移植 skill は取り込み時に契約へ書き直す。② effective-go を日本語で全面再構成し、**「公式の推奨 (出典付き)」と「運用ルール (house rule)」の 2 層を明示的に区別**する構成にした。公式と衝突したら公式優先を明文化。③ 内容の吟味結果を反映: 公式基準 (ファイルサイズと発見しやすさ / black-box テストパッケージ / consumer 側 interface / stutter 禁止 / util・common 禁忌) を出典付きで正面に置き、types.go には dumping ground 化への警告 (公式が種類別命名に否定的) を追加。godoc は公式 Go Doc Comments の実体 (宣言名開始・完全文・doc.go の根拠・Deprecated: ・1.19 リンク記法・よくある間違い) を記載する形に書き直した。
+- **理由**: 契約の一貫性 (skill の見た目と品質基準が配布経路で割れない)。公式/house rule の区別は、レビュー時に「公式違反」と「house rule からの逸脱」を別の重さで扱えるようにするため — 区別しないと自家製規約が Go 公式の権威で強制され、公式に沿った実装が誤って指摘される。
+- **今後**: 選択導入型 skill を追加するときも契約準拠 + 公式/house rule 区別で書く。house rule を公式規範であるかのように書く提案は却下。消費 repo に導入済みの旧英語版は `npx skills add` の再実行で更新する。
+
 ## 2026-07-24 コードレビューを観点別 subagent 4 本 + 敵対的姿勢 + degrade 構成にする
 
 - **背景**: レビュー観点は spec / 文書側 (`spec-reviewer` の 7 観点 + Default-FAIL) に偏っており、コード差分は `multi-agent-review` の固定 rubric 5 行を全部入り 1 プロンプトで外部 CLI に同報するだけだった。俯瞰的な観点 (依存方向・境界・責務の置き場・生成物編集) が無く、外部 CLI 不在の環境ではコードレビュー自体が回らなかった。参考 repo (Fukuemon/skills) は観点別 `review-*` subagent + 敵対的姿勢 + degrade 設計で解決している。

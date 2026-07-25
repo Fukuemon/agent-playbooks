@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Skill 共通契約 (AGENTS.md) の機械検査。
-# 対象: .rulesync/skills/*/SKILL.md と .rulesync/subagents/*.md (正本のみ。生成物は見ない)。
+# 対象: .rulesync/skills/*/ と skills/*/ (選択導入型) の SKILL.md、.rulesync/subagents/*.md (正本のみ。生成物は見ない)。
 # 検査項目:
 #   - SKILL.md が存在し 200 行未満
 #   - frontmatter の name が directory 名と一致し、description がある
@@ -13,7 +13,7 @@ set -euo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # 品質基準のみを提供する reference 型 skill (契約の例外)
-REFERENCE_TYPE_SKILLS=("styleguide-documents")
+REFERENCE_TYPE_SKILLS=("styleguide-documents" "effective-go")
 
 fail=0
 err() {
@@ -37,7 +37,8 @@ frontmatter_value() { # $1=file $2=key → 値 (先頭の --- 〜 --- ブロッ�
   ' "$1"
 }
 
-for dir in .rulesync/skills/*/; do
+for dir in .rulesync/skills/*/ skills/*/; do
+  [ -d "$dir" ] || continue
   name="$(basename "$dir")"
   f="$dir/SKILL.md"
   if [ ! -f "$f" ]; then
