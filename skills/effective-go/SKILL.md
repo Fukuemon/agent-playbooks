@@ -1,16 +1,15 @@
 ---
 name: effective-go
-description: Go コードの作成・レビュー・リファクタリング時に、公式ベストプラクティス (Effective Go / Google Go Style Guide / Go Doc Comments) と本 skill の運用ルール (ファイル分割・責務分離・godoc) を適用する。"Go を書く" / "Go のレビュー" / "godoc" / "effective-go" で起動する。
+description: Go コードの作成・レビュー・リファクタリング時に、公式ベストプラクティスと整合済みの Go 規約 (ファイル分割・責務分離・godoc) を適用する。"Go を書く" / "Go のレビュー" / "godoc" / "effective-go" で起動する。
 source: https://github.com/openshift/hypershift/tree/main/.claude/skills/effective-go
 ---
 
 # Effective Go
 
-Go コードを公式ベストプラクティスに沿って書くための reference 型 skill。
-本 skill の規範は 2 層に分かれる。references 内でもこの区別を明示している:
-
-- **公式の推奨**: Effective Go / Google Go Style Guide / Go Doc Comments / CodeReviewComments に実際に書かれている規範 (出典付き)
-- **運用ルール (house rule)**: 公式が基準だけ示して形を定めていない領域 (ファイル構成等) を、本 skill が参照容易性のために標準化したもの。公式と衝突したら公式を優先する
+本テンプレートの Go 規約。公式ベストプラクティス (Effective Go / Google Go Style Guide /
+Go Doc Comments / CodeReviewComments) と整合するよう著作時に吟味済みで、文書全体をそのまま規範として適用する。
+公式が形を定めていない領域 (ファイル構成等) は本規約が標準形を定め、公式より意図的に厳しい箇所には
+「本規約独自」と注記している (レビューでの逸脱は、公式由来の規範より緩やかにプロジェクト判断で扱ってよい)。
 
 ## いつ使うか
 
