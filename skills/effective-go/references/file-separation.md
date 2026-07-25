@@ -63,14 +63,20 @@ func (l *loggerImpl) Log(msg string) error { /* 実装 */ }
 関数を目的・関心事で束ねる。ファイル名は役割を表す (例: `fetcher.go` / `validator.go` / `processor.go`)。
 そのファイルでしか使わない型・定数はここに置く (types.go に送らない)。
 
-### 5. `<struct><funcname>.go` — struct 別のメソッドファイル
+### 5. `<struct>_<concern>.go` — struct 別のメソッドファイル (最後の手段)
 
-**複数の struct がそれぞれ複数のメソッド群を持ち**、`fetch.go` のような名前がどの struct のものか
-曖昧になるときだけ使う。ファイル名を struct でスコープする (例: `repositoryfetch.go` / `cacheget.go`)。
+まず前提: **1 つの struct のメソッドは 1 ファイルにまとめるのが原則** (パターン 3 / 4)。
+1 struct のメソッドが複数ファイルに割れるほど大きいのは、struct の責務過多のサインであることが多く、
+ファイル分割の前に責務分離 (`responsibility-separation.md` のパッケージ分割ルール) を先に検討する。
 
-> **命名の補足**: Go のファイル名でのアンダースコアは、末尾要素が `GOOS` / `GOARCH` に一致すると
-> build constraint として解釈される (`_test.go` も特別扱い)。誤解釈の余地を避けるため、
-> 本 skill では連結小文字 (`repositoryfetch.go`) を既定とする。
+それでも割る場合 — 複数の struct がそれぞれ複数のメソッド群を持ち、`fetch.go` のような名前が
+どの struct のものか曖昧になるとき — は、アンダースコア区切りで struct にスコープする
+(例: `repository_fetch.go` / `cache_get.go`)。複数語のファイル名にアンダースコアを使うのは
+Go エコシステムの実勢 (Kubernetes / golang/tools 等) と一致する。
+
+> **命名の罠 (公式仕様)**: ファイル名の末尾要素が `GOOS` / `GOARCH` (`_linux` / `_arm64` /
+> `_windows` 等) に一致すると build constraint として解釈され、`_test` も特別扱いされる。
+> struct 名・関心事名がこれらに一致するファイル名は避ける (例: `runner_linux.go` は不可)。
 
 ## 構成例
 
@@ -93,13 +99,13 @@ store/
 ├── types.go               # 共有型 (Record, Config 等)
 ├── repository.go          # Repository interface 定義
 ├── cache.go               # Cache interface 定義
-├── repositoryfetch.go     # Repository の取得系メソッド
-├── repositoryupdate.go    # Repository の更新・削除系メソッド
-├── cacheget.go            # Cache の取得系メソッド
-└── cacheset.go            # Cache の設定・失効系メソッド
+├── repository_fetch.go    # Repository の取得系メソッド
+├── repository_update.go   # Repository の更新・削除系メソッド
+├── cache_get.go           # Cache の取得系メソッド
+└── cache_set.go           # Cache の設定・失効系メソッド
 ```
 
-読者の導線: 「使い方は?」→ 入口ファイル / 「データ構造は?」→ types.go / 「Repository の取得は?」→ repositoryfetch.go。
+読者の導線: 「使い方は?」→ 入口ファイル / 「データ構造は?」→ types.go / 「Repository の取得は?」→ repository_fetch.go。
 
 ## テストファイル (公式)
 
