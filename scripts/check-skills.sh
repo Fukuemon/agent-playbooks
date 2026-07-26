@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Skill 共通契約 (AGENTS.md) の機械検査。
+# Skill 共通契約 (.rulesync/skills/rulesync-sync/references/skill-contract.md) の機械検査。
 # 対象: .rulesync/skills/*/ と skills/*/ (選択導入型) の SKILL.md、.rulesync/subagents/*.md (正本のみ。生成物は見ない)。
 # 検査項目:
 #   - SKILL.md が存在し 200 行未満
@@ -81,7 +81,7 @@ for f in .rulesync/subagents/*.md; do
 done
 
 if [ "$fail" -ne 0 ]; then
-  echo "check-skills: 契約違反あり (正本は AGENTS.md の Skill 共通契約)" >&2
+  echo "check-skills: 契約違反あり (正本は .rulesync/skills/rulesync-sync/references/skill-contract.md)" >&2
   exit 1
 fi
 echo "check-skills: OK"
