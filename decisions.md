@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-26 root rule から 2 大契約を on-demand reference へ移し、常時ロードをポインタだけにする
+
+- **背景**: root rule (`.rulesync/rules/CLAUDE.md` → `AGENTS.md` / `CLAUDE.md`) が 159 行あり、その約半分は `Spec Workflow Contract` (SDD の運用契約 ≒ 60 行) と `Skill 共通契約` (skill 著作規約 ≒ 15 行) だった。どちらも **使う場面が限られる** (spec-\* skill 起動時 / skill を書くとき) のに毎ターン全文ロードされていた。`Setup` 節は README の「はじめかた」「消費 repo へ接続する」とほぼ重複していた。
+- **判断**: ① `Spec Workflow Contract` を `spec-lifecycle` の `references/spec-contract.md`、`Skill 共通契約` を `rulesync-sync` の `references/skill-contract.md` へ移し、root rule には 1 行のポインタだけを残した。参照側 (spec-\* skill / context-harvest / design-doc / styleguide-documents / spec-reviewer subagent / architecture.md / check-skills.sh) の「`AGENTS.md` の `<契約名>`」表記を **skill 相対の参照** (`spec-lifecycle` の `references/spec-contract.md`) に一括で書き換えた。② `Setup` 節は削除し、変更ループ (`.rulesync/` 編集 → `make generate` → `make check` → commit) と共有プロセス層の commit 順序だけを「共有プロセス層を変更するとき」に圧縮して残した (初期適用手順は README が正本)。③ `Documents (正本)` を表に、そのほかの節も命令形で圧縮。root rule は 159 → 約 95 行。
+- **理由**: 2026-07-24 の prose-rhythm 統合と同じ「常時ロードはポインタ / 本文はオンデマンド Read」の適用。skill 相対参照 (`<skill>` の `references/<topic>.md`) を選んだのは、provider ごとに実 path が変わる (`.claude/skills/` / `.agents/skills/`) ため。生成物 path を直書きすると provider 間で腐る。subagent (`spec-reviewer`) だけは skill 解決を持たないので、Claude Code の実 path を 1 箇所に明記した。
+- **今後**: root rule に規範の**本文**を足す提案は却下する (置き場は該当 skill の `references/`)。root rule に置いてよいのは、正本の地図・禁止事項・承認の取り方・出力形式など「毎ターン効かせたい短い規律」のみ。契約を移すときは参照側の表記も同 PR で書き換える (`grep -rn '<契約名>'` で全数確認する)。
+
 ## 2026-07-25 選択導入型 skills/ にも Skill 共通契約を適用し、effective-go を日本語の単一規約として再構成
 
 - **背景**: `skills/effective-go` は外部 repo (openshift/hypershift) からの移植のままで、英語 description・非正規セクション名など Skill 共通契約に非準拠、かつ `check-skills.sh` の走査対象外だった。内容面では、自家製の運用規約 (5 ファイルパターン・1 パッケージ 1 公開関数等) が「Go Style Guide」として公式規範と無区別に提示され、公式 (形でなく「見つけやすさ」基準のみ・`types`/`interfaces` の種類別命名に否定的) との緊張があった。godoc reference は「公式を読め」だけで実質が薄かった。
@@ -69,9 +76,9 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 ## 2026-07-24 固有値の正本を context/project.yml 1 本に統合 (project.md / project-config.yaml を廃止)
 
 - **背景**: 2026-07-23 に機械可読値を `project-config.yaml`、散文の規約を `project.md` に分ける 2 ファイル構成を採ったが、実際には project.md の内容 (Repository Map / Naming / Quick Commands / Label Policy / Source of Truth / Templates / Decision Priority) もほぼ全て構造化可能な値で、「どちらに書くか」の判断コストと参照の二重化 (契約や skill が両ファイルを指す) が残った。参考 repo (Fukuemon/skills) も固有値は `project-config.yaml` 1 本で、散文の別ファイルを持たない。
-- **判断**: `context/project.yml` 1 本に統合 (ユーザー指定の命名)。旧 project.md の全セクションを yaml キーに写像した: Repository Map→`repos` (layout はブロックスカラー) / Naming→`naming` / Quick Commands→`commands` / Issue Tracker→`tracker` / 対象ドメイン→`domains` / Label Policy→`labels` (axes + minimum) / Source of Truth→`paths` / Templates→`templates` / Decision Priority→`decision_priority`。説明的な文はキー横のコメントで持つ。契約・skill・context/*.md・テンプレの参照は全て `project.yml` の該当キー名 (例: 「Quick Commands 表」→「`commands`」) に更新した。
+- **判断**: `context/project.yml` 1 本に統合 (ユーザー指定の命名)。旧 project.md の全セクションを yaml キーに写像した: Repository Map→`repos` (layout はブロックスカラー) / Naming→`naming` / Quick Commands→`commands` / Issue Tracker→`tracker` / 対象ドメイン→`domains` / Label Policy→`labels` (axes + minimum) / Source of Truth→`paths` / Templates→`templates` / Decision Priority→`decision_priority`。説明的な文はキー横のコメントで持つ。契約・skill・context/\*.md・テンプレの参照は全て `project.yml` の該当キー名 (例: 「Quick Commands 表」→「`commands`」) に更新した。
 - **理由**: 正本 1 ファイル・キー参照 1 形式にすることで、「同じ規範を複数ファイルに再掲しない」原則を固有値にも適用できる。yaml コメントで散文の説明力は十分保て、skill 側は常にキー名で決め打ち参照できる。
-- **今後**: 固有値の追加はまず `project.yml` のキー追加で表現できないか検討する。「散文用に project.md を復活させたい」提案は二重管理の再発として却下 (長い説明が必要なら context/*.md の該当 topic に置き、project.yml からコメントで参照する)。
+- **今後**: 固有値の追加はまず `project.yml` のキー追加で表現できないか検討する。「散文用に project.md を復活させたい」提案は二重管理の再発として却下 (長い説明が必要なら context/\*.md の該当 topic に置き、project.yml からコメントで参照する)。
 
 ## 2026-07-24 rulesync を 14.2.0 に pin する (fix-codex-config.sh は維持)
 

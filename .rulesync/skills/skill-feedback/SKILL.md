@@ -9,7 +9,7 @@ targets:
 
 skill / rule / subagent を **使っている最中に見つけた** 不具合 (手順のズレ / 古い前提 / 誤誘導 / 抜け) や改善点を、その場の回避で終わらせず正本 `.rulesync/` に書き戻す skill。
 消費 repo (link.sh で symlink 接続) から実行しても、symlink は live なのでテンプレ側の正本がそのまま直る。
-ただし **変更の commit は sdd-template repo 側で行う** (消費 repo の `.rulesync/*` は未追跡。`AGENTS.md` の「共有プロセス層の正本」)。
+ただし **変更の commit は sdd-template repo 側で行う** (消費 repo の `.rulesync/*` は未追跡。root rule の「共有プロセス層を変更するとき」)。
 
 ## いつ使うか
 
@@ -20,7 +20,7 @@ skill / rule / subagent を **使っている最中に見つけた** 不具合 (
 
 ## 先に読むもの
 
-- `AGENTS.md` の `Skill 共通契約` (行数 / 必須セクション / description 規約)
+- `rulesync-sync` の `references/skill-contract.md` (Skill 共通契約 — 行数 / 必須セクション / description 規約)
 - 対象 skill の `.rulesync/skills/<name>/SKILL.md` (生成物ではなく正本)
 - `decisions.md` (過去の判断と衝突しないか。逆戻しの前に必読)
 
