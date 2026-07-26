@@ -6,15 +6,19 @@
 
 ## 標準スタック
 
-| 区分 | ツール | 備考 |
-| ---- | ------ | ---- |
-| Package manager |  |  |
-| Task runner |  |  |
-| Language |  |  |
-| Linter |  |  |
-| Formatter |  |  |
-| Unit test |  |  |
-| E2E |  |  |
+| 区分            | ツール | 備考 |
+| --------------- | ------ | ---- |
+| Package manager |        |      |
+| Task runner     |        |      |
+| Language        |        |      |
+| Linter          |        |      |
+| Formatter       |        |      |
+| Unit test       |        |      |
+| E2E             |        |      |
+
+## エージェント補助 (任意)
+
+- bash 出力の token 削減に [RTK](https://github.com/rtk-ai/rtk) を推奨する。導入と注意は `dev-commands` skill の `references/rtk.md` (開発者ごとの global 設定。repo の hook には登録しない)。
 
 ## 採用方針
 

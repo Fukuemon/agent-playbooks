@@ -16,6 +16,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 - **理由**: 2026-07-24 の prose-rhythm 統合と同じ「常時ロードはポインタ / 本文はオンデマンド Read」の適用。skill 相対参照 (`<skill>` の `references/<topic>.md`) を選んだのは、provider ごとに実 path が変わる (`.claude/skills/` / `.agents/skills/`) ため。生成物 path を直書きすると provider 間で腐る。subagent (`spec-reviewer`) だけは skill 解決を持たないので、Claude Code の実 path を 1 箇所に明記した。
 - **今後**: root rule に規範の**本文**を足す提案は却下する (置き場は該当 skill の `references/`)。root rule に置いてよいのは、正本の地図・禁止事項・承認の取り方・出力形式など「毎ターン効かせたい短い規律」のみ。契約を移すときは参照側の表記も同 PR で書き換える (`grep -rn '<契約名>'` で全数確認する)。
 
+## 2026-07-26 RTK は開発者ごとの global 設定として推奨し、repo の hook には登録しない
+
+- **背景**: bash 出力を圧縮して token を削る RTK (Rust Token Killer。`git status` → `rtk git status` に PreToolUse hook で書き換える CLI プロキシ) を取り入れたい、という要望。導入形態は ① repo の `.rulesync/hooks.json` に PreToolUse hook を登録して配布、② 各開発者が `rtk init -g` で `~/.claude` に入れる、の 2 通り。
+- **判断**: ② を採る (ユーザー判断)。repo 側の hook には登録せず、導入手順と注意点を `dev-commands` の `references/rtk.md` (共有プロセス層なので消費 repo にも symlink で届く) に置き、README と `templates/context/toolchain.md` は 1 行ポインタ。あわせて repo 側で 2 点だけ整合を取った: ① `.rulesync/permissions.json` に **読み取り系の `rtk` サブコマンドのみ** allow (`rtk gain` / `rtk git status|diff|log|show` / `rtk ls|tree|cat|read|grep|rg|find|test`)。書き込み系 (`rtk git push` 等) は素の命令と同じく都度承認。② `hooks/protected-branch/pre_tool_use.py` に `strip_wrappers()` を追加し、`rtk` 前置を剥がしてから git サブコマンドを判定する。
+- **理由**: repo hook 方式は、rtk 未インストールの環境 (CI / クラウドエージェント / 他メンバー) で hook が空振り or 失敗し、global 導入済みの開発者とは二重に書き換えが走る。RTK は **効率化であって workflow の前提ではない**ので、成立条件を repo 側に持ち込まない。一方 guard の `rtk` 前置剥がしは必須 — 剥がさないと `argv[0] != "git"` で protected branch ガードが素通りし、`rtk git commit` が main に通ってしまう (セキュリティ上の穴)。`rtk:*` の一括 allow を採らないのは、rtk が任意コマンドのプロキシであり、一括許可すると `push` / `rm` の承認ゲートを迂回できるため。
+- **今後**: 「repo の hooks.json に rtk hook を入れよう」という提案は、消費 repo 全員の環境に rtk が入っている前提が確認できてから再検討する。`rtk:*` を一括 allow する提案は却下 (承認ゲートの迂回)。ラッパーを増やすとき (`nice` / `time` / 他プロキシ) は `WRAPPERS` に足し、guard のテストを同 PR で回す。
+
 ## 2026-07-25 選択導入型 skills/ にも Skill 共通契約を適用し、effective-go を日本語の単一規約として再構成
 
 - **背景**: `skills/effective-go` は外部 repo (openshift/hypershift) からの移植のままで、英語 description・非正規セクション名など Skill 共通契約に非準拠、かつ `check-skills.sh` の走査対象外だった。内容面では、自家製の運用規約 (5 ファイルパターン・1 パッケージ 1 公開関数等) が「Go Style Guide」として公式規範と無区別に提示され、公式 (形でなく「見つけやすさ」基準のみ・`types`/`interfaces` の種類別命名に否定的) との緊張があった。godoc reference は「公式を読め」だけで実質が薄かった。
