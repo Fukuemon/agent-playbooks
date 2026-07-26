@@ -80,7 +80,7 @@ rtk gain             # 削減量の確認
 導入後は Bash tool の `git status` 等が `rtk git status` に書き換えられ、出力が圧縮されてから context に載る。詳細・注意点 (Read/Grep tool は通らない / 全文が必要な検証では素の命令を使う) は
 [.rulesync/skills/dev-commands/references/rtk.md](.rulesync/skills/dev-commands/references/rtk.md)。repo 側の対応は 2 点:
 
-- `.rulesync/permissions.json` は **読み取り系の `rtk` サブコマンドのみ allow** (書き込み系は素の命令と同じく都度承認)
+- `.rulesync/permissions.json` は **読み取り系の `rtk` サブコマンドのみ allow** (書き込み系は素の命令と同じく都度承認)。ただし RTK の hook は書き換えたコマンドを `permissionDecision: "allow"` で返し**承認プロンプトを飛ばす**ため、承認ゲートは permissions ではなく hook で塞ぐ (実測は `references/rtk.md`)
 - `hooks/protected-branch/pre_tool_use.py` は `rtk` 前置を剥がして判定するので、`rtk git commit` も protected branch でブロックされる
 
 ## 文書品質
