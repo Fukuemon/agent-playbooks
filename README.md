@@ -12,7 +12,7 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 | How (全体像)      | [design/DesignDoc.md](design/DesignDoc.md)    | system landscape / モジュール責務 / 横断方針       |
 | How (feature)     | [design/features/](design/features/)          | feature 単位の設計                                 |
 | How (規約 / 契約) | [context/](context/)                          | 技術規約・codebase architecture・運用契約          |
-| 固有値            | [context/project.yml](context/project.yml)      | repo / 命名 / コマンド / 対象ドメイン / トラッカー |
+| 固有値            | [context/project.yml](context/project.yml)    | repo / 命名 / コマンド / 対象ドメイン / トラッカー |
 | 意思決定          | [adr/](adr/)                                  | 長期参照する技術選定・境界                         |
 | 作業文書          | [specs/](specs/)                              | issue / 機能単位の要求・設計・テスト観点           |
 
@@ -66,6 +66,22 @@ npx skills add Fukuemon/sdd-template --skill effective-go
 
 固有値 (`context/project.yml` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
 実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。
+
+## token 削減 (RTK — 任意)
+
+エージェントが読む bash 出力を圧縮する CLI プロキシ [RTK](https://github.com/rtk-ai/rtk) を推奨する。**各開発者のマシン単位 (global) の設定**として入れる。repo 側の hook には登録していないため、未導入でも全 workflow は成立する。
+
+```bash
+brew install rtk
+rtk init -g          # Claude Code / Copilot (--codex / --agent cursor もある)
+rtk gain             # 削減量の確認
+```
+
+導入後は Bash tool の `git status` 等が `rtk git status` に書き換えられ、出力が圧縮されてから context に載る。詳細・注意点 (Read/Grep tool は通らない / 全文が必要な検証では素の命令を使う) は
+[.rulesync/skills/dev-commands/references/rtk.md](.rulesync/skills/dev-commands/references/rtk.md)。repo 側の対応は 2 点:
+
+- `.rulesync/permissions.json` は **読み取り系の `rtk` サブコマンドのみ allow** (書き込み系は素の命令と同じく都度承認)
+- `hooks/protected-branch/pre_tool_use.py` は `rtk` 前置を剥がして判定するので、`rtk git commit` も protected branch でブロックされる
 
 ## 文書品質
 
