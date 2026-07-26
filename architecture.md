@@ -2,9 +2,9 @@
 
 要求が挙がってから実装 prompt が生成されるまで、どの skill が・いつ・どの文書を触り・どの状態を遷移させるかの唯一の俯瞰図。
 
-> **メンテ必須**: skill の連鎖挙動 (呼び出し関係・phase gate・PhaseStatus の増減 / 遷移・正本ハンドオフのタイミング) を変えたら、**同 PR で本シーケンスと遷移表を必ず更新する** (`Skill 共通契約`)。図が実 skill とズレると、全体像の唯一の俯瞰図が腐り誤った前提で逆戻しされる。
+> **メンテ必須**: skill の連鎖挙動 (呼び出し関係・phase gate・PhaseStatus の増減 / 遷移・正本ハンドオフのタイミング) を変えたら、**同 PR で本シーケンスと遷移表を必ず更新する** (Skill 共通契約: `rulesync-sync` の `references/skill-contract.md`)。図が実 skill とズレると、全体像の唯一の俯瞰図が腐り誤った前提で逆戻しされる。
 
-構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/` (spec = spec-reviewer / コード差分 = review-*)、運用ルールは `.rulesync/rules/CLAUDE.md` の `Spec Workflow Contract` (AGENTS.md はその生成物)、プロジェクト固有値は `context/project.yml`。
+構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/` (spec = spec-reviewer / コード差分 = review-*)、運用ルールは `.rulesync/skills/spec-lifecycle/references/spec-contract.md` (Spec Workflow Contract) と `.rulesync/rules/CLAUDE.md` (root rule。AGENTS.md / CLAUDE.md はその生成物)、プロジェクト固有値は `context/project.yml`。
 
 ## 要求 → 実装 prompt 生成の全体シーケンス
 
