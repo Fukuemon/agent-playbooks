@@ -32,3 +32,19 @@ PreToolUse hook を登録する (`.bak` を作ってから追記)。以後 Bash 
 - `rtk gain` で削減量を確認できる。表示 token 数は `bytes / 4` の概算。
 - 破壊的操作 (`rtk git push` 等) は素の命令と同じ副作用を持つ。`rtk` を前置しても承認規約と protected branch の制約は変わらない (`hooks/protected-branch/pre_tool_use.py` は `rtk` 前置を剥がして判定する)。
 - 本リポジトリの permissions は **読み取り系の `rtk` サブコマンドのみ allow**。書き込み系は素の命令と同じく都度承認 (`.rulesync/permissions.json`)。
+
+## hook の auto-allow (0.44.0 実測)
+
+RTK の hook は書き換えたコマンドを `permissionDecision: "allow"` で返す。**書き換え対象は承認プロンプトを飛ばす**ため、
+permissions の allow / ask 設定より hook の判断が先に効く。
+
+| 入力                                          | hook の応答                                                                |
+| --------------------------------------------- | -------------------------------------------------------------------------- |
+| `git status` / `git diff` / `git commit -m x` | `rtk ...` に書き換え + auto-allow                                          |
+| `cat <path>`                                  | `rtk read <path>` に書き換え + auto-allow (秘密鍵の読み出しも無確認で通る) |
+| `git push` / `curl ...`                       | 書き換えのみ (auto-allow なし。通常の承認フロー)                           |
+| `rm -rf ...` / `npm test`                     | 書き換え対象外                                                             |
+
+- 承認ゲートを効かせたい操作は permissions ではなく **hook (deny を返す PreToolUse) で塞ぐ**。同一イベントに複数 hook が登録されている場合、**deny が auto-allow より優先される** — protected branch (`main`) で `git commit --allow-empty` を実行し、RTK が auto-allow を返しても `hooks/protected-branch/pre_tool_use.py` の deny で止まる (commit されない) ことを実測で確認済み。
+- 秘密情報の読み出しを止めたい場合、`cat` は auto-allow されるため permissions の `ask` では止まらない。パス単位で塞ぐなら hook 側で判定する。
+- hook に登録されるコマンドは素の `rtk`。version manager (mise / asdf 等) の shim で入れている場合、PATH が最小な環境から CLI を起動すると `rtk: command not found` になる。`settings.json` / `hooks.json` 側を shim の絶対 path にすると安定する。
