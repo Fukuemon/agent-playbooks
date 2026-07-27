@@ -129,18 +129,20 @@ cp "$TEMPLATE_DIR/templates/consumer/sdd-template.mk" "$CONSUMER/sdd-template.mk
 COPIED+=("sdd-template.mk")
 echo "  copy: sdd-template.mk"
 
-# closeout の削除 PR 自動起票 workflow: 無い場合だけ置く (以後は消費側が所有)。
+# closeout 関連の workflow (残存検査 / 削除 PR 自動起票): 無い場合だけ置く (以後は消費側が所有)。
 # 消費 repo には既存 workflow があり、上書きすると独自の変更を silent に壊すため
 # rsync/cp の一括同期には含めない (更新は差分を見て消費側が取り込む)。
-CLOSEOUT_WF=".github/workflows/spec-closeout.yml"
-if [ ! -e "$CONSUMER/$CLOSEOUT_WF" ]; then
-  mkdir -p "$CONSUMER/.github/workflows"
-  cp "$TEMPLATE_DIR/templates/consumer/$CLOSEOUT_WF" "$CONSUMER/$CLOSEOUT_WF"
-  COPIED+=("$CLOSEOUT_WF")
-  echo "  copy: $CLOSEOUT_WF (初期値。以後は消費 repo が所有)"
-else
-  echo "  skip (既存): $CLOSEOUT_WF — 更新は templates/consumer/ と差分比較して取り込む"
-fi
+for wf in "spec-closeout.yml" "spec-residue.yml"; do
+  rel=".github/workflows/$wf"
+  if [ ! -e "$CONSUMER/$rel" ]; then
+    mkdir -p "$CONSUMER/.github/workflows"
+    cp "$TEMPLATE_DIR/templates/consumer/$rel" "$CONSUMER/$rel"
+    COPIED+=("$rel")
+    echo "  copy: $rel (初期値。以後は消費 repo が所有)"
+  else
+    echo "  skip (既存): $rel — 更新は templates/consumer/ と差分比較して取り込む"
+  fi
+done
 
 # 消費側 git hooks (lefthook) の初期値: 無い場合だけ置く (以後は消費側が所有)
 if [ ! -e "$CONSUMER/lefthook.yml" ]; then

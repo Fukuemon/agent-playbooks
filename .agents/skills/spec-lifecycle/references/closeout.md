@@ -44,6 +44,9 @@ durable な情報は sync で design / ADR / context に救出済みであるこ
 別 PR にする場合は、その窓の間だけ残存検査が `1` を返す。検査を CI の必須チェックにしているなら、
 先に削除 PR をマージするか、window の扱いを決めてから分ける。
 
+残存検査は消費 repo の CI (`.github/workflows/spec-residue.yml` — デフォルトブランチへの push + 毎週 + 手動)
+にも載っている。PR ゲートではないため、検出は「マージ後に気付く」経路になる。手元で手順 5 を回すのが一次防御。
+
 ## 自動起票 workflow を使う場合
 
 消費 repo に `.github/workflows/spec-closeout.yml` (テンプレ配布分) がある場合、issue の close を
