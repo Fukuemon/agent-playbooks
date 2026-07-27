@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-27 closeout は「検査 + 削除 PR の自動起票」で担保し、自動削除はしない (workflow は無ければコピー配布)
+
+- **背景**: 消費 repo (kufu-apps) で close 済み issue の spec が 9 件残存していた (kufu-apps#31)。closeout 手順は存在したが **実行の担保が手順側に無い**。kufu-apps は「残存検査スクリプト + issue close 契機の削除 PR 自動起票」の 2 段構えで解決し実運用まで確認済み (issue #7)。同じ構成を共有プロセス層へ展開する。
+- **判断**: ① **自動削除はしない**。削除の前提 (durable 成果が design / context / ADR へ sync 済みか) は機械判定できないため、bot は削除 PR を起票するだけで、削除の可否はマージ可否で人が決める。② 検査は `scripts/check-specs-residue.sh` として **実ファイルコピー配布** (`hooks/` / `generate.sh` と同じ列)。入口は `sdd-template.mk` の `check-specs` target。③ workflow は `templates/consumer/.github/workflows/spec-closeout.yml` に置き、link.sh は **無ければコピー** (`lefthook.yml` と同じ「初期値。以後は消費側が所有」)。消費 repo には既存 workflow があるため一括同期 (rsync) には含めない。④ 固有値は外出し: spec dir は `context/project.yml` の `paths.spec_dir` の固定部分、repo 名は `gh repo view` (env `SPECS_CHECK_REPO` で上書き可)、ADR リンクは削除し closeout 手順は skill 相対参照にした。⑤ 検査は **終了コード 2 (検査不能) を合格にしない** — gh の認証切れ・権限不足・想定外の state で黙って通ると残存を見逃す。stderr を state に混ぜない (gh の通知混入で CLOSED を取りこぼす)。
+- **理由**: kufu-apps #31 の清算では未転記の設計情報が 6 件見つかり、うち 1 件は ADR と実装が矛盾していた。自動削除していれば失われていた。「toil だけ自動化し判断は人に残す」が設計の要点。workflow を一括コピー配布にしない理由は、消費 repo の既存 workflow を silent に壊すリスクが「テンプレ更新の追随しやすさ」より重いため (更新は差分レビューで取り込む)。
+- **今後**: 「bot に削除まで任せる」提案は却下 (sync 済み判定が機械化できるようになるまで)。検査の終了コード 2 を 0 扱いにする / `|| true` で通す提案も却下 (ゲートが無意味になる)。workflow を `copy_tree` に移す提案は、消費 repo の workflow 衝突を検出する仕組みができてから再検討する。
+
 ## 2026-07-26 root rule から 2 大契約を on-demand reference へ移し、常時ロードをポインタだけにする
 
 - **背景**: root rule (`.rulesync/rules/CLAUDE.md` → `AGENTS.md` / `CLAUDE.md`) が 159 行あり、その約半分は `Spec Workflow Contract` (SDD の運用契約 ≒ 60 行) と `Skill 共通契約` (skill 著作規約 ≒ 15 行) だった。どちらも **使う場面が限られる** (spec-\* skill 起動時 / skill を書くとき) のに毎ターン全文ロードされていた。`Setup` 節は README の「はじめかた」「消費 repo へ接続する」とほぼ重複していた。

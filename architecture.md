@@ -4,7 +4,7 @@
 
 > **メンテ必須**: skill の連鎖挙動 (呼び出し関係・phase gate・PhaseStatus の増減 / 遷移・正本ハンドオフのタイミング) を変えたら、**同 PR で本シーケンスと遷移表を必ず更新する** (Skill 共通契約: `rulesync-sync` の `references/skill-contract.md`)。図が実 skill とズレると、全体像の唯一の俯瞰図が腐り誤った前提で逆戻しされる。
 
-構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/` (spec = spec-reviewer / コード差分 = review-*)、運用ルールは `.rulesync/skills/spec-lifecycle/references/spec-contract.md` (Spec Workflow Contract) と `.rulesync/rules/CLAUDE.md` (root rule。AGENTS.md / CLAUDE.md はその生成物)、プロジェクト固有値は `context/project.yml`。
+構成要素の正本: 全プロジェクト共通の workflow skill は `.rulesync/skills/`、選択導入型 skill は `skills/`、レビュー観点は `.rulesync/subagents/` (spec = spec-reviewer / コード差分 = review-\*)、運用ルールは `.rulesync/skills/spec-lifecycle/references/spec-contract.md` (Spec Workflow Contract) と `.rulesync/rules/CLAUDE.md` (root rule。AGENTS.md / CLAUDE.md はその生成物)、プロジェクト固有値は `context/project.yml`。
 
 ## 要求 → 実装 prompt 生成の全体シーケンス
 
@@ -46,7 +46,7 @@ sequenceDiagram
     LC-->>U: サマリ + 実装セッション起動の提案
     U->>GIT: 実装 → PR (multi-agent-review で並列 Rv 可)
 
-    Note over SPEC,GIT: PR merge で issue close 後 = closeout<br/>sync 取りこぼしゼロを確認 (ADR 未起票の意思決定は起こす) して<br/>spec を削除 (references/closeout.md。経緯は issue / PR / git history で追う)
+    Note over SPEC,GIT: PR merge で issue close 後 = closeout<br/>sync 取りこぼしゼロを確認 (ADR 未起票の意思決定は起こす) して spec を削除 →<br/>残存検査 (check-specs) でゼロを確認 (references/closeout.md)<br/>消費 repo に spec-closeout workflow があれば、close 契機で削除 PR が自動起票され<br/>マージ可否が削除判断になる (bot は消さない)
 ```
 
 - `[STOP]` = ユーザーの承認・判断まで skill が停止するゲート。承認の取り方 (3 択以上・既定を進める側にしない) は contract の「承認の取り方」。
@@ -75,7 +75,7 @@ spec の `## 設計フェーズ状況` 表が各 phase の状態を管理する�
 
 作業で得たものを会話の中で終わらせず、正しい正本に書き戻すための 3 経路。
 
-- **設計の決定**: spec で確定した durable 成果は sync phase で design / context / ADR へ (上記シーケンスに内蔵)。選択肢を比較して決めた判断は ADR 化が既定 (`phase-sync.md`)。spec は issue close 時に削除されるため、sync が唯一の救出点。
+- **設計の決定**: spec で確定した durable 成果は sync phase で design / context / ADR へ (上記シーケンスに内蔵)。選択肢を比較して決めた判断は ADR 化が既定 (`phase-sync.md`)。spec は issue close 時に削除されるため、sync が唯一の救出点。削除の実行は残存検査 (`scripts/check-specs-residue.sh`) と削除 PR 自動起票 workflow (`templates/consumer/.github/workflows/spec-closeout.yml`) で担保するが、**削除の判断は人が持つ** (bot は提案のみ)。
 - **横断的な知見** (ハマりどころ / 暗黙の仕様 / 規約の欠落): `context-harvest` skill で `context/` / feature doc / ADR に書き戻す。
 - **skill 自体の不具合**: 製品フローと直交するため `skill-feedback` skill で `.rulesync/` 正本を修正 → `rulesync-sync` で再生成 → `make check`。非自明な判断は [decisions.md](decisions.md) に記録する。
 
