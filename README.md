@@ -61,6 +61,7 @@ spec は issue close 時に削除する契約 (`spec-lifecycle` の `references/
 | ------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | 残存検査           | `scripts/check-specs-residue.sh` → `make -f sdd-template.mk check-specs`     | 実ファイルコピー (`hooks/` / `generate.sh` と同じ列)                                                   |
 | 削除 PR の自動起票 | `.github/workflows/spec-closeout.yml` (issue close をトリガに削除 PR を起票) | **無ければコピー**。既存 workflow を上書きしない (更新は `templates/consumer/` と差分比較して取り込む) |
+| 検査の CI 常設 | `.github/workflows/spec-residue.yml` (デフォルトブランチへの push + 毎週 + 手動) | 同上 |
 
 検査は `context/project.yml` の `paths.spec_dir` と `gh` が解決する origin を使い、repo 名やコマンドを直書きしない。終了コードは `0` 残存なし / `1` 残存あり / `2` 検査不能 (gh の認証・権限・想定外の値) で、**`2` は合格ではない**。
 
@@ -69,6 +70,7 @@ spec は issue close 時に削除する契約 (`spec-lifecycle` の `references/
 - Settings → Actions → General で **Workflow permissions = Read and write** と **Allow GitHub Actions to create and approve pull requests** を有効にする (後者が無いと `gh pr create` が失敗する)
 - `issues` イベントの workflow は**デフォルトブランチ版が実行される**ため、workflow をマージするまで発火しない
 - `Closes #N` で issue を閉じる実装 PR に spec 削除を含めると、「issue は閉じたが spec は残っている」窓が生じない
+- 検査 CI は **PR ゲートにしていない** — 別 PR で清算する運用だと上記の窓の間、無関係な PR が落ちるため。ゲートにするなら「issue を閉じる PR に削除を含める」運用を先に徹底する (`spec-residue.yml` 末尾のメモ)
 
 ## プロジェクト選択型 skill
 
