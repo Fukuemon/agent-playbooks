@@ -112,7 +112,7 @@ copy_tree "hooks"
 # から実行時に呼ばれるため、hooks/ と同様に実ファイルとしてコピーする (symlink だと
 # link.sh 未実行のクローンで欠落し、generate が失敗する)。
 mkdir -p "$CONSUMER/scripts"
-for rel in "scripts/generate.sh" "scripts/fix-cursor-cli.sh" "scripts/fix-codex-config.sh" "scripts/fix-claude-settings.sh"; do
+for rel in "scripts/generate.sh" "scripts/fix-cursor-cli.sh" "scripts/fix-codex-config.sh" "scripts/fix-claude-settings.sh" "scripts/check-specs-residue.sh"; do
   src="$TEMPLATE_DIR/$rel"
   [ -e "$src" ] || { echo "  skip (source 無し): $rel"; continue; }
   dst="$CONSUMER/$rel"
@@ -128,6 +128,19 @@ done
 cp "$TEMPLATE_DIR/templates/consumer/sdd-template.mk" "$CONSUMER/sdd-template.mk"
 COPIED+=("sdd-template.mk")
 echo "  copy: sdd-template.mk"
+
+# closeout の削除 PR 自動起票 workflow: 無い場合だけ置く (以後は消費側が所有)。
+# 消費 repo には既存 workflow があり、上書きすると独自の変更を silent に壊すため
+# rsync/cp の一括同期には含めない (更新は差分を見て消費側が取り込む)。
+CLOSEOUT_WF=".github/workflows/spec-closeout.yml"
+if [ ! -e "$CONSUMER/$CLOSEOUT_WF" ]; then
+  mkdir -p "$CONSUMER/.github/workflows"
+  cp "$TEMPLATE_DIR/templates/consumer/$CLOSEOUT_WF" "$CONSUMER/$CLOSEOUT_WF"
+  COPIED+=("$CLOSEOUT_WF")
+  echo "  copy: $CLOSEOUT_WF (初期値。以後は消費 repo が所有)"
+else
+  echo "  skip (既存): $CLOSEOUT_WF — 更新は templates/consumer/ と差分比較して取り込む"
+fi
 
 # 消費側 git hooks (lefthook) の初期値: 無い場合だけ置く (以後は消費側が所有)
 if [ ! -e "$CONSUMER/lefthook.yml" ]; then
@@ -189,9 +202,15 @@ cat <<EOF
   cd "$CONSUMER"
   make -f sdd-template.mk generate
   npx lefthook install        # git hooks (lefthook.yml) の有効化
-  git add hooks scripts lefthook.yml sdd-template.mk .template-version <生成物> && commit
+  git add hooks scripts lefthook.yml sdd-template.mk .template-version .github/workflows <生成物> && commit
     → 生成物・hooks・scripts/generate.sh 系は commit する (clone しただけの CI / エージェント
        環境でも hook・設定・generate が効くようにするため)
+
+closeout の自動化を使う場合 (spec-closeout.yml を配布したとき):
+  - Settings → Actions → General で "Workflow permissions = Read and write" と
+    "Allow GitHub Actions to create and approve pull requests" を有効にする
+  - issues イベントはデフォルトブランチ版が実行されるため、workflow をマージするまで発火しない
+  - 残存検査は make -f sdd-template.mk check-specs (gh 認証が必要)
 
 固有値 (共有されない / 消費 repo が所有):
   context/ (project.yml 等), PRD.md, design/, specs/, adr/
