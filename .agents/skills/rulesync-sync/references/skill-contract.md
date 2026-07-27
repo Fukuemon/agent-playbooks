@@ -1,7 +1,10 @@
 # Skill 共通契約
 
 skill / rule / subagent を **書くときの契約**。skill を新設・変更するとき、`rulesync-sync` / `skill-feedback` から読む。
-機械検査は `make check` (`scripts/check-skills.sh` + 生成物 drift 検査)。
+
+機械検査 (`make check` = `scripts/check-skills.sh` + 生成物 drift 検査) は **sdd-template repo 側で実行する**。
+消費 repo には `Makefile` / `scripts/check-skills.sh` が配布されないため、消費 repo で `make check` は成立しない
+(消費 repo での検証は `make -f sdd-template.mk generate` → 生成物の差分確認まで)。
 
 参照するときのパス: `rulesync-sync` skill の `references/skill-contract.md`
 (Claude Code では `.claude/skills/rulesync-sync/references/skill-contract.md`)。
@@ -35,3 +38,5 @@ skill / rule / subagent を **書くときの契約**。skill を新設・変更
 - 常時ロードされる root rule には規範の本文を置かず、ポインタだけを置く (本文はオンデマンド Read。理由は `decisions.md`)
 - skill の連鎖挙動 (呼び出し関係 / phase gate / 状態遷移) を変えたら、同 PR で `architecture.md` のシーケンスを更新する
 - 非自明な著作判断 (token コスト / ツール制約 / スコープの線引き) は `decisions.md` に 1 判断 1 セクション (`背景 / 判断 / 理由 / 今後`) で記録し、逆戻しの前に読む
+- `architecture.md` / `decisions.md` は **sdd-template repo の文書**。消費 repo には配布されないため、更新は
+  正本 (`.rulesync/`) を持つ sdd-template repo 側で行う (消費 repo で symlink 経由に編集した場合も同じ)
