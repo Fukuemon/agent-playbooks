@@ -69,7 +69,7 @@ spec は issue close 時に削除する契約 (`spec-lifecycle` の `references/
 
 - Settings → Actions → General で **Workflow permissions = Read and write** と **Allow GitHub Actions to create and approve pull requests** を有効にする (後者が無いと `gh pr create` が失敗する)
 - `issues` イベントの workflow は**デフォルトブランチ版が実行される**ため、workflow をマージするまで発火しない
-- 起票された PR で CI を回したいなら (required check がある repo では必須)、secret `CLOSEOUT_PR_TOKEN` に PAT / GitHub App token を置く。既定の `github.token` による push / PR 作成は再帰実行防止で workflow を発火させないため、未設定だと起票された PR に CI が回らない
+- 起票された PR で CI を回したいなら (required check がある repo では必須)、secret `CLOSEOUT_PR_TOKEN` に PAT を置く。既定の `github.token` による push / PR 作成は再帰実行防止で workflow を発火させないため、未設定だと起票された PR に CI が回らない。GitHub App を使う場合は installation token を secret に固定せず、run ごとに発行する (1 時間で失効し、期限切れ secret が `github.token` へのフォールバックを塞ぐ)
 - `Closes #N` で issue を閉じる実装 PR に spec 削除を含めると、「issue は閉じたが spec は残っている」窓が生じない
 - 検査 CI は **PR ゲートにしていない** — 別 PR で清算する運用だと上記の窓の間、無関係な PR が落ちるため。ゲートにするなら「issue を閉じる PR に削除を含める」運用を先に徹底する (`spec-residue.yml` 末尾のメモ)
 
