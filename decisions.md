@@ -9,6 +9,15 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-31 読み取り索引の設定を `reading_index` ブロックで project 側に開く
+
+- **背景**: 消費 repo (depwalk) が ADR で「索引は手書きしない。frontmatter から生成する」と決め、あわせて `impact-index.yaml` を実体に合う名前へ改名しようとしたところ、索引の path が共有 skill 4 箇所 (`closeout.md` / `phase-sync.md` / `prompt-rules.md` / `context-harvest/SKILL.md`) にファイル名で直書きされており、改名すると全て解決不能になることが判明した。Skill 共通契約の「skill に project 固有名を直書きしない」にも反していた。
+- **判断**: `context/project.yml` に top-level の `reading_index` ブロックを新設し、4 箇所をキー参照へ置き換えた。`path` (索引の path。null なら索引を使わない) と `generated` (true なら索引は生成物で、skill は手編集せず生成 task を実行する) を持つ。索引を持つかどうか・手書きか生成物かを project 側の選択にした。テンプレ自身の既定は現状維持 (`context/impact-index.yaml` / `false`)。
+- **`paths` に入れなかった理由**: 当初は `paths.reading_index` / `paths.reading_index_generated` の 2 キーとしたが、`paths` は path を並べるブロックであり boolean が混ざる。関連する 2 値は 1 ブロックにまとめたほうが読みやすい。別ファイルへ切り出す案は 2026-07-24 の「固有値の正本を project.yml 1 本に統合」の逆戻しになる (設定が 2 ファイルに割れ、どちらに書くかの判断コストと参照の二重化が再発する) ため採らなかった。`context/impact-index.yaml` が別ファイルなのは矛盾しない — あれは索引の中身 (データ) であり、`project.yml` は設定である。
+- **理由**: 2026-07-24 に読み取り索引を移植したときの「今後」は「索引が実態とずれるのが最大の失敗モードなので、sync / context-harvest の索引更新ステップを外す提案は却下」だった。この判断は維持する — **更新ステップは外していない**。変わったのは更新の手段で、生成物なら「再生成する」が更新ステップの中身になる。手書きで腐らせるより生成で常に一致させるほうが、元の判断の目的 (索引を実態と一致させる) をより強く満たす。
+- **解決規則の置き場**: 「キー無し = 従来の `context/impact-index.yaml`」「明示 `null` = 索引なし」「`generated: true` なら `generate_command` を実行」の 3 点は `spec-contract.md` の「読み取り索引の解決」に 1 回だけ書き、参照する 4 skill は 1 行参照に畳んだ (2026-07-07 の「同じ規範を複数ファイルに再掲しない」に従う)。キー欠落を「索引なし」と解釈すると、キーが増える前から索引を持つ既存の消費 repo で索引更新が黙って止まる — テンプレの `templates/` 変更は新規プロジェクトにしか効かないため。
+- **今後**: 索引の path やファイル名を skill 側へ再び直書きする変更は却下する。キー欠落を「索引なし」扱いにする変更も却下する (後方互換が壊れる)。`reading_index.generated: true` の project で skill が索引を手編集する手順を残す提案も却下する (生成物の手編集は drift 検査で必ず落ちる)。索引そのものを廃止する提案は 2026-07-24 の判断どおり却下する。設定を `project.yml` の外へ出す提案は 2026-07-24 の統合判断の逆戻しとして却下する。
+
 ## 2026-07-27 closeout は「検査 + 削除 PR の自動起票」で担保し、自動削除はしない (workflow は無ければコピー配布)
 
 - **背景**: 消費 repo (kufu-apps) で close 済み issue の spec が 9 件残存していた (kufu-apps#31)。closeout 手順は存在したが **実行の担保が手順側に無い**。kufu-apps は「残存検査スクリプト + issue close 契機の削除 PR 自動起票」の 2 段構えで解決し実運用まで確認済み (issue #7)。同じ構成を共有プロセス層へ展開する。
