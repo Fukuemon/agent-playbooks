@@ -111,6 +111,12 @@ paths:
   spec_prompts: specs/<issue-id>-<slug>/prompts/
   spec_requirements: specs/<issue-id>-<slug>/requirements.md # 任意
   spec_review: specs/<issue-id>-<slug>/review.md # 任意
+  # 読み取り索引 (「何を読めば足りるか」のルーティング表)。
+  # ファイル名は project ごとに変えてよい。null なら索引を使わない。
+  reading_index: context/impact-index.yaml
+  # 索引が生成物 (スクリプトで再生成する) なら true。true のとき skill は
+  # 索引を手編集せず、生成コマンド (commands の該当 task) を実行する。
+  reading_index_generated: false
 
 # Templates — 各文書の生成元
 templates:
