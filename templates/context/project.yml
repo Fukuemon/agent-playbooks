@@ -113,9 +113,14 @@ paths:
 
 # 読み取り索引 (「何を読めば足りるか」のルーティング表) の設定。
 # path だけでなく「手書きか生成物か」も持つため paths とは別ブロックにする。
+#
+# 本ブロック自体が無い project では path を context/impact-index.yaml と見なす
+# (キーが増える前から索引を持つ repo を黙って無効化しないため)。
+# 索引を使わないことは明示的な path: null で表す。
 reading_index:
   path: context/impact-index.yaml # ファイル名は project ごとに変えてよい。null なら索引を使わない
-  generated: false # true なら生成物。skill は索引を手編集せず commands の生成 task を実行する
+  generated: false # true なら生成物。skill は索引を手編集せず generate_command を実行する
+  generate_command: null # generated: true のとき必須。索引を再生成するコマンド
 
 # Templates — 各文書の生成元
 templates:
