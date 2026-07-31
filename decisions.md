@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-07-31 読み取り索引の path とマニュアル/生成物の別を `paths.reading_index*` で project 側に開く
+
+- **背景**: 消費 repo (depwalk) が ADR で「索引は手書きしない。frontmatter から生成する」と決め、あわせて `impact-index.yaml` を実体に合う名前へ改名しようとしたところ、索引の path が共有 skill 4 箇所 (`closeout.md` / `phase-sync.md` / `prompt-rules.md` / `context-harvest/SKILL.md`) にファイル名で直書きされており、改名すると全て解決不能になることが判明した。Skill 共通契約の「skill に project 固有名を直書きしない」にも反していた。
+- **判断**: `context/project.yml` の `paths` に 2 キーを追加し、4 箇所をキー参照へ置き換えた。`reading_index` (索引の path。null なら索引を使わない) と `reading_index_generated` (true なら索引は生成物で、skill は手編集せず生成 task を実行する)。索引を持つかどうか・手書きか生成物かを project 側の選択にした。テンプレ自身の既定は現状維持 (`context/impact-index.yaml` / `false`)。
+- **理由**: 2026-07-24 に読み取り索引を移植したときの「今後」は「索引が実態とずれるのが最大の失敗モードなので、sync / context-harvest の索引更新ステップを外す提案は却下」だった。この判断は維持する — **更新ステップは外していない**。変わったのは更新の手段で、生成物なら「再生成する」が更新ステップの中身になる。手書きで腐らせるより生成で常に一致させるほうが、元の判断の目的 (索引を実態と一致させる) をより強く満たす。
+- **今後**: 索引の path やファイル名を skill 側へ再び直書きする変更は却下する。`reading_index_generated: true` の project で skill が索引を手編集する手順を残す提案も却下する (生成物の手編集は drift 検査で必ず落ちる)。索引そのものを廃止する提案は 2026-07-24 の判断どおり却下する。
+
 ## 2026-07-27 closeout は「検査 + 削除 PR の自動起票」で担保し、自動削除はしない (workflow は無ければコピー配布)
 
 - **背景**: 消費 repo (kufu-apps) で close 済み issue の spec が 9 件残存していた (kufu-apps#31)。closeout 手順は存在したが **実行の担保が手順側に無い**。kufu-apps は「残存検査スクリプト + issue close 契機の削除 PR 自動起票」の 2 段構えで解決し実運用まで確認済み (issue #7)。同じ構成を共有プロセス層へ展開する。
