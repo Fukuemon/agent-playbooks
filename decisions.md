@@ -9,6 +9,13 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-08-01 design 側は現在の設計だけを持ち、経緯は ADR / git history へ寄せる
+
+- **背景**: 消費 repo (depwalk) の実測で、design doc と context に issue 参照が 99 件 (1 doc で 32 件)、Phase 参照が 5 本、`## メタ` / `## 上位資料からの変更点` / `## 変更履歴` が feature doc 6 本すべてに存在していた。いずれも「この issue で何を決めたか」「どう改訂してきたか」であり、読み手が設計を知るために読むときには雑音になる。原因の一部はテンプレ側で、`templates/features/template.md` が `## メタ` (関連 issue / 関連 spec を含む) と `## 上位資料からの変更点` を最初から持たせていた。
+- **判断**: 正本境界に「design 側は現在の設計だけを持つ」を明文化し、情報の置き場を表で示した。あわせて feature テンプレから `## メタ` と `## 上位資料からの変更点` を外し、冒頭に方針を 1 行置いた。issue 番号を design 側へ書いてよい例外は「未解決の論点を指すとき」だけとする。
+- **理由**: 規範自体は既に正本境界にあった (「issue が閉じても残り続ける設計情報は design 正本、この issue の意思決定の記録は spec」)。守られなかったのはテンプレが逆の構造を配っていたためで、規範を足すより**テンプレを規範に合わせる**ほうが効く。`## メタ` の「対象モジュール」は消費 repo が frontmatter に `governs` を持つなら二重管理にもなる。
+- **今後**: spec / requirements テンプレの `## 変更履歴` / `## 上位資料からの変更点` は残す。作業文書は経緯を持つのが役目であり、本判断の対象外。feature テンプレへ「関連 issue」「関連 spec」の行を戻す提案は却下する (spec は close 時に削除されるため、design からのリンクは必ず切れる)。
+
 ## 2026-07-31 読み取り索引の設定を `reading_index` ブロックで project 側に開く
 
 - **背景**: 消費 repo (depwalk) が ADR で「索引は手書きしない。frontmatter から生成する」と決め、あわせて `impact-index.yaml` を実体に合う名前へ改名しようとしたところ、索引の path が共有 skill 4 箇所 (`closeout.md` / `phase-sync.md` / `prompt-rules.md` / `context-harvest/SKILL.md`) にファイル名で直書きされており、改名すると全て解決不能になることが判明した。Skill 共通契約の「skill に project 固有名を直書きしない」にも反していた。
