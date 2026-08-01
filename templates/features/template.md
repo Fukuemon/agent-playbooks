@@ -4,16 +4,8 @@
 
 Feature 単位の設計 doc。仕様 (What) をどう実現するか (How) を、データ構造・画面・フロー単位で記述する。責務・範囲・方針の層に留め、ファイル配置・directive・テスト手順などの実装レベルの手順は spec へ委譲する。全体像は [design/DesignDoc.md](../../DesignDoc.md)、横断規約は [context/](../../../context/) を参照する。
 
-## メタ
+**現在の設計だけを書く。** 「なぜそうしたか」「どう変えてきたか」「どの issue で決めたか」は書かず、判断は ADR へ起こしてその場に 1 行参照する (`spec-lifecycle` の `references/spec-contract.md` の正本境界)。
 
-| 項目           | 値                                                      |
-| -------------- | ------------------------------------------------------- |
-| 関連 PRD 要求  | <PRD.md の該当節 / 要求>                                |
-| 関連 DesignDoc | <design/DesignDoc.md の該当節>                          |
-| 関連 context   | <context/\*.md の該当ファイル>                          |
-| 関連 ADR       | <adr/NNNN-\*.md>                                        |
-| 関連 spec      | <specs/<issue>-<slug>/>                                 |
-| 対象モジュール | <context/project.yml の対象ドメインから選ぶ>             |
 
 ## 背景・要件解釈
 
@@ -66,12 +58,3 @@ flowchart TD
 
 - 横断規約は [context/testing.md](../../../context/testing.md)。本 feature 固有の観点を記す。
 -
-
-## 上位資料からの変更点
-
-| 対象資料  | 変更種別 (継承 / 追記 / 変更提案) | 内容 |
-| --------- | --------------------------------- | ---- |
-| PRD       |                                   |      |
-| DesignDoc |                                   |      |
-| context   |                                   |      |
-| ADR       |                                   |      |
