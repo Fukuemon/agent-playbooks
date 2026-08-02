@@ -70,6 +70,23 @@ for d in "$SDD_WORKTREE"/templates/*; do
   CANDIDATES+=("templates/$name")
 done
 
+# 前回の link で張ったが今回の配布物に無くなった symlink を先に外す。
+# 残っていると、配布単位を細かくしたとき (templates/ → templates/<sub>) に
+# 親の symlink 越しに read-only な worktree を触りに行って失敗する。
+PREV_EXCLUDE="$(git -C "$CONSUMER" rev-parse --git-path info/exclude)"
+[ "${PREV_EXCLUDE#/}" = "$PREV_EXCLUDE" ] && PREV_EXCLUDE="$CONSUMER/$PREV_EXCLUDE"
+if [ -f "$PREV_EXCLUDE" ]; then
+  while IFS= read -r prev; do
+    prev="${prev#/}"
+    [ -n "$prev" ] || continue
+    case " ${CANDIDATES[*]} " in *" $prev "*) continue ;; esac
+    if [ -L "$CONSUMER/$prev" ]; then
+      rm -f "$CONSUMER/$prev"
+      echo "  unlink (配布対象外になった): $prev"
+    fi
+  done < <(sed -n '/^# BEGIN sdd-template link$/,/^# END sdd-template link$/p' "$PREV_EXCLUDE" | grep '^/' || true)
+fi
+
 LINKED=()
 BACKED_UP=()
 TRACKED_WARN=()
