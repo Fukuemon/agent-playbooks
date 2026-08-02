@@ -1,6 +1,17 @@
+---
+type: feature-design
+title: <文書名>
+description: <索引に出す 1 行説明。何が書いてあるかを具体的に>
+status: 未着手 | 進行中 | 完了 | 保留
+keywords: [<検索の手掛かり>, <API 名>, <用語>]
+governs:
+  # この文書が語る契約の実装場所。コードだけでなく設定ファイルでもよい。
+  # 鮮度検査の対象外にするなら governs と verified_commit の両方を消す。
+  - <path/to/impl>
+# 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
+verified_commit: unverified
+---
 # Feature 設計: <feature 名>
-
-> 最終更新: YYYY-MM-DD / Status: 未着手 | 進行中 | 完了 | 保留
 
 Feature 単位の設計 doc。仕様 (What) をどう実現するか (How) を、データ構造・画面・フロー単位で記述する。責務・範囲・方針の層に留め、ファイル配置・directive・テスト手順などの実装レベルの手順は spec へ委譲する。全体像は [design/DesignDoc.md](../../DesignDoc.md)、横断規約は [context/](../../../context/) を参照する。
 
