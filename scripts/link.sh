@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Link this sdd-template's shared process layer into a consumer repo via symlinks.
+# sdd-template の共有プロセス層を、symlink で消費 repo へ接続する。
 #
-# Why: the development-process assets (skills + operating contract + hooks) are
-# generic. The SOURCE layer (.rulesync/) is symlinked LIVE so editing either
-# side updates both. The consumer then runs `rulesync generate` to emit
-# provider configs from the symlinked input and COMMITS the generated files.
+# 開発プロセスの資産 (skills + operating contract + hooks) は汎用である。
+# そのため入力層 (.rulesync/) は live な symlink にし、どちら側を編集しても
+# 両方に反映されるようにする。消費側は symlink 越しの入力から
+# `rulesync generate` で provider 設定を作り、生成物だけを commit する。
 #
-# hooks/ and the provider-normalizer scripts (scripts/generate.sh and its
-# scripts/fix-*.sh dependencies) are different: they must run in a bare clone
-# (CI / cloud agents / machines without this template) — hooks via the
-# committed .claude/settings.json referencing `hooks/...` at runtime, and
-# generate.sh via `make -f sdd-template.mk generate`. Therefore both are
-# COPIED as real files and committed by the consumer — not symlinked.
-# Re-run link.sh to pull updates; .template-version records the source SHA.
+# hooks/ と provider 正規化スクリプト (scripts/generate.sh とその依存
+# scripts/fix-*.sh) は扱いが異なる。これらはテンプレを持たない環境
+# (CI / cloud agent / 素の clone) でも動く必要があるためである。hooks は commit
+# 済みの .claude/settings.json が実行時に `hooks/...` を参照し、generate.sh は
+# `make -f sdd-template.mk generate` から呼ばれる。よって symlink ではなく
+# **実ファイルとしてコピー**し、消費側が commit する。
+# 更新は link.sh の再実行で取り込む。取り込み元の SHA は .template-version に残る。
 #
-# Product-specific values stay OWNED by the consumer and are never shared:
-#   context/ (project.yml etc.), PRD.md, design/, specs/, adr/.
+# プロダクト固有値は消費 repo の所有物であり、共有しない:
+#   context/ (project.yml など)、PRD.md、design/、specs/、adr/。
 #
-# Run from anywhere:  bash scripts/link.sh <consumer-repo-path>
-# Idempotent. Re-run after adding/removing skills or updating hooks.
+# 実行 (どこからでも可):  bash scripts/link.sh <consumer-repo-path>
+# 冪等。skill の増減や hook の更新後に再実行する。
 set -euo pipefail
 
 TEMPLATE_DIR="${TEMPLATE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
