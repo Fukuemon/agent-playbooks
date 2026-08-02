@@ -13,8 +13,17 @@ durable な情報は sync で design / ADR / context に救出済みであるこ
 
 - [ ] sync 完了: spec の `## 上位資料からの変更点` に未反映の「変更提案」行がない
 - [ ] 対象 issue が closed (実装 PR merge 済み)
-- [ ] この spec を変更元とする派生 issue (`quality:*`) が open で残っていない
+- [ ] この spec を変更元とする派生 issue (`quality:*`) が open で残っていない (例外は下記)
 - [ ] `prompts/` の実装作業がすべて完了している (未実行 prompt が残っていない)
+
+### 例外: open な派生 issue が残っていても削除してよい場合
+
+派生 issue が **spec の記述に依存していない** (本文がコード path / feature doc / ADR のみを参照し、
+spec へのリンク・引用を持たない) ことを全件確認できたなら、open のままでも削除してよい。
+
+- 依存している派生 issue がある場合は、依存箇所を durable 文書 (feature doc / context / ADR)
+  へ移すか issue 本文へ転記してから削除する
+- 例外を適用したときは、確認した派生 issue 番号と判断根拠を削除 commit / PR に記録する
 
 ## 手順
 
