@@ -42,8 +42,14 @@ echo "接続先: $CONSUMER"
 echo "ref:    $SDD_DIST_REF"
 
 # --- 1) 配布 worktree を用意/更新 -------------------------------------------
-SDD_DIR="$TEMPLATE_DIR" SDD_WORKTREE="$SDD_WORKTREE" SDD_DIST_REF="$SDD_DIST_REF" \
-  bash "$TEMPLATE_DIR/scripts/sync-dist.sh"
+# SDD_SKIP_SYNC=1 で省略できる。git worktree を作るたびに fetch すると重いため、
+# 既に用意済みの配布 worktree へ張り直すだけの経路で使う。
+if [ "${SDD_SKIP_SYNC:-0}" = "1" ] && [ -d "$SDD_WORKTREE/dist" ]; then
+  echo "sync: skip (SDD_SKIP_SYNC=1)"
+else
+  SDD_DIR="$TEMPLATE_DIR" SDD_WORKTREE="$SDD_WORKTREE" SDD_DIST_REF="$SDD_DIST_REF" \
+    bash "$TEMPLATE_DIR/scripts/sync-dist.sh"
+fi
 
 DIST="$SDD_WORKTREE/dist"
 [ -d "$DIST" ] || { echo "ERROR: $DIST が無い (中央で make dist して push したか確認)" >&2; exit 1; }
@@ -139,7 +145,7 @@ echo "  exclude: $EXCLUDE に ${#LINKED[@]} entries"
 
 # --- 4) 消費 repo が所有するファイルの初期値 ---------------------------------
 # 一度置いたら消費 repo の所有物になるもの。上書きすると独自の変更を silent に壊す。
-for rel in "lefthook.yml" ".github/workflows/spec-closeout.yml" ".github/workflows/spec-residue.yml" "scripts/check-specs-residue.sh" "scripts/doctor.sh"; do
+for rel in "lefthook.yml" ".github/workflows/spec-closeout.yml" ".github/workflows/spec-residue.yml" "scripts/check-specs-residue.sh" "scripts/doctor.sh" "scripts/link-worktree.sh"; do
   src="$TEMPLATE_DIR/templates/consumer/$rel"
   [ -e "$src" ] || src="$TEMPLATE_DIR/$rel"
   [ -e "$src" ] || continue
@@ -150,6 +156,21 @@ for rel in "lefthook.yml" ".github/workflows/spec-closeout.yml" ".github/workflo
     echo "  copy: $rel (初期値。以後は消費 repo が所有)"
   fi
 done
+
+# --- 5) 消費 repo の他の worktree へも張る -----------------------------------
+# symlink は追跡されないため、git worktree を作っても配布物が 1 つも来ない。
+# 既存の worktree はここで面倒を見る (新規作成分は lefthook の post-checkout)。
+if [ "${SDD_LINK_WORKTREES:-1}" = "1" ]; then
+  while IFS= read -r wt; do
+    [ -n "$wt" ] || continue
+    [ "$wt" = "$CONSUMER" ] && continue
+    [ -d "$wt" ] || continue
+    echo
+    echo "worktree へ展開: $wt"
+    SDD_SKIP_SYNC=1 SDD_LINK_WORKTREES=0 bash "$TEMPLATE_DIR/scripts/link.sh" "$wt" \
+      | sed 's/^/  /'
+  done < <(git -C "$CONSUMER" worktree list --porcelain | awk '/^worktree /{print $2}')
+fi
 
 echo
 echo "link done (worktree=$SDD_WORKTREE)"
