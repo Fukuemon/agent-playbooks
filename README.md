@@ -27,10 +27,11 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 
 ## 消費 repo へ接続する (共有プロセス層)
 
-開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。配布形式は 2 層に分かれる:
+開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。生成は中央 (本 repo の `make dist`) で 1 回だけ行い、消費 repo は symlink を張るだけで**何も commit しない** (ignore は消費 clone の `.git/info/exclude` に入る):
 
-- **ソース層 (`.rulesync/`) = live symlink**: skills / 操作契約 / subagents。どちらの repo で編集しても両方に反映される (「片方更新 → 両方更新」)。symlink は消費 clone の `.git/info/exclude` に登録され、commit 差分は出ない (per-clone)。
-- **実行時参照される層 (`hooks/` / `scripts/generate.sh` 系 / `lefthook.yml`) = 実ファイルコピー**: commit 済みの `.claude/settings.json` 等が実行時に `hooks/...` を参照し、`make -f sdd-template.mk generate` が実行時に `scripts/generate.sh` (と `scripts/fix-*.sh`) を参照するため、clone しただけの環境 (CI / クラウドエージェント / テンプレ未 clone のマシン) でも実在する必要がある。消費 repo が commit して所有する。
+- **配布層 = `origin/main` 固定 worktree への symlink**: 生成物 (`CLAUDE.md` / `AGENTS.md` / `.claude/` / `.codex/` / `.cursor/` / `.agents/` / `.mcp.json`) と `hooks/` / `templates/` は、`origin/main` に固定した配布 worktree (`<template-repo>/.wt/dist`) を指す。未 merge ブランチの契約で消費 repo が動かないための固定で、テンプレ側の更新は `make sync` (worktree を `origin/main` へ) で link 済みの全消費 repo に同時反映される。
+- **著作層 (`.rulesync/`) = 作業 clone への live symlink**: 正本の skills / 操作契約 / subagents。消費 repo 側からも正本を直接編集できる (反映は `make dist` → merge → `make sync`)。
+- **消費 repo 所有の初期値 = 無い場合だけコピー**: `lefthook.yml` / `.github/workflows/spec-closeout.yml` / `spec-residue.yml` / `scripts/check-specs-residue.sh` / `scripts/doctor.sh` / `scripts/link-worktree.sh`。一度置いた後は消費 repo の所有物で、link.sh の再実行で上書きしない。
 
 ```bash
 # このテンプレ repo 上で実行
@@ -38,30 +39,27 @@ make link ARGS=/path/to/your-product-repo
 # または: bash scripts/link.sh /path/to/your-product-repo
 ```
 
-- 共有されない固有値 (消費 repo が所有): `context/` (`project.yml` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
-- `.template-version` に配布元テンプレの commit SHA が記録される (更新の追跡用)。
-
-接続後、消費 repo 側で各 provider 設定を生成し、生成物・hooks を commit する:
+接続後、消費 repo 側で git hooks を有効化し、接続状態を検査する:
 
 ```bash
 cd /path/to/your-product-repo
-make -f sdd-template.mk generate                                # rulesync + provider 別正規化
-npx lefthook install                                             # git hooks の有効化
-git add hooks scripts lefthook.yml sdd-template.mk .template-version AGENTS.md CLAUDE.md .agents .claude .codex .cursor .mcp.json
+npx lefthook install    # git hooks の有効化
+bash scripts/doctor.sh  # 共有プロセス層が繋がっているかの検査
 ```
 
-生成物・hooks・scripts/generate.sh 系を commit するのは、clone-and-go (CI / クラウドエージェント) でも
-設定・hook・generate が効くようにするため。テンプレ側の更新は `link.sh` の再実行で取り込み、差分を commit する。
+- 共有されない固有値 (消費 repo が所有): `context/` (`project.yml` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
+- 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には AI 設定も hook も存在しない。欠落を silent にしないための検査が `scripts/doctor.sh` (判断の経緯は `decisions.md` 2026-08-02)。
+- symlink は追跡されないため、消費 repo の git worktree には配布物が自動では来ない。既存 worktree は link.sh が展開し、新規作成分は lefthook の post-checkout (`scripts/link-worktree.sh`) が張る。
 
 ## closeout の自動化 (spec 残存の検査 + 削除 PR の自動起票)
 
 spec は issue close 時に削除する契約 (`spec-lifecycle` の `references/closeout.md`) だが、手順だけでは実行が担保されない。2 段構えで塞ぐ。**自動では消さない** — 削除の前提「durable な設計成果が design / context / ADR へ sync 済みか」は機械判定できないため、判断は人に残し、toil (削除作業) だけを自動化する。
 
-| 仕組み             | 実体                                                                             | 配布                                                                                                   |
-| ------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 残存検査           | `scripts/check-specs-residue.sh` → `make -f sdd-template.mk check-specs`         | 実ファイルコピー (`hooks/` / `generate.sh` と同じ列)                                                   |
-| 削除 PR の自動起票 | `.github/workflows/spec-closeout.yml` (issue close をトリガに削除 PR を起票)     | **無ければコピー**。既存 workflow を上書きしない (更新は `templates/consumer/` と差分比較して取り込む) |
-| 検査の CI 常設     | `.github/workflows/spec-residue.yml` (デフォルトブランチへの push + 毎週 + 手動) | 同上                                                                                                   |
+| 仕組み             | 実体                                                                             | 配布                                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 残存検査           | `scripts/check-specs-residue.sh`                                                 | **無ければコピー**。以後は消費 repo が所有し、上書きしない (更新は `templates/consumer/` と差分比較して取り込む) |
+| 削除 PR の自動起票 | `.github/workflows/spec-closeout.yml` (issue close をトリガに削除 PR を起票)     | 同上                                                                                                             |
+| 検査の CI 常設     | `.github/workflows/spec-residue.yml` (デフォルトブランチへの push + 毎週 + 手動) | 同上                                                                                                             |
 
 検査は `context/project.yml` の `paths.spec_dir` と `gh` が解決する origin を使い、repo 名やコマンドを直書きしない。終了コードは `0` 残存なし / `1` 残存あり / `2` 検査不能 (gh の認証・権限・想定外の値) で、**`2` は合格ではない**。
 

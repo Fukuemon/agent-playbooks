@@ -2,7 +2,7 @@
 # closed issue の spec dir が残っていないかを検査する (closeout 契約の機械検査)。
 # 契約の正本は `spec-lifecycle` skill の references/closeout.md。
 #
-#   bash scripts/check-specs-residue.sh                                   # 消費 repo では make -f sdd-template.mk check-specs
+#   bash scripts/check-specs-residue.sh
 #   SPECS_CHECK_REPO=<owner>/<repo> bash scripts/check-specs-residue.sh   # repo を明示する (既定は gh の origin)
 #
 # 終了コード: 0 = 残存なし / 1 = 残存あり (closeout 未実施) / 2 = 検査不能 (gh 認証・権限・想定外の値)
