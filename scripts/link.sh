@@ -1,27 +1,30 @@
 #!/usr/bin/env bash
 # sdd-template の共有プロセス層を、symlink で消費 repo へ接続する。
 #
-# 開発プロセスの資産 (skills + operating contract + hooks) は汎用である。
-# そのため入力層 (.rulesync/) は live な symlink にし、どちら側を編集しても
-# 両方に反映されるようにする。消費側は symlink 越しの入力から
-# `rulesync generate` で provider 設定を作り、生成物だけを commit する。
+# 生成は中央 (本 repo の `make dist`) で 1 回だけ行い、消費 repo は dist/ を指す
+# symlink を張るだけにする。消費 repo は **何も commit しない** (ignore は
+# .git/info/exclude に書く)。これにより次が消える:
+#   - 消費 repo ごとの `rulesync generate` と生成物 commit
+#   - 生成物 drift 検査 (check-generated)
+#   - 実ファイルコピーの双方向 drift (templates/ / sdd-template.mk / scripts/*.sh)
 #
-# hooks/ と provider 正規化スクリプト (scripts/generate.sh とその依存
-# scripts/fix-*.sh) は扱いが異なる。これらはテンプレを持たない環境
-# (CI / cloud agent / 素の clone) でも動く必要があるためである。hooks は commit
-# 済みの .claude/settings.json が実行時に `hooks/...` を参照し、generate.sh は
-# `make -f sdd-template.mk generate` から呼ばれる。よって symlink ではなく
-# **実ファイルとしてコピー**し、消費側が commit する。
-# 更新は link.sh の再実行で取り込む。取り込み元の SHA は .template-version に残る。
+# 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には
+# 操作契約も skill も hook も存在しない。この判断は decisions.md 2026-08-02 を見る。
+# 欠落を silent にしないため、消費 repo では `bash scripts/doctor.sh` で検査する。
+#
+# symlink 先は SDD_DIST_REF (既定 origin/main) に固定した worktree (<repo>/.wt/dist)。
+# 未 merge のブランチを指したまま消費 repo を動かさないための固定である。
 #
 # プロダクト固有値は消費 repo の所有物であり、共有しない:
 #   context/ (project.yml など)、PRD.md、design/、specs/、adr/。
 #
 # 実行 (どこからでも可):  bash scripts/link.sh <consumer-repo-path>
-# 冪等。skill の増減や hook の更新後に再実行する。
+# 冪等。更新は `make sync` (worktree を origin/main へ) で全消費 repo に同時反映される。
 set -euo pipefail
 
 TEMPLATE_DIR="${TEMPLATE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+SDD_WORKTREE="${SDD_WORKTREE:-${TEMPLATE_DIR}/.wt/dist}"
+SDD_DIST_REF="${SDD_DIST_REF:-origin/main}"
 
 CONSUMER="${1:-}"
 if [ -z "$CONSUMER" ]; then
@@ -33,194 +36,103 @@ fi
 CONSUMER="$(cd "$CONSUMER" && pwd)"
 git -C "$CONSUMER" rev-parse --git-dir >/dev/null 2>&1 \
   || { echo "ERROR: git repo ではありません: $CONSUMER" >&2; exit 1; }
+[ "$CONSUMER" != "$TEMPLATE_DIR" ] || { echo "ERROR: テンプレ自身には link できません" >&2; exit 1; }
 
-if [ "$CONSUMER" = "$TEMPLATE_DIR" ]; then
-  echo "ERROR: テンプレ自身には link できません" >&2; exit 1
-fi
+echo "接続先: $CONSUMER"
+echo "ref:    $SDD_DIST_REF"
 
-# --- 共有プロセス層 (symlink 対象) を組み立てる -----------------------------
-# 固定パス + `.rulesync/skills/*` を動的に列挙する。
-# `context/` (project.yml 等) / PRD.md / design/ / specs/ / adr/ は消費 repo 所有 = symlink しない。
-# permissions.json / mcp.json は汎用デフォルトとして共有する。製品固有にしたい場合は
-# 消費側で symlink を実ファイルに置き換える (link.sh 再実行で上書きされない: backup される)。
+# --- 1) 配布 worktree を用意/更新 -------------------------------------------
+SDD_DIR="$TEMPLATE_DIR" SDD_WORKTREE="$SDD_WORKTREE" SDD_DIST_REF="$SDD_DIST_REF" \
+  bash "$TEMPLATE_DIR/scripts/sync-dist.sh"
+
+DIST="$SDD_WORKTREE/dist"
+[ -d "$DIST" ] || { echo "ERROR: $DIST が無い (中央で make dist して push したか確認)" >&2; exit 1; }
+
+# --- 2) symlink を張る -------------------------------------------------------
+# `.claude` / `.codex` などは丸ごとではなく配下を個別に張る。消費 repo が
+# 独自の設定ファイルを同じ階層に置けるようにするため。
 CANDIDATES=(
-  "rulesync.jsonc"
-  ".rulesync/rules/CLAUDE.md"
-  ".rulesync/hooks.json"
-  ".rulesync/permissions.json"
-  ".rulesync/mcp.json"
-  ".rulesync/.aiignore"
-  ".rulesync/subagents"
-  "scripts/link.sh"
+  "CLAUDE.md" "AGENTS.md" ".mcp.json"
+  "hooks" "templates"
+  ".rulesync"
 )
-for skill in "$TEMPLATE_DIR"/.rulesync/skills/*/; do
-  [ -d "$skill" ] || continue
-  name="$(basename "$skill")"
-  CANDIDATES+=(".rulesync/skills/$name")
+for d in "$DIST"/.claude/* "$DIST"/.codex/* "$DIST"/.cursor/* "$DIST"/.agents/*; do
+  [ -e "$d" ] || continue
+  CANDIDATES+=("${d#"$DIST"/}")
 done
 
 LINKED=()
 BACKED_UP=()
 TRACKED_WARN=()
-
 for rel in "${CANDIDATES[@]}"; do
-  src="$TEMPLATE_DIR/$rel"
+  case "$rel" in
+    hooks | templates) src="$SDD_WORKTREE/$rel" ;;
+    .rulesync) src="$TEMPLATE_DIR/.rulesync" ;; # 著作用。worktree ではなく作業 clone を指す
+    *) src="$DIST/$rel" ;;
+  esac
   [ -e "$src" ] || { echo "  skip (source 無し): $rel"; continue; }
+
   dst="$CONSUMER/$rel"
   mkdir -p "$(dirname "$dst")"
-
   if [ -L "$dst" ]; then
-    rm -f "$dst"                                   # 既存 symlink は安全置換
+    rm -f "$dst"
   elif [ -e "$dst" ]; then
-    mv "$dst" "$dst.pre-link.bak"                  # tracked / 未追跡を問わず退避 (削除しない)
-    BACKED_UP+=("$rel")
     if git -C "$CONSUMER" ls-files --error-unmatch "$rel" >/dev/null 2>&1; then
-      TRACKED_WARN+=("$rel")                       # tracked 実体は警告対象として記録
+      # 旧方式で commit 済み。置換して移行案内に集める (削除の確定は消費側の commit)。
+      TRACKED_WARN+=("$rel")
+      rm -rf "$dst"
+    else
+      # 未追跡の実体は消費 repo 固有の可能性がある。無言で消さず退避する。
+      mv "$dst" "$dst.pre-link.bak"
+      BACKED_UP+=("$rel")
     fi
   fi
   ln -sfn "$src" "$dst"
   LINKED+=("$rel")
-  echo "  link: $rel"
 done
+echo "  link: ${#LINKED[@]} entries"
 
-# --- 実ファイルコピー配布 (消費 repo が commit する) -------------------------
-# hooks/ は commit 済み .claude/settings.json 等から実行時に参照されるため、
-# clone しただけの環境 (CI / クラウドエージェント) でも実在する必要がある。
-# symlink ではなく実ファイルとしてコピーし、消費側で commit する。
-COPIED=()
-
-copy_tree() { # $1=rel path (directory)
-  local rel="$1" src="$TEMPLATE_DIR/$1" dst="$CONSUMER/$1"
-  [ -e "$src" ] || { echo "  skip (source 無し): $rel"; return; }
-  [ -L "$dst" ] && rm -f "$dst" # 旧 symlink 配布からの移行
-  mkdir -p "$dst"
-  # --delete を使わない: 消費 repo がローカル hook を同 dir に追加している場合があり、
-  # テンプレ同期でそれを消すと git hook が silent に壊れる (テンプレ側で削除した
-  # ファイルの掃除は消費側の diff レビューに委ねる)
-  if command -v rsync >/dev/null 2>&1; then
-    rsync -a "$src/" "$dst/"
-  else
-    cp -R "$src/." "$dst/"
-  fi
-  COPIED+=("$rel")
-  echo "  copy: $rel"
-}
-
-copy_tree "hooks"
-
-# rulesync 生成シーケンスと provider 別 normalizer は `make -f sdd-template.mk generate`
-# から実行時に呼ばれるため、hooks/ と同様に実ファイルとしてコピーする (symlink だと
-# link.sh 未実行のクローンで欠落し、generate が失敗する)。
-mkdir -p "$CONSUMER/scripts"
-for rel in "scripts/generate.sh" "scripts/fix-cursor-cli.sh" "scripts/fix-codex-config.sh" "scripts/fix-claude-settings.sh" "scripts/check-specs-residue.sh"; do
-  src="$TEMPLATE_DIR/$rel"
-  [ -e "$src" ] || { echo "  skip (source 無し): $rel"; continue; }
-  dst="$CONSUMER/$rel"
-  [ -L "$dst" ] && rm -f "$dst" # 旧 symlink 配布からの移行
-  cp "$src" "$dst"
-  chmod +x "$dst"
-  COPIED+=("$rel")
-  echo "  copy: $rel"
-done
-
-# rulesync と provider 別 normalizer を 1 コマンドで実行する consumer 用 Makefile。
-# 既存 Makefile と衝突させないため、独立した -f 対象として配布する。
-cp "$TEMPLATE_DIR/templates/consumer/sdd-template.mk" "$CONSUMER/sdd-template.mk"
-COPIED+=("sdd-template.mk")
-echo "  copy: sdd-template.mk"
-
-# closeout 関連の workflow (残存検査 / 削除 PR 自動起票): 無い場合だけ置く (以後は消費側が所有)。
-# 消費 repo には既存 workflow があり、上書きすると独自の変更を silent に壊すため
-# rsync/cp の一括同期には含めない (更新は差分を見て消費側が取り込む)。
-for wf in "spec-closeout.yml" "spec-residue.yml"; do
-  rel=".github/workflows/$wf"
-  if [ ! -e "$CONSUMER/$rel" ]; then
-    mkdir -p "$CONSUMER/.github/workflows"
-    cp "$TEMPLATE_DIR/templates/consumer/$rel" "$CONSUMER/$rel"
-    COPIED+=("$rel")
-    echo "  copy: $rel (初期値。以後は消費 repo が所有)"
-  else
-    echo "  skip (既存): $rel — 更新は templates/consumer/ と差分比較して取り込む"
-  fi
-done
-
-# 消費側 git hooks (lefthook) の初期値: 無い場合だけ置く (以後は消費側が所有)
-if [ ! -e "$CONSUMER/lefthook.yml" ]; then
-  cp "$TEMPLATE_DIR/templates/consumer/lefthook.yml" "$CONSUMER/lefthook.yml"
-  COPIED+=("lefthook.yml")
-  echo "  copy: lefthook.yml (初期値。以後は消費 repo が所有)"
-fi
-
-# どの時点のテンプレ由来かを記録 (更新の追跡用。消費側で commit する)
-TEMPLATE_SHA="$(git -C "$TEMPLATE_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
-{
-  echo "# sdd-template の配布元バージョン (scripts/link.sh が更新)"
-  echo "sha: $TEMPLATE_SHA"
-  echo "linked_at: $(date +%Y-%m-%d)"
-} >"$CONSUMER/.template-version"
-COPIED+=(".template-version")
-echo "  write: .template-version ($TEMPLATE_SHA)"
-
-# --- .git/info/exclude に管理ブロックを設置 (commit しない) ------------------
+# --- 3) ignore は消費 clone の .git/info/exclude へ (commit されない) ---------
 EXCLUDE="$(git -C "$CONSUMER" rev-parse --git-path info/exclude)"
-case "$EXCLUDE" in /*) ;; *) EXCLUDE="$CONSUMER/$EXCLUDE" ;; esac
-BEGIN="# >>> sdd-template: linked AI config (managed by scripts/link.sh; do not edit this block) >>>"
-END="# <<< sdd-template: linked AI config <<<"
+[ "${EXCLUDE#/}" = "$EXCLUDE" ] && EXCLUDE="$CONSUMER/$EXCLUDE"
 mkdir -p "$(dirname "$EXCLUDE")"
-
-# 既存 exclude から管理ブロックを除いた本体を取り出す
-BODY=""
-if [ -e "$EXCLUDE" ]; then
-  BODY="$(awk -v b="$BEGIN" -v e="$END" '
-    $0==b {skip=1; next}
-    skip && $0==e {skip=0; next}
-    skip {next}
-    {print}
-  ' "$EXCLUDE")"
-fi
+BEGIN="# BEGIN sdd-template link"
+END="# END sdd-template link"
 {
-  [ -n "$BODY" ] && printf '%s\n' "$BODY"
-  printf '%s\n' "$BEGIN"
-  printf '# sdd-template への symlink (per-clone)。commit しない。link.sh 再実行で復元。\n'
-  for rel in ${LINKED[@]+"${LINKED[@]}"}; do printf '/%s\n' "$rel"; done # bash 3.2 の set -u で空配列展開が abort するのを防ぐ
-  printf '%s\n' "$END"
-} >"$EXCLUDE"
-echo "  exclude: $EXCLUDE に管理ブロックを設置 (${#LINKED[@]} entries)"
+  [ -f "$EXCLUDE" ] && sed "/^${BEGIN}$/,/^${END}$/d" "$EXCLUDE" || true
+  echo "$BEGIN"
+  printf '/%s\n' ${LINKED[@]+"${LINKED[@]}"}
+  echo "$END"
+} >"$EXCLUDE.tmp"
+mv "$EXCLUDE.tmp" "$EXCLUDE"
+echo "  exclude: $EXCLUDE に ${#LINKED[@]} entries"
 
-# --- 後始末ガイド -----------------------------------------------------------
-echo ""
-echo "── 完了 ───────────────────────────────────────────────"
-if [ "${#BACKED_UP[@]}" -gt 0 ]; then
-  echo "NOTE: 既存ファイルを *.pre-link.bak に退避しました (削除はしていません):"
-  printf '  %s.pre-link.bak\n' "${BACKED_UP[@]}"
-fi
+# --- 4) 消費 repo が所有するファイルの初期値 ---------------------------------
+# 一度置いたら消費 repo の所有物になるもの。上書きすると独自の変更を silent に壊す。
+for rel in "lefthook.yml" ".github/workflows/spec-closeout.yml" ".github/workflows/spec-residue.yml" "scripts/check-specs-residue.sh" "scripts/doctor.sh"; do
+  src="$TEMPLATE_DIR/templates/consumer/$rel"
+  [ -e "$src" ] || src="$TEMPLATE_DIR/$rel"
+  [ -e "$src" ] || continue
+  if [ ! -e "$CONSUMER/$rel" ]; then
+    mkdir -p "$(dirname "$CONSUMER/$rel")"
+    cp "$src" "$CONSUMER/$rel"
+    case "$rel" in *.sh) chmod +x "$CONSUMER/$rel" ;; esac
+    echo "  copy: $rel (初期値。以後は消費 repo が所有)"
+  fi
+done
+
+echo
+echo "link done (worktree=$SDD_WORKTREE)"
 if [ "${#TRACKED_WARN[@]}" -gt 0 ]; then
-  echo "WARN: 次のパスは git に commit 済みです。退避した内容を確認のうえ一度 untrack してください:"
-  printf '  git -C "%s" rm -r --cached %s\n' "$CONSUMER" "${TRACKED_WARN[*]}"
+  echo
+  echo "旧方式で commit されていた生成物を symlink へ置き換えました。untrack してください:"
+  printf '  git rm -r --cached %s\n' ${TRACKED_WARN[@]+"${TRACKED_WARN[@]}"}
+  echo "  git commit -m 'chore(sdd): 共有プロセス層を symlink 配布へ移行し生成物を untrack する'"
 fi
-cat <<EOF
-
-次のステップ (消費 repo 側で実行):
-  cd "$CONSUMER"
-  make -f sdd-template.mk generate
-  npx lefthook install        # git hooks (lefthook.yml) の有効化
-  git add hooks scripts lefthook.yml sdd-template.mk .template-version .github/workflows <生成物> && commit
-    → 生成物・hooks・scripts/generate.sh 系は commit する (clone しただけの CI / エージェント
-       環境でも hook・設定・generate が効くようにするため)
-
-closeout の自動化を使う場合 (spec-closeout.yml を配布したとき):
-  - Settings → Actions → General で "Workflow permissions = Read and write" と
-    "Allow GitHub Actions to create and approve pull requests" を有効にする
-  - issues イベントはデフォルトブランチ版が実行されるため、workflow をマージするまで発火しない
-  - 残存検査は make -f sdd-template.mk check-specs (gh 認証が必要)
-
-固有値 (共有されない / 消費 repo が所有):
-  context/ (project.yml 等), PRD.md, design/, specs/, adr/
-  → 実ファイルとして記入・commit する。
-
-更新の反映:
-  - .rulesync/ (skill / contract) は live symlink。どちらの repo で編集しても両方に反映
-    (編集後は消費側で make -f sdd-template.mk generate → 生成物を commit)。
-  - hooks/ と scripts/generate.sh 系は実ファイルコピー。テンプレ側の更新は link.sh 再実行で
-    取り込み、差分を commit する (.template-version で由来 SHA を追跡)。
-EOF
+if [ "${#BACKED_UP[@]}" -gt 0 ]; then
+  echo
+  echo "未追跡の実体を退避しました (*.pre-link.bak)。不要なら削除してください:"
+  printf '  %s.pre-link.bak\n' ${BACKED_UP[@]+"${BACKED_UP[@]}"}
+fi
+echo
+echo "検査: cd $CONSUMER && bash scripts/doctor.sh"
