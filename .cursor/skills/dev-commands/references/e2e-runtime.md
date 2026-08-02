@@ -1,6 +1,6 @@
 # E2E Runtime
 
-E2E の env contract と対象側 script contract。プロジェクトが E2E を持つ場合に参照する。具体的な対象名・port・コマンドは [context/project.yml](../../../../context/project.yml) を正本とする。
+E2E の env contract と対象側 script contract。プロジェクトが E2E を持つ場合に参照する。具体的な対象名・port・コマンドは `context/project.yml` を正本とする。
 
 ## env contract の考え方
 

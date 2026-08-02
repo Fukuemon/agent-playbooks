@@ -4,7 +4,7 @@ description: タスクに対応するプロジェクトコマンド (dev / build
 ---
 # Dev Commands
 
-本リポジトリで **タスクを正しいコマンドで実行する** ための入口。新しいコマンドを発明せず、[context/project.yml](../../../context/project.yml) の `commands` 契約に沿って実行する。
+本リポジトリで **タスクを正しいコマンドで実行する** ための入口。新しいコマンドを発明せず、`context/project.yml` の `commands` 契約に沿って実行する。
 
 ## いつ使うか
 
@@ -14,7 +14,7 @@ description: タスクに対応するプロジェクトコマンド (dev / build
 
 ## 先に読むもの
 
-- [context/project.yml](../../../context/project.yml) — `commands` (固有値の正本。対象ドメインは `context/project.yml` の `domains`)
+- `context/project.yml` — `commands` (固有値の正本。対象ドメインは `context/project.yml` の `domains`)
 - `references/command-matrix.md` — コマンド分類と用途の解説
 - `references/filter-scope.md` — module スコープの考え方 (workspace / monorepo の場合)
 - `references/e2e-runtime.md` — E2E の env contract (該当する場合)

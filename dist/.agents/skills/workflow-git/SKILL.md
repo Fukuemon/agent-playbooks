@@ -6,7 +6,7 @@ description: >-
 ---
 # Workflow Git
 
-本リポジトリの Git / GitHub 操作を進めるときの入口スキル。プロジェクト固有値 (tracker / domains / labels) は [context/project.yml](../../../context/project.yml) を読む。
+本リポジトリの Git / GitHub 操作を進めるときの入口スキル。プロジェクト固有値 (tracker / domains / labels) は `context/project.yml` を読む。
 
 ## いつ使うか
 

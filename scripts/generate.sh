@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .rulesync/ から各 provider 設定を生成し、provider 別 normalizer を適用する。
-# 唯一の生成シーケンス。Makefile / templates/consumer/sdd-template.mk /
-# scripts/check-generated.sh はすべて本スクリプトを呼ぶ (手動列挙による同期漏れを防ぐ)。
+# 唯一の生成シーケンス。scripts/build-dist.sh が本スクリプトを呼ぶ
+# (手動列挙による同期漏れを防ぐ)。
 # 冪等なので何度実行してもよい。
 set -euo pipefail
 

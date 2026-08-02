@@ -69,6 +69,7 @@ for dir in .rulesync/skills/*/ skills/*/; do
     deep="$(find "$dir/references" -mindepth 1 -type d || true)"
     [ -z "$deep" ] || err "$name: references/ にサブディレクトリがある (1 階層のみ許可): $deep"
   fi
+
 done
 
 for f in .rulesync/subagents/*.md; do

@@ -32,13 +32,13 @@ gate の正本は `spec-lifecycle` SKILL.md の phase レジストリ。gate pha
 
 スコープに応じて該当する論点だけを clarify phase (`phase-clarify.md`) で確定する。各論点の正本は `context/`。
 
-- performance / runtime budget をどう抑えるか ([context/architecture.md](../../../../context/architecture.md))
-- 共有コードへ昇格する範囲と module / feature 固有に閉じる範囲の境界 ([context/architecture.md](../../../../context/architecture.md))
+- performance / runtime budget をどう抑えるか (`context/architecture.md`)
+- 共有コードへ昇格する範囲と module / feature 固有に閉じる範囲の境界 (`context/architecture.md`)
 - 先回りした共通化をしていないか (colocation を崩していないか)
-- secret を client / build-time / runtime のどこに置くか ([context/infrastructure.md](../../../../context/infrastructure.md))
+- secret を client / build-time / runtime のどこに置くか (`context/infrastructure.md`)
 - state / routing をどこで表現するか
-- テストの検証境界 (unit / e2e の責務) ([context/testing.md](../../../../context/testing.md))
-- 依存境界 / dead code のルール違反を生まないか ([context/engineering.md](../../../../context/engineering.md))
+- テストの検証境界 (unit / e2e の責務) (`context/testing.md`)
+- 依存境界 / dead code のルール違反を生まないか (`context/engineering.md`)
 - 将来拡張を初期スコープに含めるか、ADR に送るか
 
 ## Phase を止めるべき条件
