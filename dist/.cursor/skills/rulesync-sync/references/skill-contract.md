@@ -4,7 +4,7 @@ skill / rule / subagent を **書くときの契約**。skill を新設・変更
 
 機械検査 (`make check` = `scripts/check-skills.sh` + 生成物 drift 検査) は **sdd-template repo 側で実行する**。
 消費 repo には `Makefile` / `scripts/check-skills.sh` が配布されないため、消費 repo で `make check` は成立しない
-(消費 repo での検証は `make -f sdd-template.mk generate` → 生成物の差分確認まで)。
+(編集も生成も検証も sdd-template repo で行う。消費 repo は symlink で参照するだけ)。
 
 参照するときのパス: `rulesync-sync` skill の `references/skill-contract.md`
 (Claude Code では `.claude/skills/rulesync-sync/references/skill-contract.md`)。

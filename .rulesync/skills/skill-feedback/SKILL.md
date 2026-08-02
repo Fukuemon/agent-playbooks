@@ -30,8 +30,8 @@ skill / rule / subagent を **使っている最中に見つけた** 不具合 (
 2. **原因の分類**: (a) 記述が古い / 誤り → 修正、(b) project 固有値の直書き → `context/project.yml` 参照へ置換、(c) 説明不足 → SKILL.md か references に追記、(d) 設計判断の変更が必要 → ユーザーに提案して停止
 3. **decisions.md との突合**: 変更が過去の判断 (`背景 / 判断 / 理由 / 今後`) の逆戻しに当たる場合、該当セクションを提示してユーザーに確認する
 4. **正本の修正**: `rulesync-sync` skill の手順で `.rulesync/` を編集し、生成・検証まで行う。
-   検証は repo 種別で変わる: sdd-template repo では `make generate` → `make check`、消費 repo では
-   `make -f sdd-template.mk generate` → 生成物の差分確認 (`make check` は配布されないため成立しない)
+   **編集も生成も検証も sdd-template repo で行う** (`make dist` → `make check`)。
+   消費 repo へ反映するには push 後に `make sync` で配布 worktree を進める
 5. **連鎖影響の確認**: skill の呼び出し関係 / phase gate / 状態遷移を変えた場合は `architecture.md` のシーケンスを同時に更新する
    (`architecture.md` / `decisions.md` は sdd-template repo の文書。消費 repo には無いのでテンプレ側で更新する)
 6. **記録**: 非自明な判断 (スコープの線引き / ツール制約による割り切り) を含む場合は `decisions.md` に 1 セクション追記する

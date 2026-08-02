@@ -5,11 +5,11 @@
 ## 1. 生成コマンド
 
 ```sh
-make generate                      # sdd-template repo
-make -f sdd-template.mk generate   # 消費 repo
+make dist   # sdd-template repo でのみ実行する
 ```
 
-- 実体は `scripts/generate.sh` (両 target が共通で呼ぶ唯一の生成シーケンス)
+- 実体は `scripts/build-dist.sh` → `scripts/generate.sh` (唯一の生成シーケンス)
+- 生成は中央で 1 回だけ行う。消費 repo は `dist/` を symlink で参照するだけで生成しない
 - 引数なしで全 provider に展開する
 - rulesync のバージョンは `scripts/generate.sh` で **pin** している (上流リリースによる生成物の
   無断変化を防ぐ)。更新は動作確認のうえ generate.sh の bump commit で行う

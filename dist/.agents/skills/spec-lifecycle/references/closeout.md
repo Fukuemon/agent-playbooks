@@ -32,7 +32,7 @@ durable な情報は sync で design / ADR / context に救出済みであるこ
 4. **削除と commit**: `git rm -r specs/<issue-id>-<slug>/` し、削除 commit のメッセージに
    issue 番号を含める (例: `chore(spec): closeout #<N> — durable 成果は <反映先> へ反映済み`)
 5. **残存検査**: 残存検査を実行し、**残存ゼロを確認する** (手順を踏んだつもりで消し漏れる事故を塞ぐ最後のゲート)
-   - 消費 repo: `make -f sdd-template.mk check-specs` (実体は配布された `scripts/check-specs-residue.sh`)
+   - 消費 repo: `bash scripts/check-specs-residue.sh` (link.sh が初期値として置く。以後は消費 repo が所有)
    - プロジェクトが独自の入口を持つ場合は `context/project.yml` の `commands` から解決する
    - 終了コード: `0` 残存なし / `1` 残存あり (closeout 未実施) / `2` 検査不能 (gh の認証・権限・想定外の値)。
      **`2` を合格として扱わない** — 検査できていないだけで、残存の有無は不明
