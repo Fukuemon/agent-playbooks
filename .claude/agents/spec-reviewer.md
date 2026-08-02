@@ -61,6 +61,14 @@ tools: "Read, Grep, Glob"
 
 → 欠落があれば `NEEDS_WORK`。節名の正本は `templates/specs/template.md` と `hooks/spec/validate_document.sh`。
 
+**テンプレ残骸ゼロ** (1 件でもあれば `NEEDS_WORK`):
+
+- 空のままの表行 (`| | | |`) が残っていないか
+- テンプレの指示文 (「(clarify で確定したものをここに移動する)」等の括弧書き・blockquote) が残っていないか
+- 未記入のままの節・空バレット (`-` のみの行) が放置されていないか (該当なしなら「なし」と書かれているべき)
+- 後日追記が固定語彙 (`追記` / `改訂` / `逸脱` + ISO 日付) 以外で書かれていないか
+- `## 解決済みの論点` が `**D<n>: <結論 1 文>**` + 子箇条書き (根拠 / トレードオフ) の記法か (決定・理由・背景を 1 段落に詰めた項目は `NEEDS_WORK`)
+
 関連 spec / ADR / context が更新されている場合、`Spec Workflow Contract` の「文書メタ情報の同期」を満たしているか (本文だけ更新されメタ情報 / 履歴が古いままなら `NEEDS_WORK`)。
 
 ## 5. EARS acceptance (受け入れ基準)
