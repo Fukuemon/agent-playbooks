@@ -53,9 +53,13 @@ DIST="$SDD_WORKTREE/dist"
 # 独自の設定ファイルを同じ階層に置けるようにするため。
 CANDIDATES=(
   "CLAUDE.md" "AGENTS.md" ".mcp.json"
-  "hooks"
   ".rulesync"
 )
+# hooks/ はファイル単位で張る。消費 repo が同じディレクトリに自前の hook を
+# 置いていることがあり (例: hooks/format/run_oxfmt.sh)、丸ごと置き換えると消える。
+while IFS= read -r f; do
+  CANDIDATES+=("${f#"$SDD_WORKTREE"/}")
+done < <(find "$SDD_WORKTREE/hooks" -type f 2>/dev/null | sort)
 for d in "$DIST"/.claude/* "$DIST"/.codex/* "$DIST"/.cursor/* "$DIST"/.agents/*; do
   [ -e "$d" ] || continue
   CANDIDATES+=("${d#"$DIST"/}")
@@ -92,7 +96,7 @@ BACKED_UP=()
 TRACKED_WARN=()
 for rel in "${CANDIDATES[@]}"; do
   case "$rel" in
-    hooks | templates/*) src="$SDD_WORKTREE/$rel" ;;
+    hooks/* | templates/*) src="$SDD_WORKTREE/$rel" ;;
     .rulesync) src="$TEMPLATE_DIR/.rulesync" ;; # 著作用。worktree ではなく作業 clone を指す
     *) src="$DIST/$rel" ;;
   esac
