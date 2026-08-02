@@ -5,7 +5,7 @@
 - 現在の branch が作業ブランチである
 - 差分が PR タイトル / 本文と一致している
 - 関連 Issue と spec のリンクが整理されている
-- base branch が `develop` でよい
+- base branch が `naming.base_branch` (`context/project.yml`) と一致している
 
 ## PR 本文に含めること
 
@@ -28,6 +28,6 @@
 
 ## 停止条件
 
-- base branch が `main` / `master` になっているが、明示指示がない
+- base branch が `naming.base_branch` 以外 (`release_branch` への直接 PR 等) になっているが、明示指示がない
 - Testing を空欄にしないと本文が作れない
 - Related Issues が曖昧で、レビュー単位を追跡できない

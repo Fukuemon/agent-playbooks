@@ -33,6 +33,8 @@ naming:
   package: <例: @<scope>/<module>>
   component: <例: PascalCase>
   branch: <例: feature/<issue-id>>
+  base_branch: <例: develop / main> # 統合ブランチ。作業ブランチはここから切り、PR もここへ出す
+  release_branch: <例: main / null> # リリース先。trunk based (base_branch がそのままリリース先) なら null
 
 # Quick Commands (dev-commands skill が読むコマンド契約)
 commands:

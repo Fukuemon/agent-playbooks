@@ -6,7 +6,7 @@ description: >-
 ---
 # Workflow Git
 
-本リポジトリの Git / GitHub 操作を進めるときの入口スキル。プロジェクト固有値 (tracker / domains / labels) は `context/project.yml` を読む。
+本リポジトリの Git / GitHub 操作を進めるときの入口スキル。プロジェクト固有値 (tracker / domains / labels / naming) は `context/project.yml` を読む。
 
 ## いつ使うか
 
@@ -17,7 +17,7 @@ description: >-
 
 ## 先に読むもの
 
-- `context/project.yml` の `repos` (パス規約と repo 定義) / `labels`
+- `context/project.yml` の `repos` (パス規約と repo 定義) / `labels` / `naming` (branch pattern と `base_branch` / `release_branch`)
 - `references/operation-order.md` — 標準順序と保護ブランチガード
 - issue 追跡 (`#<issue>` 記法、関連 link) は `references/commit-format.md` / `references/pr-format.md` / `references/issue-format.md` に内包
 

@@ -36,6 +36,7 @@ DesignDoc から導けない固有値をユーザーに確認する (1 問ずつ
 
 - リポジトリマップ (app repo / infra repo / ghq などのパス規約)
 - パッケージ scope・命名規約 (`@<scope>/<module>` 等)・branch pattern
+- ブランチ戦略 (trunk based か `develop` 分離か): 統合ブランチ `naming.base_branch` と、リリース先 `naming.release_branch` (trunk based なら null)
 - コマンド契約 `commands` (dev / build / lint / typecheck / test / e2e / 依存追加)
 - 対象ドメイン (spec「実装対象」テーブル用の一覧)
 - Issue Tracker (種別 / CLI / Repo)

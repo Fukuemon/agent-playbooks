@@ -5,12 +5,12 @@
 ## 標準順序
 
 1. Issue または作業単位を確定する
-2. `develop` から作業ブランチを切る
+2. 統合ブランチ (`context/project.yml` の `naming.base_branch`) から作業ブランチを切る
 3. 実装・文書修正を行う
 4. 差分確認と必要ファイルのステージングを行う
 5. コミットメッセージを作成して commit する
 6. 必要なら push する
-7. 必要なら `develop` 向けに PR を作成する
+7. 必要なら `naming.base_branch` 向けに PR を作成する
 
 ## branch 作成前チェック
 
@@ -29,7 +29,7 @@
 - 差分と本文の整合性
 - 変更理由を説明できるか
 - 関連 Issue / PR / spec のリンク先が正しいか
-- base branch が `develop` になっているか
+- base branch が `naming.base_branch` になっているか
 
 ## push / PR の扱い
 
