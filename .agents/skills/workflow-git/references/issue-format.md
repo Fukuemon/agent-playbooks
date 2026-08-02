@@ -30,6 +30,12 @@ GitHub Issue のタイトル・本文フォーマット。
 - `task`: [../assets/issue-task-template.md](../assets/issue-task-template.md)
 - `chore`: [../assets/issue-chore-template.md](../assets/issue-chore-template.md)
 
+### 節の規約 (必須 / 任意)
+
+- 見出しは各テンプレの**日本語見出しをそのまま**使う。訳し替え・言い換え・新設をしない。1 つの issue 内で日英を混ぜない
+- **任意節**は `補足` / `参考資料` / `依存関係` のみ。**該当する内容が無い場合のみ**節ごと削る
+- それ以外の節は必須。書く内容が無い場合は削らず「なし」と理由を書く (空欄・空バレットのまま残さない)
+
 ## ラベル
 
 ラベル体系の正本は **`context/project.yml` の `labels`**。本ファイルに固有値を直書きしない。起票時 (`gh issue create --label ...`) に最低限:
@@ -47,3 +53,4 @@ GitHub Issue のタイトル・本文フォーマット。
 2. 曖昧な表現を避け、具体的な作業や確認条件を書く
 3. 調査 issue では「何を判断できれば終わりか」を明示する
 4. task や chore では、作業内容を検証可能な粒度に分解する
+5. requirements / spec などの作業文書 (`specs/` 配下) の**全文を本文に貼らない**。本文は要約にとどめ、詳細は作業文書へリンクする (全文コピーは起票時点で凍結され、以後の更新と drift する)。skill からの起票 (`spec-requirement` 等) も本フォーマットに従う

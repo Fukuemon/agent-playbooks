@@ -1,20 +1,20 @@
-## Summary
+## 概要
 
 -
 
-## Background
+## 背景
 
 -
 
-## Changes
+## 変更内容
 
 -
 
-## Testing
+## 検証
 
 -
 
-## Related Issues
+## 関連 issue
 
 - Refs #
 
@@ -23,6 +23,6 @@
 - [ ] 実装が共有 UI / デザイントークンのセマンティックトークンを参照 (raw hex / arbitrary value なし)
 - [ ] module 固有に独自トークンを抱えていない (共有 UI の境界を守る)
 
-## Notes
+## 備考
 
 -

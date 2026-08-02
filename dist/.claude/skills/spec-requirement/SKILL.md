@@ -60,10 +60,19 @@ description: >-
 
 ### 4. Issue 起票 (任意)
 
-ユーザーが起票を承認した場合のみ、`context/project.yml` の `tracker` (CLI / project) を使って起票する:
+ユーザーが起票を承認した場合のみ、`context/project.yml` の `tracker` (CLI / project) を使って起票する。
+
+本文は **`workflow-git` の `issue-format` に従う** (タイトル形式 / type 別テンプレ / 節の規約)。
+`requirements.md` を `--body-file` でそのまま本文にしない — requirements は `specs/` 配下の作業文書で、
+以後も更新され closeout で削除されるため、全文コピーは起票時点で凍結され drift する。
+
+- type は要求の性質で選ぶ (通常は `feature`)。テンプレの節 (`概要` / `Why` / `What` / `完了条件` 等) を
+  requirements.md から**要約**して埋める
+- `関連` 節に requirements doc (`specs/<issue-id>-<slug>/requirements.md`) へのリンクを書く
+  (詳細の正本はこちら。spec-dir リネーム後にリンクを実番号へ更新する)
 
 ```sh
-<tracker.cli> issue create --repo <tracker.project> --title "<title>" --body-file <requirements.md path>
+<tracker.cli> issue create --repo <tracker.project> --title "<絵文字> <type>: <サマリ>" --body-file <issue-format で作成した本文>
 ```
 
 ### 5. 完了時の案内 (必須)
