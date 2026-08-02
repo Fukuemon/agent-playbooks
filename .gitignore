@@ -6,7 +6,7 @@
 *~
 .ai-out/*
 design/.staging/
-dist/
 build/
 __pycache__/
 *.pyc
+.wt/

@@ -9,6 +9,16 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-08-02 配布は dist/ の symlink 方式へ切り替える (2026-07-07 の commit 方式を逆転)
+
+- **背景**: 2026-07-07 に「ソース = live symlink / hooks = 実ファイルコピー」を決め、参考 repo (Fukuemon/skills) の dist worktree symlink 方式は却下していた。その後 depwalk での作業中に、コピー方式に起因する drift が 3 件出た。① `templates/` は配布対象ですらなく消費 repo が所有するため、テンプレ側の `project.md` → `project.yml` 修正と消費側の frontmatter 追加が数週間互いに未反映のままだった。② `link.sh` 再実行で `sdd-template.mk` の `check-generated` target が巻き戻った。③ `scripts/check-generated.sh` がテンプレ 1.2K / 消費 3.0K に無言で分岐していた。再検討条件に挙げていた「消費 repo が増えて苦痛になったら」より前に、**1 repo でも drift は起きる**ことが分かった。
+- **判断**: ① 生成は中央 (`make dist`) で 1 回だけ行い `dist/` に置く。消費 repo では `rulesync generate` を回さない。② 消費 repo は `dist/` / `hooks/` / `templates/` / `.rulesync/` を指す symlink を張るだけで **何も commit しない** (ignore は `.git/info/exclude`)。③ symlink 先は `origin/main` に固定した worktree (`<repo>/.wt/dist`)。④ 消費 repo が所有する初期値 (`lefthook.yml` / closeout workflow / `check-specs-residue.sh` / `doctor.sh`) は従来どおり「無い場合だけ」コピーする。
+- **理由**: 2026-07-07 の判断基準「repo を clone しただけの環境で動くか」は、**利用者判断で降ろした** (2026-08-02)。cloud agent / CI で AI 設定が無い状態を許容する代わりに、drift の発生源そのものを消す。生成が 1 箇所になることで `check-generated` / 部分再生成バグ / 消費 repo での npx 実行がまとめて不要になる。worktree を `origin/main` に固定するのは、消費 repo が未 merge の契約で動く事故 (depwalk で実際に pre-push が止まった) を防ぐため。
+- **却下理由が今どうなったか**: 「hook が silent に no-op になる」は**残っている**。`.claude/settings.json` が symlink で欠落しても Claude Code は黙って hook 無しで動く。緩和として `scripts/doctor.sh` を消費 repo に置き、接続状態を明示できるようにした。ただしこれは開発者が実行して初めて分かるもので、自動検出ではない。
+- **今後**: 「生成物を消費 repo に commit し直す」提案は、drift 3 件の再発を理由に却下する。silent no-op が実害を出した場合は、`doctor.sh` を lefthook の pre-commit へ入れることを先に検討する (CI へ入れるのは不可。CI には link が無いのが正常なため)。worktree の置き場は `<repo>/.wt/` 固定 (利用者の worktree 規約)。
+
+---
+
 ## 2026-08-02 配布スクリプトのコメントは日本語で書く
 
 - **背景**: 消費 repo (depwalk) でコメント言語を日本語に統一した際、`scripts/link.sh` / `fix-*.sh` に英語コメントが 37 行残った。これらは link.sh が**実ファイルとしてコピー配布**する共有プロセス層で、正本はテンプレ側にある。消費 repo 側で直すと次の link.sh 実行で上書きされ drift する。

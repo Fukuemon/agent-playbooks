@@ -53,14 +53,15 @@ globs:
 
 ## 共有プロセス層を変更するとき
 
-- 変更ループ: `.rulesync/` を編集 → `make generate` → `make check` → 生成物ごと commit。
-- **skills / rules / subagents / hooks の正本は sdd-template repo**。消費 repo の `.rulesync/*` は symlink なので、編集は **sdd-template repo 側で commit** し、消費 repo では `rulesync generate` 後の **生成物だけを commit** する。今いる repo がテンプレか消費側かは `.rulesync/rules/CLAUDE.md` が symlink かで判定する。
+- 変更ループ: `.rulesync/` を編集 → `make dist` → `make check` → 生成物と `dist/` ごと commit → push → 消費 repo 側は `make sync` で反映。
+- **skills / rules / subagents / hooks を定めるのは sdd-template repo**。生成は中央で 1 回だけ行い、消費 repo は `dist/` を指す symlink を張るだけで **何も commit しない**。したがって消費 repo で AI 設定を直しても意味がない (次の `make sync` で戻る)。今いる repo がテンプレか消費側かは `CLAUDE.md` が symlink かで判定する。
+- 消費 repo の symlink 先は `origin/main` に固定した worktree (`.wt/dist`)。未 merge のブランチの契約でエージェントが動かないようにするための固定である。
 - 新規プロダクトへの適用手順・配布の仕組み・推奨ツール導入は [README.md](README.md)。
 
 ## Forbidden Patterns
 
 - 生成物 (`AGENTS.md` / `CLAUDE.md` / `.agents/` / `.codex/` / `.claude/` / `.cursor/` / `.mcp.json`) の直接編集 (`.rulesync/` を編集する)
-- 消費 repo への `.rulesync/` 配下の commit
+- 消費 repo への共有プロセス層 (`.rulesync/` / 生成物 / `hooks/` / `templates/`) の commit — symlink 配布なので追跡しない
 - protected branch (例: `main` / `develop`) への直接コミット
 - skill / rule へのプロジェクト固有名の直書き ([context/project.yml](context/project.yml) を読む)
 - プロダクト固有の禁止事項は [context/project.yml](context/project.yml) / [context/](context/) に追記する
