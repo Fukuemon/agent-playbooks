@@ -62,7 +62,7 @@ globs:
 
 - 生成物 (`AGENTS.md` / `CLAUDE.md` / `.agents/` / `.codex/` / `.claude/` / `.cursor/` / `.mcp.json`) の直接編集 (`.rulesync/` を編集する)
 - 消費 repo への共有プロセス層 (`.rulesync/` / 生成物 / `hooks/` / `templates/`) の commit — symlink 配布なので追跡しない
-- protected branch (例: `main` / `develop`) への直接コミット
+- protected branch (例: `main` / `develop`) への直接コミット — 対象は repo ルートの `.protected-branches` で変えられる (既定は `main` / `master` / `develop`)
 - skill / rule へのプロジェクト固有名の直書き ([context/project.yml](context/project.yml) を読む)
 - プロダクト固有の禁止事項は [context/project.yml](context/project.yml) / [context/](context/) に追記する
 
