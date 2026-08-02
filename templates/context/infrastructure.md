@@ -1,6 +1,16 @@
+---
+type: context
+title: <文書名>
+description: <索引に出す 1 行説明。何が書いてあるかを具体的に>
+keywords: [<検索の手掛かり>, <API 名>, <用語>]
+governs:
+  # この文書が語る契約の実装場所。コードだけでなく設定ファイルでもよい。
+  # 鮮度検査の対象外にするなら governs と verified_commit の両方を消す。
+  - <path/to/impl>
+# 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
+verified_commit: unverified
+---
 # Infrastructure & Operations
-
-> 最終更新: YYYY-MM-DD
 
 公開基盤・環境戦略・運用・セキュリティの契約。本書は **app 側が依存する contract** を定義する。infra 実体を別 repo で管理する場合はその境界も記す ([context/project.yml](project.yml) のリポジトリマップ)。
 
