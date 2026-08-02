@@ -2,6 +2,7 @@
 name: context-bootstrap
 description: Design Doc と短いインタビューからプロジェクトプロファイル (context/project.yml) と初期 context ライブラリ (context/*.md) を生成する。新規プロダクトでテンプレートを使い始めるとき、context/ が空またはプレースホルダのままのとき、"context-bootstrap" / "context 初期化" で起動する。
 ---
+
 # Context Bootstrap
 
 初期 `design/DesignDoc.md` と短い対話を入力に、**プロジェクト profile (`context/project.yml`) と context library (`context/*.md`)** を template から生成する。新規プロダクトで本テンプレートを使い始めるときの初期化 skill。
@@ -43,7 +44,7 @@ DesignDoc から導けない固有値をユーザーに確認する (1 問ずつ
 ### 3. project.yml 生成 (必須 — スキップ禁止)
 
 確定した Required Context を `templates/context/project.yml` から `context/project.yml` へ書く。
-本ファイルが全 skill / 契約の固有値 (repos / naming / commands / tracker / domains / labels /
+本ファイルが全 skill / 契約の固有値 (repos / naming / commit / commands / tracker / domains / labels /
 spec.phases / paths / templates / decision_priority / glossary) の唯一の正本。
 
 ### 4. context library 生成

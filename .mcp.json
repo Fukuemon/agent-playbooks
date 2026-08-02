@@ -8,9 +8,7 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": [
-        "chrome-devtools-mcp@latest"
-      ]
+      "args": ["chrome-devtools-mcp@latest"]
     },
     "deepwiki": {
       "url": "https://mcp.deepwiki.com/mcp"

@@ -36,6 +36,10 @@ naming:
   base_branch: <例: develop / main> # 統合ブランチ。作業ブランチはここから切り、PR もここへ出す
   release_branch: <例: main / null> # リリース先。trunk based (base_branch がそのままリリース先) なら null
 
+# Commit 規約の固有値 (記法そのものは workflow-git skill の commit-format)
+commit:
+  attribution: none # エージェント付与の trailer (Claude-Session / Co-Authored-By 等)。none = 付けない / keep = 残す。後から変えると全履歴の書き換えになるため開始時に確定する
+
 # Quick Commands (dev-commands skill が読むコマンド契約)
 commands:
   dev: <cmd> # 開発起動

@@ -7,20 +7,20 @@ globs: **/*
 本リポジトリで作業するときの **最短の操作ガイド**。規範の本文は各正本に置き、ここはポインタだけを持つ (常時ロードされるため)。
 
 - 本 contract の正本は `.rulesync/rules/CLAUDE.md`。`AGENTS.md` / `CLAUDE.md` / `.agents/` / `.codex/` / `.claude/` / `.cursor/` は生成物 (編集は `rulesync-sync` skill 経由)。
-- プロジェクト固有値 (product / repos / naming / commands / tracker / domains / labels / spec.phases / paths / templates / decision_priority / glossary) は **直書きせず** [context/project.yml](context/project.yml) を読む。
+- プロジェクト固有値 (product / repos / naming / commit / commands / tracker / domains / labels / spec.phases / paths / templates / decision_priority / glossary) は **直書きせず** [context/project.yml](context/project.yml) を読む。
 
 ## Documents (正本)
 
-| 情報                                  | 正本                                                                       |
-| ------------------------------------- | -------------------------------------------------------------------------- |
+| 情報                                  | 正本                                                                               |
+| ------------------------------------- | ---------------------------------------------------------------------------------- |
 | プロダクト要求 (Why / What)           | `PRD.md` — 統合モードでは Design Doc の Why/What 節 (この場合 `PRD.md` は作らない) |
-| 全体像 / モジュール責務 (How)         | [design/DesignDoc.md](design/DesignDoc.md)                                 |
-| feature 単位の設計                    | [design/features/](design/features/)                                       |
-| 技術規約 / architecture / 運用契約    | [context/](context/) — 固有値は [context/project.yml](context/project.yml) |
-| 意思決定                              | [adr/](adr/)                                                               |
-| issue 単位の作業文書 (close 時に削除) | [specs/](specs/)                                                           |
-| 開発プロセス (skill 連鎖) の俯瞰図    | `architecture.md` (sdd-template repo 側にのみ存在)                         |
-| skill / rule 著作の判断記録           | `decisions.md` (sdd-template repo 側にのみ存在)                            |
+| 全体像 / モジュール責務 (How)         | [design/DesignDoc.md](design/DesignDoc.md)                                         |
+| feature 単位の設計                    | [design/features/](design/features/)                                               |
+| 技術規約 / architecture / 運用契約    | [context/](context/) — 固有値は [context/project.yml](context/project.yml)         |
+| 意思決定                              | [adr/](adr/)                                                                       |
+| issue 単位の作業文書 (close 時に削除) | [specs/](specs/)                                                                   |
+| 開発プロセス (skill 連鎖) の俯瞰図    | `architecture.md` (sdd-template repo 側にのみ存在)                                 |
+| skill / rule 著作の判断記録           | `decisions.md` (sdd-template repo 側にのみ存在)                                    |
 
 迷ったら **PRD (or 統合 DesignDoc の Why/What) → Design Doc → feature doc / context → ADR → spec** の順に読む。本 contract と内容が衝突したら **Design Doc が正**。
 
@@ -60,6 +60,7 @@ globs: **/*
 - 消費 repo への共有プロセス層 (`.rulesync/` / 生成物 / `hooks/` / `templates/`) の commit — symlink 配布なので追跡しない
 - protected branch (例: `main` / `develop`) への直接コミット — 対象は repo ルートの `.protected-branches` で変えられる (既定は `main` / `master` / `develop`)
 - skill / rule へのプロジェクト固有名の直書き ([context/project.yml](context/project.yml) を読む)
+- GitHub Actions workflow の `on:` へのブランチ名の直書き — `on:` は固有値を動的解決できない (GitHub 側の制約)。`branches: ["**"]` で受けて job 側の `if` (例: `github.ref_name == github.event.repository.default_branch`) で判定する
 - プロダクト固有の禁止事項は [context/project.yml](context/project.yml) / [context/](context/) に追記する
 
 ## Security

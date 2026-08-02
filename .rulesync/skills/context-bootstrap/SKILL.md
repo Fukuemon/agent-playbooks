@@ -46,7 +46,7 @@ DesignDoc から導けない固有値をユーザーに確認する (1 問ずつ
 ### 3. project.yml 生成 (必須 — スキップ禁止)
 
 確定した Required Context を `templates/context/project.yml` から `context/project.yml` へ書く。
-本ファイルが全 skill / 契約の固有値 (repos / naming / commands / tracker / domains / labels /
+本ファイルが全 skill / 契約の固有値 (repos / naming / commit / commands / tracker / domains / labels /
 spec.phases / paths / templates / decision_priority / glossary) の唯一の正本。
 
 ### 4. context library 生成

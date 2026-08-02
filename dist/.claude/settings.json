@@ -119,11 +119,7 @@
       "Bash(git reset --hard:*)",
       "Bash(rm:*)"
     ],
-    "deny": [
-      "Bash(rm -rf /*)",
-      "Bash(rm -rf /:*)",
-      "Bash(rm -rf ~:*)"
-    ]
+    "deny": ["Bash(rm -rf /*)", "Bash(rm -rf /:*)", "Bash(rm -rf ~:*)"]
   },
   "hooks": {
     "PreToolUse": [

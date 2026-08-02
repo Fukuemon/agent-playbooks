@@ -25,7 +25,10 @@ resolve_specs_dir() {
 SPECS_REL="$(resolve_specs_dir)"
 SPECS_DIR="$ROOT/$SPECS_REL"
 
-[ -d "$SPECS_DIR" ] || { echo "no $SPECS_REL/; skip"; exit 0; }
+# specs/ 自体が無いのは、closeout がすべて完了した (または spec をまだ 1 つも
+# 作っていない) 定常状態。残存ゼロが事実として成立しているため、検査不能 (exit 2)
+# ではなく成功として扱う。これは意図した挙動 (issue #16)。
+[ -d "$SPECS_DIR" ] || { echo "no $SPECS_REL/; 残存なし (specs dir 自体が無い)"; exit 0; }
 command -v gh >/dev/null || { echo "gh CLI が必要です (issue の state を引くため)" >&2; exit 2; }
 
 REPO="${SPECS_CHECK_REPO:-}"

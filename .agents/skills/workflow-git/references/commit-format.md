@@ -51,6 +51,15 @@ Conventional Commits ベースの日本語コミットメッセージ規約。
   - `Refs #123`
   - `Closes #456`
 
+## attribution trailer の扱い
+
+エージェントが付与する attribution trailer (`Claude-Session:` / `Co-Authored-By:` / `Generated with ...` 等) は `context/project.yml` の `commit.attribution` に従う:
+
+- `none` (既定): 付けない。ツール側が既定で挿入する場合も外す
+- `keep`: 付けたまま残す
+
+方針を後から変えると全履歴の書き換えが必要になるため、プロジェクト開始時に決めて以後変えない。
+
 ## その他のルール
 
 - 日本語で記述する。技術用語は英語のままでよい
