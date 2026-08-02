@@ -9,6 +9,15 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-08-02 保護ブランチは repo ごとに設定できるようにし、テンプレ自身は保護を外す
+
+- **背景**: 保護対象が `hooks/protected-branch/common.py` にハードコードされており、全 repo 一律で `main` / `master` / `develop` を塞いでいた。dist symlink 方式に切り替えた結果、消費 repo の symlink 先が `origin/main` に固定されたため、**テンプレの変更は main に入って初めて効く**。単独メンテのテンプレ repo で、1 行の修正のたびに branch → PR → merge → `make sync` を回すのは実益より手間が勝つ。
+- **判断**: repo ルートの `.protected-branches` (1 行 1 ブランチ、`#` 以降コメント) があればそれを使い、無ければ既定 (`main` / `master` / `develop`) にする。テンプレ repo 自身は理由を書いた空ファイルを置いて保護を外す。**消費 repo にはこのファイルを配らない** (既定の保護が効く)。
+- **理由**: 保護を外す判断は repo ごとに違う。ハードコードのままだと「テンプレだけ外す」ができず、hook を編集して全消費 repo に波及させることになる。設定ファイルを repo が所有する形にすれば、外したことが diff に残り監査できる。
+- **今後**: 「消費 repo でも保護を外したい」という要望は、まず理由を `.protected-branches` のコメントに書かせる。既定値そのものを緩める提案は却下 (保護が要らない repo の方が例外)。
+
+---
+
 ## 2026-08-02 配布は dist/ の symlink 方式へ切り替える (2026-07-07 の commit 方式を逆転)
 
 - **背景**: 2026-07-07 に「ソース = live symlink / hooks = 実ファイルコピー」を決め、参考 repo (Fukuemon/skills) の dist worktree symlink 方式は却下していた。その後 depwalk での作業中に、コピー方式に起因する drift が 3 件出た。① `templates/` は配布対象ですらなく消費 repo が所有するため、テンプレ側の `project.md` → `project.yml` 修正と消費側の frontmatter 追加が数週間互いに未反映のままだった。② `link.sh` 再実行で `sdd-template.mk` の `check-generated` target が巻き戻った。③ `scripts/check-generated.sh` がテンプレ 1.2K / 消費 3.0K に無言で分岐していた。再検討条件に挙げていた「消費 repo が増えて苦痛になったら」より前に、**1 repo でも drift は起きる**ことが分かった。
