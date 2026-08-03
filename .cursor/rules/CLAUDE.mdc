@@ -58,6 +58,7 @@ globs: **/*
 
 - 生成物 (`AGENTS.md` / `CLAUDE.md` / `.agents/` / `.codex/` / `.claude/` / `.cursor/` / `.mcp.json`) の直接編集 (`.rulesync/` を編集する)
 - 消費 repo への共有プロセス層 (`.rulesync/` / 生成物 / `hooks/` / `templates/`) の commit — symlink 配布なので追跡しない
+- commit message / PR 本文への AI attribution (`Co-Authored-By: Claude` / `Claude-Session:` / `Generated with [Claude Code]`) — `.claude/settings.json` が `attribution: {commit: "", pr: ""}` で無効にしている。commit-msg hook が弾く
 - protected branch (例: `main` / `develop`) への直接コミット — 対象は repo ルートの `.protected-branches` で変えられる (既定は `main` / `master` / `develop`)
 - skill / rule へのプロジェクト固有名の直書き ([context/project.yml](context/project.yml) を読む)
 - GitHub Actions workflow の `on:` へのブランチ名の直書き — `on:` は固有値を動的解決できない (GitHub 側の制約)。`branches: ["**"]` で受けて job 側の `if` (例: `github.ref_name == github.event.repository.default_branch`) で判定する
