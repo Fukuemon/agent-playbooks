@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# sdd-template の共有プロセス層を、symlink で消費 repo へ接続する。
+# sdd-template の共有プロセス層を消費 repo へ接続する。配布は 3 層:
 #
-# 生成は中央 (本 repo の `make dist`) で 1 回だけ行い、消費 repo は dist/ を指す
-# symlink を張るだけにする。消費 repo は **何も commit しない** (ignore は
-# .git/info/exclude に書く)。これにより次が消える:
-#   - 消費 repo ごとの `rulesync generate` と生成物 commit
-#   - 生成物 drift 検査 (check-generated)
-#   - 実ファイルコピーの双方向 drift (templates/ / sdd-template.mk / scripts/*.sh)
+#   1. 生成物 (CLAUDE.md / .claude 等) と .rulesync = symlink (未追跡)。
+#      生成は中央 (本 repo の `make dist`) で 1 回だけ行い、更新は `make sync` で
+#      全消費 repo に同時反映される。
+#   2. hooks/ / templates/ = 実ファイルの上書き配布 (消費 repo が commit する)。
+#      commit 済み lefthook.yml が実行時に hooks/ を参照するため、clone しただけの
+#      環境にも実在させる。編集はテンプレ側のみ。判断は decisions.md 2026-08-03。
+#   3. 消費 repo 所有の初期値 (lefthook.yml / workflow 等) = 無い場合だけコピー。
 #
 # 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には
-# 操作契約も skill も hook も存在しない。この判断は decisions.md 2026-08-02 を見る。
+# AI 設定 (symlink 層) が存在しない。この判断は decisions.md 2026-08-02 を見る。
 # 欠落を silent にしないため、消費 repo では `bash scripts/doctor.sh` で検査する。
 #
 # symlink 先は SDD_DIST_REF (既定 origin/main) に固定した worktree (<repo>/.wt/dist)。
@@ -57,27 +58,14 @@ DIST="$SDD_WORKTREE/dist"
 # --- 2) symlink を張る -------------------------------------------------------
 # `.claude` / `.codex` などは丸ごとではなく配下を個別に張る。消費 repo が
 # 独自の設定ファイルを同じ階層に置けるようにするため。
+# hooks/ / templates/ は symlink ではなく実ファイルの上書き配布 (下の 2.5)。
 CANDIDATES=(
   "CLAUDE.md" "AGENTS.md" ".mcp.json"
   ".rulesync"
 )
-# hooks/ はファイル単位で張る。消費 repo が同じディレクトリに自前の hook を
-# 置いていることがあり (例: hooks/format/run_oxfmt.sh)、丸ごと置き換えると消える。
-while IFS= read -r f; do
-  CANDIDATES+=("${f#"$SDD_WORKTREE"/}")
-done < <(find "$SDD_WORKTREE/hooks" -type f 2>/dev/null | sort)
 for d in "$DIST"/.claude/* "$DIST"/.codex/* "$DIST"/.cursor/* "$DIST"/.agents/*; do
   [ -e "$d" ] || continue
   CANDIDATES+=("${d#"$DIST"/}")
-done
-# templates/ は丸ごとではなく配下ごとに張る。消費 repo が自前のテンプレートを
-# 同じ階層に置いていることがあり (例: templates/consumers/)、丸ごと置き換えると壊れる。
-# templates/consumer/ はテンプレ内部のもの (消費 repo 所有ファイルの初期値) なので配らない。
-for d in "$SDD_WORKTREE"/templates/*; do
-  [ -d "$d" ] || continue
-  name="$(basename "$d")"
-  [ "$name" = "consumer" ] && continue
-  CANDIDATES+=("templates/$name")
 done
 
 # 前回の link で張ったが今回の配布物に無くなった symlink を先に外す。
@@ -102,7 +90,6 @@ BACKED_UP=()
 TRACKED_WARN=()
 for rel in "${CANDIDATES[@]}"; do
   case "$rel" in
-    hooks/* | templates/*) src="$SDD_WORKTREE/$rel" ;;
     .rulesync) src="$TEMPLATE_DIR/.rulesync" ;; # 著作用。worktree ではなく作業 clone を指す
     *) src="$DIST/$rel" ;;
   esac
@@ -127,6 +114,47 @@ for rel in "${CANDIDATES[@]}"; do
   LINKED+=("$rel")
 done
 echo "  link: ${#LINKED[@]} entries"
+
+# --- 2.5) hooks / templates は実ファイルの上書き配布 (消費 repo が commit する) --
+# commit 済みの lefthook.yml が実行時に hooks/ を参照するため、clone しただけの
+# 環境 (CI / cloud agent / 共同開発者) にも実在させる。編集はテンプレ側でのみ行い、
+# link のたびに worktree (origin/main 固定) の版で上書きする (上書き = 権威の強制)。
+# 消費側に差分があれば無言で巻き戻さず、必ず一覧で報告する (issue #11 の教訓)。
+# ファイル単位でコピーし、同じディレクトリの自前ファイル
+# (例: hooks/format/run_oxfmt.sh, templates/consumers/) には触らない。
+# templates/consumer/ はテンプレ内部のもの (消費 repo 所有ファイルの初期値) なので配らない。
+# git worktree には消費 repo の commit 経由で届くため、メイン worktree でのみコピーする。
+OVERWRITTEN=()
+MAIN_WT="$(git -C "$CONSUMER" worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+if [ "$MAIN_WT" = "$CONSUMER" ]; then
+  copied=0
+  while IFS= read -r src; do
+    rel="${src#"$SDD_WORKTREE"/}"
+    dst="$CONSUMER/$rel"
+    mkdir -p "$(dirname "$dst")"
+    if [ -e "$dst" ] && [ ! -L "$dst" ] && ! cmp -s "$src" "$dst"; then
+      # commit 済みでクリーンなら旧版は git history にあるため退避不要。
+      # 未追跡・未 commit の差分は上書きで失われるので退避する。
+      if ! git -C "$CONSUMER" ls-files --error-unmatch "$rel" >/dev/null 2>&1 \
+        || ! git -C "$CONSUMER" diff --quiet -- "$rel" 2>/dev/null; then
+        cp -p "$dst" "$dst.pre-link.bak"
+        BACKED_UP+=("$rel")
+      fi
+      OVERWRITTEN+=("$rel")
+    fi
+    # 旧 symlink・read-only な既存実体のどちらも rm してから置く (cp 直書きは
+    # read-only な dst で失敗する)。worktree 由来の read-only は引き継がず、
+    # 消費側 formatter 等が詰まらないよう owner 書き込み可へ正規化する。
+    rm -f "$dst"
+    cp -p "$src" "$dst"
+    chmod u+w "$dst"
+    copied=$((copied + 1))
+  done < <({
+    find "$SDD_WORKTREE/hooks" -type f 2>/dev/null
+    find "$SDD_WORKTREE/templates" -type f -not -path "*/templates/consumer/*" 2>/dev/null
+  } | sort)
+  echo "  copy (上書き配布): hooks/ templates/ — ${copied} files"
+fi
 
 # --- 3) ignore は消費 clone の .git/info/exclude へ (commit されない) ---------
 EXCLUDE="$(git -C "$CONSUMER" rev-parse --git-path info/exclude)"
@@ -180,9 +208,15 @@ if [ "${#TRACKED_WARN[@]}" -gt 0 ]; then
   printf '  git rm -r --cached %s\n' ${TRACKED_WARN[@]+"${TRACKED_WARN[@]}"}
   echo "  git commit -m 'chore(sdd): 共有プロセス層を symlink 配布へ移行し生成物を untrack する'"
 fi
+if [ "${#OVERWRITTEN[@]}" -gt 0 ]; then
+  echo
+  echo "テンプレ版で上書きしたファイル (消費側に差分があった)。意図した変更ならテンプレへ還元すること:"
+  printf '  %s\n' ${OVERWRITTEN[@]+"${OVERWRITTEN[@]}"}
+  echo "  差分の確認: git -C $CONSUMER diff -- hooks templates"
+fi
 if [ "${#BACKED_UP[@]}" -gt 0 ]; then
   echo
-  echo "未追跡の実体を退避しました (*.pre-link.bak)。不要なら削除してください:"
+  echo "未追跡・未 commit の実体を退避しました (*.pre-link.bak)。不要なら削除してください:"
   printf '  %s.pre-link.bak\n' ${BACKED_UP[@]+"${BACKED_UP[@]}"}
 fi
 echo

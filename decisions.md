@@ -9,6 +9,15 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-08-03 hooks / templates は上書き実ファイル配布に戻す (2026-08-02 の部分改訂)
+
+- **背景**: 2026-08-02 に全共有層を symlink 配布へ切り替えたが、commit 済みの `lefthook.yml` が `hooks/...` を参照するため、link.sh 未実行の環境 (fresh clone / CI / cloud agent / 共同開発者) で lefthook を有効化すると **hook script が見つからず commit が hard fail** する。また 2026-07-07 → 2026-08-02 の反転で問題だった drift 3 件は「双方向に編集しうる」ことが原因であり、symlink だけが解でない。利用者からの提案 (2026-08-03) を受けて再検討した。
+- **判断**: `hooks/` / `templates/` は**実ファイルをテンプレ版で毎回上書き**する配布に変更し、消費 repo が commit する。上書き = テンプレが唯一の編集場所という権威の強制。消費側に差分があれば無言で巻き戻さず一覧で報告し、未 commit の差分は `.pre-link.bak` へ退避する (issue #11 の教訓)。生成物 (`.claude/` 等) と `.rulesync/` は symlink のまま。doctor.sh に「hooks / templates がテンプレと異なる」drift 検出を追加した。
+- **理由**: clone-and-go で実在すべきなのは**実行時に参照される層** (hooks) と **skill が参照する雛形** (templates) だけで、AI 設定は「無ければ無いで動く」。前者だけ実ファイル化すれば hard fail が消え、上書き + diff 報告 + doctor 検出で drift の再発経路 (無言の双方向分岐) を塞げる。submodule 案は drift 耐性で同等だが clone 時の init / CI 設定の運用手間が勝る。
+- **今後**: 「hooks / templates も symlink に戻す」提案は lefthook hard fail を理由に却下。「消費側で hooks / templates を直接編集する」提案は却下 (次の link で上書きされる。テンプレ側で直す)。テンプレから削除したファイルは消費側に残留するため、削除時は消費 repo への案内を PR に書く。
+
+---
+
 ## 2026-08-02 保護ブランチは repo ごとに設定できるようにし、テンプレ自身は保護を外す
 
 - **背景**: 保護対象が `hooks/protected-branch/common.py` にハードコードされており、全 repo 一律で `main` / `master` / `develop` を塞いでいた。dist symlink 方式に切り替えた結果、消費 repo の symlink 先が `origin/main` に固定されたため、**テンプレの変更は main に入って初めて効く**。単独メンテのテンプレ repo で、1 行の修正のたびに branch → PR → merge → `make sync` を回すのは実益より手間が勝つ。

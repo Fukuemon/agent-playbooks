@@ -27,11 +27,11 @@ Spec Driven Development (SDD) のための **汎用 AI ワークフローテン�
 
 ## 消費 repo へ接続する (共有プロセス層)
 
-開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。生成は中央 (本 repo の `make dist`) で 1 回だけ行い、消費 repo は symlink を張るだけで**何も commit しない** (ignore は消費 clone の `.git/info/exclude` に入る):
+開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。配布は 3 層:
 
-- **配布層 = `origin/main` 固定 worktree への symlink**: 生成物 (`CLAUDE.md` / `AGENTS.md` / `.claude/` / `.codex/` / `.cursor/` / `.agents/` / `.mcp.json`) と `hooks/` / `templates/` は、`origin/main` に固定した配布 worktree (`<template-repo>/.wt/dist`) を指す。未 merge ブランチの契約で消費 repo が動かないための固定で、テンプレ側の更新は `make sync` (worktree を `origin/main` へ) で link 済みの全消費 repo に同時反映される。
-- **著作層 (`.rulesync/`) = 作業 clone への live symlink**: 正本の skills / 操作契約 / subagents。消費 repo 側からも正本を直接編集できる (反映は `make dist` → merge → `make sync`)。
-- **消費 repo 所有の初期値 = 無い場合だけコピー**: `lefthook.yml` / `.github/workflows/spec-closeout.yml` / `spec-residue.yml` / `scripts/check-specs-residue.sh` / `scripts/doctor.sh` / `scripts/link-worktree.sh`。一度置いた後は消費 repo の所有物で、link.sh の再実行で上書きしない。
+- **AI 設定 = `origin/main` 固定 worktree への symlink (未追跡)**: 生成物 (`CLAUDE.md` / `AGENTS.md` / `.claude/` / `.codex/` / `.cursor/` / `.agents/` / `.mcp.json`) は、`origin/main` に固定した配布 worktree (`<template-repo>/.wt/dist`) を指す symlink。生成は中央 (本 repo の `make dist`) で 1 回だけ行い、テンプレ側の更新は `make sync` で link 済みの全消費 repo に同時反映される。ignore は消費 clone の `.git/info/exclude` に入り commit されない。`.rulesync/` だけは作業 clone を指す live symlink (消費 repo 側からも正本を編集できる)
+- **`hooks/` / `templates/` = 実ファイルの上書き配布 (消費 repo が commit)**: commit 済みの `lefthook.yml` が実行時に `hooks/` を参照するため、clone しただけの環境 (CI / cloud agent / 共同開発者) にも実在させる。編集はテンプレ側でのみ行い、`link.sh` のたびにテンプレ版で上書きする (消費側に差分があれば無言で巻き戻さず一覧で報告する)。テンプレ更新の取り込みは消費 repo で `link.sh` 再実行 → 差分 commit
+- **消費 repo 所有の初期値 = 無い場合だけコピー**: `lefthook.yml` / `.github/workflows/spec-closeout.yml` / `spec-residue.yml` / `scripts/check-specs-residue.sh` / `scripts/doctor.sh` / `scripts/link-worktree.sh`。一度置いた後は消費 repo の所有物で、上書きしない
 
 ```bash
 # このテンプレ repo 上で実行
@@ -39,17 +39,18 @@ make link ARGS=/path/to/your-product-repo
 # または: bash scripts/link.sh /path/to/your-product-repo
 ```
 
-接続後、消費 repo 側で git hooks を有効化し、接続状態を検査する:
+接続後、消費 repo 側で git hooks を有効化し、配布物を commit し、接続状態を検査する:
 
 ```bash
 cd /path/to/your-product-repo
-npx lefthook install    # git hooks の有効化
-bash scripts/doctor.sh  # 共有プロセス層が繋がっているかの検査
+npx lefthook install                                   # git hooks の有効化
+git add hooks templates lefthook.yml scripts .github   # 実ファイル層 + 初期値の commit
+bash scripts/doctor.sh                                 # 接続と hooks/templates の同期を検査
 ```
 
 - 共有されない固有値 (消費 repo が所有): `context/` (`project.yml` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
-- 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には AI 設定も hook も存在しない。欠落を silent にしないための検査が `scripts/doctor.sh` (判断の経緯は `decisions.md` 2026-08-02)。
-- symlink は追跡されないため、消費 repo の git worktree には配布物が自動では来ない。既存 worktree は link.sh が展開し、新規作成分は lefthook の post-checkout (`scripts/link-worktree.sh`) が張る。
+- 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には AI 設定 (symlink 層) が存在しない。欠落を silent にしないための検査が `scripts/doctor.sh` (判断の経緯は `decisions.md` 2026-08-02 / 2026-08-03)。
+- symlink 層は消費 repo の git worktree に自動では来ない。既存 worktree は link.sh が展開し、新規作成分は lefthook の post-checkout (`scripts/link-worktree.sh`) が張る。`hooks/` / `templates/` は commit 経由で worktree にも届く。
 
 ## closeout の自動化 (spec 残存の検査 + 削除 PR の自動起票)
 
