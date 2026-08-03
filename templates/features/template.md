@@ -11,12 +11,12 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # Feature 設計: <feature 名>
 
 Feature 単位の設計 doc。仕様 (What) をどう実現するか (How) を、データ構造・画面・フロー単位で記述する。責務・範囲・方針の層に留め、ファイル配置・directive・テスト手順などの実装レベルの手順は spec へ委譲する。全体像は [design/DesignDoc.md](../../DesignDoc.md)、横断規約は [context/](../../../context/) を参照する。
 
 **現在の設計だけを書く。** 「なぜそうしたか」「どう変えてきたか」「どの issue で決めたか」は書かず、判断は ADR へ起こしてその場に 1 行参照する (`spec-lifecycle` の `references/spec-contract.md` の正本境界)。
-
 
 ## 背景・要件解釈
 

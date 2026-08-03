@@ -173,7 +173,7 @@ echo "  exclude: $EXCLUDE に ${#LINKED[@]} entries"
 
 # --- 4) 消費 repo が所有するファイルの初期値 ---------------------------------
 # 一度置いたら消費 repo の所有物になるもの。上書きすると独自の変更を silent に壊す。
-for rel in "lefthook.yml" ".github/workflows/spec-closeout.yml" ".github/workflows/spec-residue.yml" "scripts/check-specs-residue.sh" "scripts/doctor.sh" "scripts/link-worktree.sh"; do
+for rel in "lefthook.yml" ".prettierignore" ".github/workflows/spec-closeout.yml" ".github/workflows/spec-residue.yml" "scripts/check-specs-residue.sh" "scripts/doctor.sh" "scripts/link-worktree.sh"; do
   src="$TEMPLATE_DIR/templates/consumer/$rel"
   [ -e "$src" ] || src="$TEMPLATE_DIR/$rel"
   [ -e "$src" ] || continue

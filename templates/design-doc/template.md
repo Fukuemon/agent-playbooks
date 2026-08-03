@@ -11,6 +11,7 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # <プロダクト名> Design Doc
 
 **Document Status:** Draft <!-- Draft | In Review | Approved のいずれか 1 つ -->

@@ -11,6 +11,7 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # <プロダクト / 機能名> PRD
 
 PRD は **Why / What** を扱う。「誰のどの課題を、なぜ・何で解決するか」を確定し、How (実現方法) は [Design Doc](../design/DesignDoc.md) と [context/](../context/) へ委譲する。

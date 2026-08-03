@@ -10,16 +10,17 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # Testing Conventions
 
 テストの横断規約。feature 固有のテスト観点は各 [design/features/](../design/features/) に置く。プロジェクト固有のテストコマンドは [context/project.yml](project.yml)。
 
 ## テスト責務の分担
 
-| 種別 | 配置 | 主担当範囲 |
-| ---- | ---- | ---------- |
-| Unit test |  |  |
-| E2E |  |  |
+| 種別      | 配置 | 主担当範囲 |
+| --------- | ---- | ---------- |
+| Unit test |      |            |
+| E2E       |      |            |
 
 ## テスト runtime contract
 

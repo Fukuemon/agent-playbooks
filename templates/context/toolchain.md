@@ -10,6 +10,7 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # Toolchain
 
 採用する標準 toolchain。採否の根拠は [adr/](../adr/) を参照する。プロジェクト固有のコマンドは [context/project.yml](project.yml) の `commands` を正本とする。

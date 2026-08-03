@@ -10,6 +10,7 @@ governs:
 # 最後に実装と突き合わせた commit。未確認なら unverified のままにする。
 verified_commit: unverified
 ---
+
 # Engineering Conventions
 
 shared config / root task / repository quality gate の境界規約。toolchain 一覧は [toolchain.md](toolchain.md)、プロジェクト固有コマンドは [context/project.yml](project.yml)。
@@ -20,12 +21,12 @@ shared config / root task / repository quality gate の境界規約。toolchain 
 
 情報の置き場を次のとおり分ける。**コードから読み取れることをコメントに書き写さない。**
 
-| 置き場           | 書くこと                                       |
-| ---------------- | ---------------------------------------------- |
-| コード           | **How** — どう実現しているか。コード自身が語る |
-| テストコード     | **What** — 何が成り立つべきか                  |
-| commit / PR      | **Why** — なぜこの変更をしたか                 |
-| コード内コメント | **Why not** — なぜ他の手を採らなかったか       |
+| 置き場           | 書くこと                                               |
+| ---------------- | ------------------------------------------------------ |
+| コード           | **How** — どう実現しているか。コード自身が語る         |
+| テストコード     | **What** — 何が成り立つべきか                          |
+| commit / PR      | **Why** — なぜこの変更をしたか                         |
+| コード内コメント | **Why not** — なぜ他の手を採らなかったか               |
 | 関数・型の doc   | **What** — 何をするものか (公開 API の doc 規約に従う) |
 
 コード内コメントの主役は **Why not**。「どう動くか」はコードを読めば分かるが、
