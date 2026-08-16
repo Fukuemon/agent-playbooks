@@ -69,3 +69,12 @@ flowchart TD
 
 - 横断規約は [context/testing.md](../../../context/testing.md)。本 feature 固有の観点を記す。
 -
+
+## 関連ドキュメント
+
+<!-- 本文からリンクした先をすべて載せる。抜粋にしない。 -->
+
+- [{文書名}]({パス}): {何を定めているか}
+- [design/DesignDoc.md](../../DesignDoc.md): system landscape
+- [context/](../../../context/): 横断規約
+- [context/testing.md](../../../context/testing.md): テスト責務の分担

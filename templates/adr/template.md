@@ -48,5 +48,5 @@ YYYY-MM-DD
 
 ## 関連ドキュメント / チケット
 
-- [design/DesignDoc.md](../../design/DesignDoc.md):
+- [design/DesignDoc.md](../design/DesignDoc.md):
 - spec / PR:

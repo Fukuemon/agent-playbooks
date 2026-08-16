@@ -15,7 +15,7 @@ verified_commit: unverified
 
 公開基盤・環境戦略・運用・セキュリティの契約を定める。本書は **app 側が依存する contract** を定義する。infra 実体を別 repo で管理する場合は、その境界も記す。
 
-- 根拠: [context/project.yml](project.yml) のリポジトリマップ — repo の役割と境界の正本
+- 根拠: [context/project.yml](project.yml) の `repos` — repo の役割と境界の正本
 
 ## Infrastructure / Deployment
 
@@ -43,3 +43,10 @@ verified_commit: unverified
 
 - secret / token の分離方針 (client へ露出させない)。
 - 個人情報・認証・権限を扱う場合の方針の所在 (feature / spec)。
+
+## 参照
+
+<!-- 本文からリンクした先をすべて載せる。抜粋にしない。関連する正本を足してよい。 -->
+
+- [{文書名}]({パス}): {何を定めているか}
+- [project.yml](project.yml): repos / domains の固有値

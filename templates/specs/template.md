@@ -41,13 +41,15 @@
 
 ## 上位文書整合
 
-正本のどの節と、どう整合させたかを記録する。対象は次のとおりである。
-
-- [PRD](../../PRD.md) / [Design Doc](../../design/DesignDoc.md) / [feature doc](../../design/features/) / [context](../../context/) / ADR
+正本のどの節と、どう整合させたかを記録する。
 
 - PRD 更新要否: 要 / 不要
 - Design Doc 更新要否: 要 / 不要
+- feature doc 更新要否: 要 / 不要
+- context 更新要否: 要 / 不要
 - ADR 起票要否: 要 / 不要
+
+正本の所在は [PRD](../../PRD.md) / [Design Doc](../../design/DesignDoc.md) / [feature doc](../../design/features/) / [context](../../context/) / [adr](../../adr/) である。
 
 | 上位文書      | 節 / 該当箇所 | 整合方針 (継承 / 補足 / 変更提案) |
 | ------------- | ------------- | --------------------------------- |
@@ -152,7 +154,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 ### Performance
 
 - performance / runtime budget の方針
-  - 根拠: [context/architecture.md](../../context/architecture.md) — package / runtime / state の境界規約
+  - 根拠: [context/architecture.md](../../context/architecture.md) の Runtime Boundary — runtime / 配信モデルの前提を定める
 
 ### Routing / URL State
 
@@ -161,16 +163,16 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 ### Content / Assets
 
 - コンテンツ更新フロー / 静的 asset 配置 / 配信前提
-  - 根拠: [context/infrastructure.md](../../context/infrastructure.md) — 配信基盤 / 環境戦略 / Infrastructure Contract
+  - 根拠: [context/infrastructure.md](../../context/infrastructure.md) の Infrastructure / Deployment — 公開基盤と配信の前提を定める
 
 ### UI Reuse
 
-- 共有 UI 経由か、feature / colocation 内で閉じるか
+- 共有 UI と colocation のどちらを選ぶか。昇格条件は `context/architecture.md` の Package Boundary が定める
 
 ### Testing
 
 - unit / e2e のどこで何を担保するか
-  - 根拠: [context/testing.md](../../context/testing.md) — テスト層の分担と E2E runtime contract
+  - 根拠: [context/testing.md](../../context/testing.md) の テスト責務の分担 — テスト層ごとの担保範囲を定める
 
 ## Interface 設計
 
@@ -312,3 +314,17 @@ sequenceDiagram
 - 画面コンポーネントツリー / 表示条件 → appendices/screen-spec.md
 - data-testid 一覧 → appendices/testid.md
 -->
+
+## 関連ドキュメント
+
+<!-- 本文からリンクした先をすべて載せる。抜粋にしない。 -->
+
+- [PRD.md](../../PRD.md): プロダクト要求
+- [Design Doc](../../design/DesignDoc.md): system landscape
+- [design/features/](../../design/features/): feature 単位の設計
+- [context/](../../context/): 横断規約
+- [context/architecture.md](../../context/architecture.md): package / runtime / state の境界
+- [context/infrastructure.md](../../context/infrastructure.md): 配信基盤と環境戦略
+- [context/testing.md](../../context/testing.md): テスト責務の分担
+- [adr/](../../adr/): 確定した技術判断
+
