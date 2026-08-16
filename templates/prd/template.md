@@ -98,4 +98,3 @@ PRD は **Why / What** を扱う。「誰のどの課題を、なぜ・何で解
 - [Design Doc](design/DesignDoc.md): system landscape とモジュール責務
 - [context/](context/): 技術規約 / 運用契約
 - [{文書名}]({パス}): {何を定めているか}
-

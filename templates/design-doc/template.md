@@ -123,8 +123,8 @@ feature 単位の設計 (データ構造・画面・主要シナリオ / フロ�
 
 技術スタック規約・codebase architecture・運用契約は context library を正本とする。プロジェクト固有値は `context/project.yml` を正本とする。
 
-| トピック                                    | 文書                                                         |
-| ------------------------------------------- | ------------------------------------------------------------ |
+| トピック                                    | 文書                                                      |
+| ------------------------------------------- | --------------------------------------------------------- |
 | package / runtime / state boundary          | [context/architecture.md](../context/architecture.md)     |
 | toolchain・build・scaffold policy           | [context/toolchain.md](../context/toolchain.md)           |
 | root task / shared config / quality gate    | [context/engineering.md](../context/engineering.md)       |

@@ -154,7 +154,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 ### Performance
 
 - performance / runtime budget の方針
-  - 根拠: [context/architecture.md](../../context/architecture.md) の Runtime Boundary — runtime / 配信モデルの前提を定める
+  - [context/architecture.md](../../context/architecture.md) の Runtime Boundary — runtime / 配信モデルの前提を定める
 
 ### Routing / URL State
 
@@ -163,7 +163,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 ### Content / Assets
 
 - コンテンツ更新フロー / 静的 asset 配置 / 配信前提
-  - 根拠: [context/infrastructure.md](../../context/infrastructure.md) の Infrastructure / Deployment — 公開基盤と配信の前提を定める
+  - [context/infrastructure.md](../../context/infrastructure.md) の Infrastructure / Deployment — 公開基盤と配信の前提を定める
 
 ### UI Reuse
 
@@ -172,7 +172,7 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 ### Testing
 
 - unit / e2e のどこで何を担保するか
-  - 根拠: [context/testing.md](../../context/testing.md) の テスト責務の分担 — テスト層ごとの担保範囲を定める
+  - [context/testing.md](../../context/testing.md) の テスト責務の分担 — テスト層ごとの担保範囲を定める
 
 ## Interface 設計
 
@@ -327,4 +327,3 @@ sequenceDiagram
 - [context/infrastructure.md](../../context/infrastructure.md): 配信基盤と環境戦略
 - [context/testing.md](../../context/testing.md): テスト責務の分担
 - [adr/](../../adr/): 確定した技術判断
-
