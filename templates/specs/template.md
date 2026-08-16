@@ -41,7 +41,9 @@
 
 ## 上位文書整合
 
-正本 ([PRD](../../PRD.md) / [Design Doc](../../design/DesignDoc.md) / [feature doc](../../design/features/) / [context](../../context/) / ADR) のどの節と、どう整合させたかを記録する。
+正本のどの節と、どう整合させたかを記録する。対象は次のとおりである。
+
+- [PRD](../../PRD.md) / [Design Doc](../../design/DesignDoc.md) / [feature doc](../../design/features/) / [context](../../context/) / ADR
 
 - PRD 更新要否: 要 / 不要
 - Design Doc 更新要否: 要 / 不要
@@ -149,7 +151,8 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 
 ### Performance
 
-- performance / runtime budget の方針 ([context/architecture.md](../../context/architecture.md))
+- performance / runtime budget の方針
+  - 根拠: [context/architecture.md](../../context/architecture.md) — package / runtime / state の境界規約
 
 ### Routing / URL State
 
@@ -157,15 +160,17 @@ EARS 風で振る舞いを記述する (`<who>` `<trigger>` 時、システム�
 
 ### Content / Assets
 
-- コンテンツ更新フロー / 静的 asset 配置 / 配信前提 ([context/infrastructure.md](../../context/infrastructure.md))
+- コンテンツ更新フロー / 静的 asset 配置 / 配信前提
+  - 根拠: [context/infrastructure.md](../../context/infrastructure.md) — 配信基盤 / 環境戦略 / Infrastructure Contract
 
 ### UI Reuse
 
-- 共有 UI 経由か、feature / colocation 内で閉じるか ([context/architecture.md](../../context/architecture.md))
+- 共有 UI 経由か、feature / colocation 内で閉じるか
 
 ### Testing
 
-- unit / e2e のどこで何を担保するか ([context/testing.md](../../context/testing.md))
+- unit / e2e のどこで何を担保するか
+  - 根拠: [context/testing.md](../../context/testing.md) — テスト層の分担と E2E runtime contract
 
 ## Interface 設計
 

@@ -95,7 +95,7 @@ flowchart TD
 
 ## モジュール責務
 
-各モジュールの責務・境界を示す。依存方向は下図、実装レベルの規約は [context/architecture.md](../../context/architecture.md) を正本とする。
+各モジュールの責務・境界を示す。依存方向は下図で示し、実装レベルの規約は context/architecture.md を正本とする。
 
 | モジュール | 責務 | 公開境界 | 依存先 |
 | ---------- | ---- | -------- | ------ |
@@ -113,7 +113,7 @@ landscape より下の詳細は以下を正本とする。本 doc には重複�
 
 ### Feature 設計 (How: feature)
 
-feature 単位の設計 (データ構造・画面・主要シナリオ / フロー) は [design/features/](../features/) を正本とする。
+feature 単位の設計 (データ構造・画面・主要シナリオ / フロー) は feature doc を正本とする。
 
 | Feature | 文書 | 状態 |
 | ------- | ---- | ---- |
@@ -121,7 +121,7 @@ feature 単位の設計 (データ構造・画面・主要シナリオ / フロ�
 
 ### Engineering Context (How: 横断規約)
 
-技術スタック規約・codebase architecture・運用契約は [context/](../../context/) ライブラリを正本とする。プロジェクト固有値は [context/project.yml](../../context/project.yml)。
+技術スタック規約・codebase architecture・運用契約は context library を正本とする。プロジェクト固有値は `context/project.yml` を正本とする。
 
 | トピック                                    | 文書                                                         |
 | ------------------------------------------- | ------------------------------------------------------------ |
@@ -133,7 +133,7 @@ feature 単位の設計 (データ構造・画面・主要シナリオ / フロ�
 
 ### Related ADRs / 代替案 (Why: 判断)
 
-確定した技術判断・却下した代替案は [adr/](../../adr/) を正本とする。本 doc では一覧のみ持つ。
+確定した技術判断・却下した代替案は adr を正本とする。本 doc では一覧のみ持つ。
 
 | ADR | 決定 | 関連ドキュメント |
 | --- | ---- | ---------------- |

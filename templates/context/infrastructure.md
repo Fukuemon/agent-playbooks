@@ -13,7 +13,9 @@ verified_commit: unverified
 
 # Infrastructure & Operations
 
-公開基盤・環境戦略・運用・セキュリティの契約。本書は **app 側が依存する contract** を定義する。infra 実体を別 repo で管理する場合はその境界も記す ([context/project.yml](project.yml) のリポジトリマップ)。
+公開基盤・環境戦略・運用・セキュリティの契約を定める。本書は **app 側が依存する contract** を定義する。infra 実体を別 repo で管理する場合は、その境界も記す。
+
+- 根拠: [context/project.yml](project.yml) のリポジトリマップ — repo の役割と境界の正本
 
 ## Infrastructure / Deployment
 

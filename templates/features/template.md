@@ -45,7 +45,7 @@ Feature 単位の設計 doc。仕様 (What) をどう実現するか (How) を�
 
 ### コンポーネント構成 (C4 L3)
 
-feature を構成する主要コンポーネントと依存を示す。全体像 (L1/L2) は [DesignDoc](../../DesignDoc.md)、内部シーケンスは spec へ委譲する。
+feature を構成する主要コンポーネントと依存を示す。全体像 (L1/L2) は DesignDoc、内部シーケンスは spec へ委譲する。
 
 ```mermaid
 flowchart TD
