@@ -191,7 +191,7 @@ def split_git_command(argv: list[str]) -> tuple[str, list[str]]:
     return "", []
 
 
-def is_allowed_branch_delete(args: list[str], branch: str) -> bool:
+def is_allowed_branch_delete(args: list[str], branch: str, cwd: str | None) -> bool:
     """マージ済みブランチの後片付けを許すか。
 
     保護ブランチ上でも、**別の**ブランチを消す操作は保護ブランチを変更しない。
@@ -215,10 +215,12 @@ def is_allowed_branch_delete(args: list[str], branch: str) -> bool:
 
     if not targets:
         return False
-    return all(target != branch and not is_protected_branch(target) for target in targets)
+    return all(
+        target != branch and not is_protected_branch(target, cwd) for target in targets
+    )
 
 
-def is_allowed_push_delete(args: list[str]) -> bool:
+def is_allowed_push_delete(args: list[str], cwd: str | None) -> bool:
     """リモートの作業ブランチ削除を許すか。
 
     `git push origin --delete <branch>` と `git push origin :<branch>` に限る。
@@ -253,7 +255,7 @@ def is_allowed_push_delete(args: list[str]) -> bool:
     if not all(names):
         return False
     return all(
-        not is_protected_branch(name.removeprefix("refs/heads/")) for name in names
+        not is_protected_branch(name.removeprefix("refs/heads/"), cwd) for name in names
     )
 
 
@@ -321,8 +323,20 @@ def main() -> int:
     else:
         argv = []
 
-    branch = current_branch()
-    if not is_protected_branch(branch):
+    # 判定は **コマンドが実際に走る作業ツリー** で行う。
+    # git worktree では作業ツリーごとにブランチが違うため、常に
+    # CLAUDE_PROJECT_DIR で判定すると作業ブランチの worktree でも
+    # 保護ブランチとみなされ、commit が一切できなくなる。
+    # cwd が repo の外なら判定できないので、従来どおりプロセスの cwd に委ねる。
+    cwd = payload.get("cwd")
+    if not isinstance(cwd, str):
+        cwd = None
+    branch = current_branch(cwd)
+    if not branch:
+        cwd = None
+        branch = current_branch()
+
+    if not is_protected_branch(branch, cwd):
         return 0
 
     if tool_name in EDIT_TOOLS:
@@ -339,7 +353,7 @@ def main() -> int:
     if subcommand == "branch":
         if is_readonly_branch_command(args):
             return 0
-        if is_allowed_branch_delete(args, branch):
+        if is_allowed_branch_delete(args, branch, cwd):
             return 0
         return deny(
             f"Mutating git branch command is blocked on protected branch '{branch}': {command}"
@@ -363,7 +377,7 @@ def main() -> int:
             f"Git worktree mutation is blocked on protected branch '{branch}': {command}"
         )
 
-    if subcommand == "push" and is_allowed_push_delete(args):
+    if subcommand == "push" and is_allowed_push_delete(args, cwd):
         return 0
 
     if subcommand in MUTATING_GIT:

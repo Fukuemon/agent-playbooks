@@ -87,6 +87,66 @@ def run_tool(tool_name: str, branch: str, cwd: pathlib.Path) -> int:
     return result.returncode
 
 
+def run_in(command: str, cwd: pathlib.Path, tool_name: str = "Bash") -> int:
+    """payload の cwd で判定させる (PROTECTED_BRANCH_GUARD_BRANCH を使わない)。"""
+    env = {k: v for k, v in os.environ.items() if k != "PROTECTED_BRANCH_GUARD_BRANCH"}
+    tool_input = (
+        {"command": command} if tool_name == "Bash" else {"file_path": "a.md"}
+    )
+    payload = json.dumps(
+        {"tool_name": tool_name, "tool_input": tool_input, "cwd": str(cwd)}
+    )
+    result = subprocess.run(
+        [sys.executable, str(HOOK)],
+        input=payload,
+        text=True,
+        capture_output=True,
+        env=env,
+    )
+    return result.returncode
+
+
+def git(*args: str, cwd: pathlib.Path) -> None:
+    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
+
+
+def worktree_cases() -> list[str]:
+    """worktree ごとにブランチが違う repo で、cwd 基準の判定を固定する。
+
+    ここが壊れると、作業ブランチの worktree にいても保護ブランチ扱いになり、
+    commit が一切できなくなる。
+    """
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as tmp:
+        root = pathlib.Path(tmp) / "repo"
+        root.mkdir()
+        git("init", "-q", "-b", "develop", cwd=root)
+        git("-c", "user.email=t@example.com", "-c", "user.name=t",
+            "commit", "-q", "--allow-empty", "-m", "init", cwd=root)
+
+        tree = pathlib.Path(tmp) / "wt"
+        git("worktree", "add", "-q", "-b", "feature/x", str(tree), cwd=root)
+
+        checks = [
+            (DENY, root, "git commit -m x", "protected worktree"),
+            (ALLOW, tree, "git commit -m x", "feature worktree"),
+            (DENY, root, "git push origin develop", "protected worktree push"),
+            (ALLOW, tree, "git push origin feature/x", "feature worktree push"),
+        ]
+        for expected, cwd, command, label in checks:
+            actual = run_in(command, cwd)
+            if actual != expected:
+                failures.append(f"expect={expected} got={actual}  {label}: {command}")
+
+        for expected, cwd, label in [(DENY, root, "protected"), (ALLOW, tree, "feature")]:
+            actual = run_in("", cwd, tool_name="Edit")
+            if actual != expected:
+                failures.append(f"expect={expected} got={actual}  Edit in {label} worktree")
+
+        git("worktree", "remove", "--force", str(tree), cwd=root)
+    return failures
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -115,6 +175,8 @@ def main() -> int:
             actual = run_tool(tool_name, "feature/4", cwd)
             if actual != ALLOW:
                 failures.append(f"expect={ALLOW} got={actual}  unprotected: {tool_name}")
+
+    failures.extend(worktree_cases())
 
     for line in failures:
         print(f"NG {line}")
