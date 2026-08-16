@@ -9,6 +9,15 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 
 ---
 
+## 2026-08-16 保護ブランチの同期と作業ツリーの復元はガードを通す
+
+- **背景**: PR をマージした後、消費 repo のメイン worktree を `develop` へ同期しようとして手が止まった。`git pull` はガードの `MUTATING_GIT` に入っており拒否される。配布で書き換わった `hooks/` に未 commit の差分が残っているため、これを捨てる `git checkout -- <path>` も拒否される。結果として、保護ブランチを最新に保つという通常の保守作業が、ガードの内側では一切実行できなかった。回避手段 (`cd <path> && git ...` の素通り経路、`PROTECTED_BRANCH_GUARD_BRANCH` の上書き、`git switch --discard-changes` が無条件に許されていること) はいずれも存在したが、使えばガードを破る前例になる。
+- **判断**: 2 つの許可経路を足した。① `--ff-only` を明示した `git pull` を許す。同伴を許す修飾は結果を変えないもの (`--quiet` / `--tags` / `--prune` 等) に限り、`--rebase` / `--autostash` / refspec (`:` を含む positional) は許さない。② 作業ツリーを HEAD へ戻す `git restore <path>` と `git checkout -- <path>` を許す。戻す先が HEAD でない形 (`--source=<commit>` / `git checkout <tree-ish> -- <path>`) と、index を触る `--staged` は許さない。
+- **理由**: `--ff-only` の pull は、分岐していれば git 自身が中止する。したがって保護ブランチ上に commit を作れず、できるのは ref を上流に合わせて進めることだけである。`--ff-only` を落とすと分岐時にマージ commit を作るか rebase で履歴を書き換えるため、そこが許可の境界になる。復元を許すのは、ガードが保護ブランチ上の編集 (`Edit` / `Write`) を既に禁じているためである。その状態で残る未 commit の変更は事故か配布由来であり、破棄は保護ブランチを commit 済みの状態へ戻す操作、つまりガードが目指す状態そのものになる。戻す先を HEAD に限ったのは、`--source` 付きの復元が「別 commit の内容を保護ブランチの作業ツリーへ持ち込む変更」であり、性質が逆だからである。
+- **今後**: ガードへの許可追加は「その操作が保護ブランチの commit 履歴を変えうるか」だけで判断する。作業ツリーだけを触る操作、および上流へ早送りするだけの操作は塞がない。逆に、履歴を作りうる形 (`--rebase` / `--no-ff` / `--source` / `--staged`) を「便利だから」という理由で許可対象へ足す提案は却下する。許可を広げるときは、必ず対になる拒否ケースを `test_pre_tool_use.py` に足す。
+
+---
+
 ## 2026-08-16 保護ブランチガードは「保護ブランチを変更しない操作」を塞がない
 
 - **背景**: 消費 repo (screen-contract) で PR をマージした後、`develop` にいる状態でマージ済み `feature/*` を片付けようとしたところ、`git branch -d <other>` と `git push origin --delete <other>` の両方がガードで拒否された。どちらも保護ブランチを一切変更しない。さらに判定が `CLAUDE_PROJECT_DIR` のブランチ固定であるため、**作業ブランチの worktree にいても保護ブランチ扱いになり commit できず**、別 repo のファイル編集まで `EDIT_TOOLS` の拒否に巻き込まれた。ガードを直す作業自体がガードに阻まれる循環が起きた。調査中に 2 つの素通り経路も見つかった。`git -C <path> commit` は `argv[1]` を subcommand とみなす実装のため `-C` と誤読されて通り、`cd <path> && git commit` は `argv[0] != "git"` で判定前に抜ける。
