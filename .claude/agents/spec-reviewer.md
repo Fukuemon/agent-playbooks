@@ -37,7 +37,15 @@ tools: "Read, Grep, Glob"
 
 → 未決定が残っているのに下流が書かれていれば `NEEDS_WORK`。
 
-## 3. 実装対象明示 (Target Boundaries)
+## 3. 外部依存の健全性 (Dependency Health) — 外部ツール / ライブラリを選定する spec のみ
+
+- 採用する外部依存について、**最終公開日**と、**プロジェクトが使っているバージョンへの対応** (peer dependency / 動作要件) が spec か ADR に書かれているか
+- 比較した代替案についても同じ 2 点が書かれているか
+- 後継パッケージや推奨される移行先の有無を確認した記録があるか
+
+→ 選定の記述はあるのに上記が空欄なら `NEEDS_WORK`。**「動くはず」で採った依存は実装フェーズで決定ごと覆る。**
+
+## 4. 実装対象明示 (Target Boundaries)
 
 - `## 実装対象` テーブルの target が `context/project.yml` の `domains` と一致しているか
 - 複数 target がある場合、責務境界 (どの target が何をするか) が読めるか
@@ -46,7 +54,7 @@ tools: "Read, Grep, Glob"
 
 → target が曖昧 / 越境していれば `NEEDS_WORK`。
 
-## 4. template 必須節 (Structure Compliance)
+## 5. template 必須節 (Structure Compliance)
 
 `templates/specs/template.md` の必須節がすべて存在するか (`hooks/spec/validate_document.sh` の必須セクションと一致):
 
@@ -71,7 +79,7 @@ tools: "Read, Grep, Glob"
 
 関連 spec / ADR / context が更新されている場合、`Spec Workflow Contract` の「文書メタ情報の同期」を満たしているか (本文だけ更新されメタ情報 / 履歴が古いままなら `NEEDS_WORK`)。
 
-## 5. EARS acceptance (受け入れ基準)
+## 6. EARS acceptance (受け入れ基準)
 
 - `## 要件の解釈` に EARS 風記述 (WHEN / IF / WHILE / THE SYSTEM SHALL) が 1 件以上あるか
 - 各受け入れ基準が観測可能 (テスト可能) な記述になっているか
@@ -79,7 +87,7 @@ tools: "Read, Grep, Glob"
 
 → 観測不能な acceptance が混じっていれば `NEEDS_WORK`。
 
-## 6. Prompts の自己完結性 (prompts phase レビュー時のみ)
+## 7. Prompts の自己完結性 (prompts phase レビュー時のみ)
 
 `prompts/` 配下を含めてレビューする場合:
 
@@ -93,7 +101,7 @@ tools: "Read, Grep, Glob"
 
 → いずれか違反があれば `NEEDS_WORK`。
 
-## 7. 正本境界 (Source-of-Truth Boundary) — sync 済 spec のみ
+## 8. 正本境界 (Source-of-Truth Boundary) — sync 済 spec のみ
 
 `Spec Workflow Contract` の `正本境界` に従い、durable 成果の正本が spec から design へハンドオフ済かを確認する。判定は spec のライフサイクル段階で条件分岐する:
 
@@ -119,6 +127,7 @@ Verdict: PASS | NEEDS_WORK
 ### 観点別評価 (PASS は必ず根拠 file:line / section を引用する)
 - 上位文書整合: PASS / NEEDS_WORK — <根拠 file:line / 短評>
 - 未解決論点: PASS / NEEDS_WORK — <根拠 file:line / 短評>
+- 外部依存の健全性: PASS / NEEDS_WORK / N/A — <根拠 file:line / 短評>
 - 実装対象明示: PASS / NEEDS_WORK — <根拠 file:line / 短評>
 - template 必須節: PASS / NEEDS_WORK — <根拠 file:line / 短評>
 - EARS acceptance: PASS / NEEDS_WORK — <根拠 file:line / 短評>
