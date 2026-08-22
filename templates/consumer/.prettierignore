@@ -9,6 +9,9 @@ CLAUDE.md
 .cursor/
 .mcp.json
 
-# project.yml とそのテンプレート。値がプレースホルダ (<host> / <path> 等) の間は
-# YAML として解析できず、prettier が parse error で落ちる。
-templates/context/project.yml
+# 配布物のテンプレート。編集も整形も配布元 (sdd-template) でのみ行う。
+# 消費側で整形すると、次の link.sh が配布元版で上書きして巻き戻り、
+# commit のたびに整形と巻き戻りを往復する。
+# (project.yml のテンプレートは、値がプレースホルダ (<host> / <path> 等) の間は
+#  YAML として解析できず prettier が parse error で落ちるため、いずれにせよ対象外)
+templates/
