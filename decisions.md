@@ -321,3 +321,11 @@ skill / rule / subagent を **どう作るか** の非自明な判断と「今�
 - **判断**: ① ADR テンプレートに `## 外部依存の健全性` 節を追加し、**採用候補と却下した代替案の双方**について「最終公開日 / 対象バージョンへの対応 (peer dependency・動作要件) / 後継・代替の有無」を書かせる。該当しない ADR では節ごと削る。② `spec-reviewer` に同名の観点を追加し、選定の記述があるのに未記入なら `NEEDS_WORK` とする。
 - **理由**: 「代替案を比較して決めた」ことは既存テンプレートで担保できていたが、**比較の軸に「今のバージョンで動くか」が入っていなかった**。機能の優劣だけを比べると、動かない選択肢が勝ちうる。確認コストは 1 コマンドで、実装フェーズで決定ごと覆るコストと釣り合わない。代替案側も書かせるのは、採用候補だけを調べると「他がもっと悪い」根拠が空になるため。
 - **今後**: 節を必須 (削除不可) にはしない。外部依存を伴わない ADR が大半で、空の表が並ぶと形骸化する。同種の見落としが再発するなら、`spec-lifecycle` の track phase で選定候補を洗い出す手順を足す方を先に検討する。バージョン固定や lockfile の運用は別の関心事なので、この節には含めない。
+
+## 2026-08-31 配布する workflow は action を SHA で pin し、closeout の起動を所有者に絞る
+
+- **背景**: 消費 repo (fukuemon.dev) の複数エージェントレビューで、`templates/consumer/.github/workflows/` の 2 本だけ `actions/checkout@v4` が tag 参照のまま残っていることが分かった。tag は付け替えられる。とくに `spec-closeout.yml` は `contents: write` / `pull-requests: write` と `CLOSEOUT_PR_TOKEN` (PAT) を持ち、起動契機が `issues: [closed]` である。GitHub では issue を立てた本人が自分の issue を閉じられるため、**public repository では外部ユーザがこの job を発火させられる**。テンプレ repo 自身の `check.yml` も同じく未 pin だった。
+- **判断**: ① 3 本とも `actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5` へ pin する。② `spec-closeout.yml` の job に `if: github.event_name == 'workflow_dispatch' || github.event.sender.login == github.repository_owner` を足し、外部ユーザの issue close では何も実行しない。③ organization の repository ではこの条件が常に偽になることを、workflow 内のコメントで明示し、`author_association` を使う書き換え方を添える。
+- **理由**: pin は tag の付け替えを塞ぐ。起動条件を足すのは、pin が破られた場合に **書き込み権限を持つ job を外部から起動できる** という組み合わせを断つためである。`workflow_dispatch` は書き込み権限を持つ者しか撃てないので素通しでよい。所有者との一致で判定したのは、1 名体制の repository が主な配布先であり、判定が 1 行で読めるためである。`author_association` を既定にしなかったのは、判定が 3 値の列挙になり、どの値を含めるかの根拠が repository ごとに変わるためである。
+- **今後**: organization の repository へ配布する事例が出たら、条件を `author_association` の形へ切り替える。そのときコメントの案内は消す。CI の action 全体を SHA へ pin する検査 (`check` への追加) は、まだ入れない。配布する workflow は 2 本で、目視で追える数である。
+
