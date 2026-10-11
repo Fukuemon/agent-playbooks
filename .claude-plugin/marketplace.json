@@ -1,0 +1,13 @@
+{
+  "name": "agent-playbooks",
+  "owner": {
+    "name": "Fukuemon"
+  },
+  "description": "コーディングエージェントの作業の進め方を playbook として持つパッケージ。",
+  "plugins": [
+    {
+      "name": "playbooks",
+      "source": "./packages/playbooks"
+    }
+  ]
+}

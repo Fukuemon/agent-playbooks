@@ -1,25 +1,14 @@
+# git hooks。有効化: pnpm install (prepare が lefthook install を実行する)
+
 pre-commit:
   commands:
-    protected-branch:
-      run: python3 hooks/protected-branch/git_hook.py pre-commit
-    format:
-      run: hooks/format/run_prettier.sh
-    repo-analysis:
-      run: hooks/quality/validate_repo_analysis.sh
-    check-skills:
-      run: bash scripts/check-skills.sh
-
-pre-push:
-  commands:
-    protected-branch:
-      run: python3 hooks/protected-branch/git_hook.py pre-push
+    # 文章の規則。経緯の混入とリンクは編集後のフックと CI が見る
+    textlint:
+      glob: "*.md"
+      run: pnpm exec textlint {staged_files}
 
 commit-msg:
   commands:
-    ticket-number:
-      glob: "**/*"
-      run: hooks/commit-msg/check_ticket_number.sh {1}
-    # AI の attribution trailer を落とす。.claude/settings.json で無効化して
-    # いるが、それでも入った commit が 332 件積み上がったため機械検査を置く。
-    no-ai-attribution:
-      run: bash hooks/commit-msg/check_no_ai_attribution.sh {1}
+    # 形式と AI の帰属表示の禁止は commitlint.config.mjs が持つ
+    commitlint:
+      run: pnpm exec commitlint --edit {1}

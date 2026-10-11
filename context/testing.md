@@ -1,20 +1,24 @@
-# Testing Conventions
+---
+type: context
+title: テスト
+description: テストの種類ごとの責務、実行に要る環境の条件、置き換えの方針、変更に足すテスト
+status: draft
+---
 
-> 最終更新: YYYY-MM-DD
+# テスト
 
-テストの横断規約。feature 固有のテスト観点は各 [design/features/](../design/features/) に置く。プロジェクト固有のテストコマンドは [context/project.yml](project.yml)。
+## Test Types and Guarantees
 
-## テスト責務の分担
+<!-- テストの種類ごとに、何を保証し、どこに置くか。テストの基盤の構成は Design Doc へリンクする -->
 
-| 種別 | 配置 | 主担当範囲 |
-| ---- | ---- | ---------- |
-| Unit test |  |  |
-| E2E |  |  |
+## Runtime Requirements
 
-## テスト runtime contract
+<!-- 実行に要る環境。環境変数、ポート、外部のサービス -->
 
-- E2E / 統合テストの起動契約 (env 変数 / 対象選択 / port 等)。新しい対象を追加する手順を含める。
+## Mocking and Test Data
 
-## 横断テスト方針
+<!-- 何を本物で動かし、何を置き換えるか。テストのデータの用意の仕方 -->
 
-- 公開 / リリース判定に含めるテスト観点。
+## Required Tests
+
+<!-- どの変更にどの種類のテストを足すか。リリースの前に通すテスト -->

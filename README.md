@@ -1,119 +1,58 @@
-# SDD Template
+# agent-playbooks
 
-Spec Driven Development (SDD) のための **汎用 AI ワークフローテンプレート**。PRD / Design Doc / context library / spec を一貫した正本構造で管理し、AI エージェントが後続実装できる粒度の設計文書を作る。
+コーディングエージェントが作業をどの順に進めるかを、playbook として持つパッケージ。  
+依頼を受けたエージェントがスキル `playbook` を読み、依頼に合う playbook を選び、その手順で進める。
 
-設定は `.rulesync/` を単一情報源とし、`rulesync` で Cursor / Claude Code / Codex CLI 等の各 provider へ展開する。
+[agent-harness](https://github.com/Fukuemon/agent-harness) の core と docs を前提にする。context、文書の型、コミットと issue と pull request の規約は agent-harness が持ち、このパッケージは作業の進め方だけを持つ。
 
-## ドキュメント階層 (Why / What / How)
+## Packages
 
-| 層                | 文書                                          | 役割                                               |
-| ----------------- | --------------------------------------------- | -------------------------------------------------- |
-| Why / What        | [PRD.md](PRD.md) (統合時は Design Doc に内包) | 誰のどの課題を、なぜ・何で解決するか               |
-| How (全体像)      | [design/DesignDoc.md](design/DesignDoc.md)    | system landscape / モジュール責務 / 横断方針       |
-| How (feature)     | [design/features/](design/features/)          | feature 単位の設計                                 |
-| How (規約 / 契約) | [context/](context/)                          | 技術規約・codebase architecture・運用契約          |
-| 固有値            | [context/project.yml](context/project.yml)    | repo / 命名 / コマンド / 対象ドメイン / トラッカー |
-| 意思決定          | [adr/](adr/)                                  | 長期参照する技術選定・境界                         |
-| 作業文書          | [specs/](specs/)                              | issue / 機能単位の要求・設計・テスト観点           |
+| パッケージ | 役割 |
+| --- | --- |
+| playbooks | playbook を選ぶスキル `playbook` と playbook 本体、手順を組むスキル `design-playbook`、レビューのスキル `review-changes` とレビューの subagent、principle |
 
-操作契約の正本は [.rulesync/rules/CLAUDE.md](.rulesync/rules/CLAUDE.md) (生成元)。
+### playbook
 
-## はじめかた (新規プロダクトへの適用)
+| 名前 | 当てはまる依頼 |
+| --- | --- |
+| requirements | 実現したいことを整理して issue にする |
+| feature | 振る舞いを足すか変える |
+| bug-fix | 報告された不具合を再現し、原因を突き止めて直す |
+| small-change | 設計の判断が要らない小さな変更 |
+| investigation | コードを変えずに問いに答える |
+| opening-a-pr | 変更を pull request にする |
+| pr-follow-up | pull request のレビューの指摘と CI の失敗に対応する |
 
-1. **PRD / Design Doc を作る** — `design-doc` skill。要件規模から PRD の要否を判定し、分離モード (PRD.md + DesignDoc.md) か統合モード (DesignDoc に Why/What を内包) を選ぶ。
-2. **context を初期化する** — `context-bootstrap` skill。Design Doc と短い対話から [context/project.yml](context/project.yml) と `context/*.md` を生成する。`<PLACEHOLDER>` を埋める。
-3. **AI 設定を同期する** — `rulesync-sync` skill。`.rulesync/` から各 provider 設定 (`AGENTS.md` / `CLAUDE.md` / `.cursor/` / `.codex/`) を生成する。
-4. **issue 駆動で進める** — `spec-*` skill 群 (intake → specify → clarify → design → sync → tasks → review)。`spec-lifecycle` が phase を orchestration する。
+## Installation
 
-## 消費 repo へ接続する (共有プロセス層)
+agent-harness を導入したリポジトリの `apm.yml` に、1 行を足す。
 
-開発プロセスに関する資産は汎用なので、各プロダクト repo へ共有できる。配布は 3 層:
-
-- **AI 設定 = `origin/main` 固定 worktree への symlink (未追跡)**: 生成物 (`CLAUDE.md` / `AGENTS.md` / `.claude/` / `.codex/` / `.cursor/` / `.agents/` / `.mcp.json`) は、`origin/main` に固定した配布 worktree (`<template-repo>/.wt/dist`) を指す symlink。生成は中央 (本 repo の `make dist`) で 1 回だけ行い、テンプレ側の更新は `make sync` で link 済みの全消費 repo に同時反映される。ignore は消費 clone の `.git/info/exclude` に入り commit されない。`.rulesync/` だけは作業 clone を指す live symlink (消費 repo 側からも正本を編集できる)
-- **`hooks/` / `templates/` = 実ファイルの上書き配布 (消費 repo が commit)**: commit 済みの `lefthook.yml` が実行時に `hooks/` を参照するため、clone しただけの環境 (CI / cloud agent / 共同開発者) にも実在させる。編集はテンプレ側でのみ行い、`link.sh` のたびにテンプレ版で上書きする (消費側に差分があれば無言で巻き戻さず一覧で報告する)。テンプレ更新の取り込みは消費 repo で `link.sh` 再実行 → 差分 commit
-- **消費 repo 所有の初期値 = 無い場合だけコピー**: `lefthook.yml` / `.github/workflows/spec-closeout.yml` / `spec-residue.yml` / `scripts/check-specs-residue.sh` / `scripts/doctor.sh` / `scripts/link-worktree.sh`。一度置いた後は消費 repo の所有物で、上書きしない
-
-```bash
-# このテンプレ repo 上で実行
-make link ARGS=/path/to/your-product-repo
-# または: bash scripts/link.sh /path/to/your-product-repo
+```yaml
+dependencies:
+  apm:
+    - Fukuemon/agent-harness/packages/core#v0.2.1
+    - Fukuemon/agent-harness/packages/docs#v0.2.1
+    - Fukuemon/agent-playbooks/packages/playbooks#<ref>
 ```
 
-接続後、消費 repo 側で git hooks を有効化し、配布物を commit し、接続状態を検査する:
-
-```bash
-cd /path/to/your-product-repo
-npx lefthook install                                   # git hooks の有効化
-git add hooks templates lefthook.yml scripts .github   # 実ファイル層 + 初期値の commit
-bash scripts/doctor.sh                                 # 接続と hooks/templates の同期を検査
+```sh
+apm install
 ```
 
-- 共有されない固有値 (消費 repo が所有): `context/` (`project.yml` 等) / `PRD.md` / `design/` / `specs/` / `adr/`
-- 代償: link.sh を実行していない環境 (CI / cloud agent / 新規 clone) には AI 設定 (symlink 層) が存在しない。欠落を silent にしないための検査が `scripts/doctor.sh` (判断の経緯は `decisions.md` 2026-08-02 / 2026-08-03)。
-- symlink 層は消費 repo の git worktree に自動では来ない。既存 worktree は link.sh が展開し、新規作成分は lefthook の post-checkout (`scripts/link-worktree.sh`) が張る。`hooks/` / `templates/` は commit 経由で worktree にも届く。
+## Usage
 
-## closeout の自動化 (spec 残存の検査 + 削除 PR の自動起票)
-
-spec は issue close 時に削除する契約 (`spec-lifecycle` の `references/closeout.md`) だが、手順だけでは実行が担保されない。2 段構えで塞ぐ。**自動では消さない** — 削除の前提「durable な設計成果が design / context / ADR へ sync 済みか」は機械判定できないため、判断は人に残し、toil (削除作業) だけを自動化する。
-
-| 仕組み             | 実体                                                                             | 配布                                                                                                             |
-| ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 残存検査           | `scripts/check-specs-residue.sh`                                                 | **無ければコピー**。以後は消費 repo が所有し、上書きしない (更新は `templates/consumer/` と差分比較して取り込む) |
-| 削除 PR の自動起票 | `.github/workflows/spec-closeout.yml` (issue close をトリガに削除 PR を起票)     | 同上                                                                                                             |
-| 検査の CI 常設     | `.github/workflows/spec-residue.yml` (デフォルトブランチへの push + 毎週 + 手動) | 同上                                                                                                             |
-
-検査は `context/project.yml` の `paths.spec_dir` と `gh` が解決する origin を使い、repo 名やコマンドを直書きしない。終了コードは `0` 残存なし / `1` 残存あり / `2` 検査不能 (gh の認証・権限・想定外の値) で、**`2` は合格ではない**。
-
-自動起票を使う消費 repo 側の前提:
-
-- Settings → Actions → General で **Allow GitHub Actions to create and approve pull requests** を有効にする (無いと `gh pr create` が `GitHub Actions is not permitted to create or approve pull requests` で失敗する。workflow が検出して設定箇所を案内する)。**Workflow permissions (default_workflow_permissions) は Read のままでよい** — `contents: write` は workflow 側の `permissions` 宣言で足りている (実測)
-- `issues` イベントの workflow は**デフォルトブランチ版が実行される**ため、workflow をマージするまで発火しない
-- 起票された PR で CI を回したいなら (required check がある repo では必須)、secret `CLOSEOUT_PR_TOKEN` に PAT を置く。既定の `github.token` による push / PR 作成は再帰実行防止で workflow を発火させないため、未設定だと起票された PR に CI が回らない。GitHub App を使う場合は installation token を secret に固定せず、run ごとに発行する (1 時間で失効し、期限切れ secret が `github.token` へのフォールバックを塞ぐ)
-- `Closes #N` で issue を閉じる実装 PR に spec 削除を含めると、「issue は閉じたが spec は残っている」窓が生じない
-- 検査 CI は **PR ゲートにしていない** — 別 PR で清算する運用だと上記の窓の間、無関係な PR が落ちるため。ゲートにするなら「issue を閉じる PR に削除を含める」運用を先に徹底する (`spec-residue.yml` 末尾のメモ)
-
-## プロジェクト選択型 skill
-
-言語・framework など、プロジェクトによって要否が分かれる skill は `.rulesync/skills/` に含めず、
-リポジトリ直下の `skills/` で配布する。必要な消費 repo だけで次を実行する。
-
-```bash
-npx skills add Fukuemon/sdd-template --skill effective-go
-```
-
-`npx skills add` が生成する agent 別 skill は、その消費 repo 側で管理する。
-
-固有値 (`context/project.yml` の repo / 命名 / コマンド / トラッカー等) は消費 repo 側で
-実ファイルとして記入する。skill / 契約は抽象のまま `context/` を参照する。
-
-## token 削減 (RTK — 任意)
-
-エージェントが読む bash 出力を圧縮する CLI プロキシ [RTK](https://github.com/rtk-ai/rtk) を推奨する。**各開発者のマシン単位 (global) の設定**として入れる。repo 側の hook には登録していないため、未導入でも全 workflow は成立する。
-
-```bash
-brew install rtk
-rtk init -g          # Claude Code / Copilot (--codex / --agent cursor もある)
-rtk gain             # 削減量の確認
-```
-
-導入後は Bash tool の `git status` 等が `rtk git status` に書き換えられ、出力が圧縮されてから context に載る。詳細・注意点 (Read/Grep tool は通らない / 全文が必要な検証では素の命令を使う) は
-[.rulesync/skills/dev-commands/references/rtk.md](.rulesync/skills/dev-commands/references/rtk.md)。repo 側の対応は 2 点:
-
-- `.rulesync/permissions.json` は **読み取り系の `rtk` サブコマンドのみ allow** (書き込み系は素の命令と同じく都度承認)。ただし RTK の hook は書き換えたコマンドを `permissionDecision: "allow"` で返し**承認プロンプトを飛ばす**ため、承認ゲートは permissions ではなく hook で塞ぐ (実測は `references/rtk.md`)
-- `hooks/protected-branch/pre_tool_use.py` は `rtk` 前置を剥がして判定するので、`rtk git commit` も protected branch でブロックされる
-
-## 文書品質
-
-すべての設計文書は `styleguide-documents` skill の 5 原則 (曖昧さ排除 / 意思決定理由 / AI 実装可能な粒度 / 可読構造 / 過剰装飾の回避) に従う。
-
-## ディレクトリ
+コーディングエージェントで、依頼を添えて `/playbook` を呼ぶ。
 
 ```text
-.rulesync/   # AI 設定の単一情報源 (rules / skills / hooks / permissions / mcp)
-skills/      # 言語・framework 固有の選択導入型 skill (`npx skills add` 用)
-context/     # 技術規約・運用契約 + project.yml (固有値)
-design/      # Design Doc (landscape) と feature 設計
-templates/   # PRD / Design Doc / context / spec / feature / requirements / adr のテンプレート
-adr/         # Architecture Decision Records
-hooks/       # protected branch / 文書検証 / markdown 整形などの hook
+/playbook ログインの画面で、パスワードを間違えたときのメッセージが出ない。直して
 ```
+
+スキル playbook が playbook を選び、その手順を todolist に写して進める。取り消せない操作（push、pull request の作成と取り込み、外部への送信）の前では止まり、指示を待つ。
+
+## Documentation
+
+- [Design Doc](design/DesignDoc.md): パッケージの構成と、agent-harness との分担。
+
+## Contributing
+
+開発の準備と、変更を取り込むまでの手順は [CONTRIBUTING.md](CONTRIBUTING.md) にある。
