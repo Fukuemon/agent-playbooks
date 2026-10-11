@@ -54,6 +54,27 @@ node .claude/hooks/docs/hooks/check-links.mjs
 - main へは、pull request を通して取り込む。マージの方法はマージコミットにする。
 - 保護するブランチは `main` である。直接コミットを許す場面があれば、この行の下に場面と理由を書く。
 
+次の図は、作業用のブランチを main へ取り込み、リリース用の pull request でタグを付けるまでの流れを示す。
+
+```mermaid
+gitGraph
+    commit id: "v0.1.0" tag: "v0.1.0"
+    branch "feature/12"
+    checkout "feature/12"
+    commit id: "12-1"
+    checkout main
+    branch "fix/13"
+    checkout "fix/13"
+    commit id: "13-1"
+    checkout main
+    merge "fix/13" id: "PR #13"
+    checkout "feature/12"
+    commit id: "12-2"
+    checkout main
+    merge "feature/12" id: "PR #12"
+    commit id: "release PR" tag: "v0.2.0"
+```
+
 バージョンは、セマンティック バージョニングに従う。リポジトリ全体で 1 つのバージョンにする。  
 1.0 より前は、破壊的な変更で minor を、それ以外で patch を上げる。
 
@@ -80,6 +101,34 @@ node .claude/hooks/docs/hooks/check-links.mjs
   - playbook の改名と削除
   - 前提にする agent-harness のバージョンを上げること
 - 取り込んだ変更を取り消すときは、取り消すコミットの type と scope を引き継ぎ、`revert(<scope>): <要約>` の形で書く。タグとリリースは消さず、付け替えない。
+
+### リリースの流れ
+
+main へ push するたびに、`.github/workflows/release.yml` がリリース用の pull request を作るか更新する。  
+リリース用の pull request は常に 1 つで、取り込むまで変更がたまる。タグとリリースができるのは、この pull request を取り込んだときだけである。
+
+次の図は、作業用のブランチを取り込んでから、タグとリリースができるまでの流れを示す。
+
+```mermaid
+flowchart TD
+    merge["作業用のブランチを main に取り込む"] --> wf1["release workflow が動く"]
+    wf1 --> scope{"packages/ を変えた<br>コミットがあるか"}
+    scope -- "ない" --> idle["リリース用の pull request は変わらない"]
+    scope -- "ある" --> pr["リリース用の pull request を作るか更新する<br>plugin.json、README の例、CHANGELOG.md を書き換える"]
+    pr --> review{"バージョンと変更履歴を確かめる"}
+    review -- "まだ出さない" --> merge
+    review -- "出す" --> mergepr["リリース用の pull request を取り込む"]
+    mergepr --> wf2["release workflow が動く"]
+    wf2 --> tag["タグ v0.x.y と GitHub のリリースができる"]
+```
+
+リリースするときは、次の順に進める。
+
+1. リリース用の pull request（題は `chore(main): release <バージョン>`）を開き、バージョンと `CHANGELOG.md` の変更を確かめる。
+2. 最新のコミットの CI が通っていることを確かめる。
+3. マージコミットで取り込む。
+4. release workflow が終わったら、`gh release view v<バージョン>` でタグとリリースができたことを確かめる。
+5. release workflow が失敗したときは、GitHub の Actions の画面で、失敗した実行をやり直す。
 
 ## issue と pull request
 
