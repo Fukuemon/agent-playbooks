@@ -61,7 +61,7 @@
       "hidden": true
     }
   ],
-  "last-release-sha": "b31d11ca3277e75149471e055bfcfc05619415ae",
+  "bootstrap-sha": "b31d11ca3277e75149471e055bfcfc05619415ae",
   "packages": {
     "packages": {
       "extra-files": [
