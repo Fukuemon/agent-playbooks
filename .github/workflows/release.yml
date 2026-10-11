@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # GITHUB_TOKEN で作った PR と push では CI が動かないため、GitHub App のトークンを使う
+      - uses: actions/create-github-app-token@v3
+        id: app
+        with:
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ steps.app.outputs.token }}
