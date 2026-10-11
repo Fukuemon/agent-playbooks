@@ -110,16 +110,20 @@ main へ push するたびに、`.github/workflows/release.yml` がリリース�
 次の図は、作業用のブランチを取り込んでから、タグとリリースができるまでの流れを示す。
 
 ```mermaid
-flowchart TD
-    merge["作業用のブランチを main に取り込む"] --> wf1["release workflow が動く"]
-    wf1 --> scope{"packages/ を変えた<br>コミットがあるか"}
-    scope -- "ない" --> idle["リリース用の pull request は変わらない"]
-    scope -- "ある" --> pr["リリース用の pull request を作るか更新する<br>plugin.json、README の例、CHANGELOG.md を書き換える"]
-    pr --> review{"バージョンと変更履歴を確かめる"}
-    review -- "まだ出さない" --> merge
-    review -- "出す" --> mergepr["リリース用の pull request を取り込む"]
-    mergepr --> wf2["release workflow が動く"]
-    wf2 --> tag["タグ v0.x.y と GitHub のリリースができる"]
+sequenceDiagram
+    actor Dev as 開発者
+    participant Main as main
+    participant WF as release workflow
+    participant PR as リリース用の pull request
+    Dev->>Main: 作業用のブランチを取り込む
+    Main->>WF: push で起動
+    WF->>PR: packages/ を変えたコミットがあれば、作成か更新
+    Note over WF,PR: plugin.json、README の例、CHANGELOG.md を書き換える
+    Note over Main,PR: 取り込むまで、push のたびに同じ pull request へ変更がたまる
+    Dev->>PR: バージョンと変更履歴を確かめて取り込む
+    PR->>Main: マージコミット
+    Main->>WF: push で起動
+    WF->>Main: タグ v0.x.y と GitHub のリリースを作る
 ```
 
 リリースするときは、次の順に進める。
