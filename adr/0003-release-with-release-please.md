@@ -21,7 +21,8 @@ agent-harness と同じ形にし、次の 4 点だけを変える。
 
 - release-please の対象の path を `packages` にし、バージョンを書き換えるのは `packages/playbooks/.claude-plugin/plugin.json` と、README の導入の例の行にする。README の行は、`x-release-please-version` の目印で書き換える。
 - ルートの `apm.yml` は agent-harness だけを指し、このリポジトリのパッケージを含まない。そのため、リリース用の pull request で `apm.lock.yaml` を作り直す手順は持たない。
-- manifest の始まりを 0.1.0 にし、`last-release-sha` を v0.1.0 のコミットにする。v0.1.0 の後のコミットから、変更履歴を作る。
+- manifest の始まりを 0.1.0 にし、`bootstrap-sha` を v0.1.0 のコミットにする。最初のリリース用の pull request は、v0.1.0 の後のコミットから変更履歴を作る。`bootstrap-sha` は、release-please が作った pull request を一度取り込むと使われなくなり、以後は前のリリースから数える。
+  - 出典: [release-please の manifest-releaser の文書](https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md)
 - 破壊的な変更は、スキルと playbook の改名と削除、前提にする agent-harness のバージョンを上げることとする。
 
 リリース用の pull request は、GitHub App のトークンで作る。`GITHUB_TOKEN` で作った pull request では、CI が動かないためである。App の client ID と秘密鍵は、リポジトリの secret（`RELEASE_APP_CLIENT_ID`、`RELEASE_APP_PRIVATE_KEY`）に置く。
