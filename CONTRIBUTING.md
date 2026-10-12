@@ -48,40 +48,91 @@ node .claude/hooks/docs/hooks/check-links.mjs
 
 ## ブランチとリリース
 
-<!-- 次は既定の運用。運用が違えば本文と図を書き換える -->
+ブランチは、main と、作業用のブランチだけにする。
 
-ブランチは、`main`、`develop`、issue ごとの作業用のブランチにする。
+- 作業用のブランチの名前は `feature/<issue 番号>` にする。不具合の issue は `fix/<issue 番号>` にする。issue のない作業は `feature/<主題>` にする。
+- main へは、pull request を通して取り込む。マージの方法はマージコミットにする。
+- 保護するブランチは `main` である。直接コミットを許す場面があれば、この行の下に場面と理由を書く。
 
-- `main` はリリース済みの状態を指す。`develop` は次のリリースに向けて変更を集める。
-- 作業用のブランチは `develop` から切る。名前は `feature/<issue 番号>` にし、不具合は `fix/<issue 番号>` にする。`develop` へは、pull request を通して取り込む。
-- リリースは、`develop` を `main` へ pull request で取り込み、`main` のコミットにタグを付ける。バージョンはセマンティック バージョニングに従う。
-- リリース後の緊急の修正は、`main` から `hotfix/<issue 番号>` を切り、`main` と `develop` の両方へ取り込む。
-- 保護するブランチは `main` である。直接はコミットせず、pull request を通して取り込む。直接コミットを許す場面があれば、この行の下に場面と理由を書く。
-
-<!-- 次のバージョンを何から決めるか。コミットメッセージからなら release-please、変更ごとの記述からなら changesets -->
+次の図は、作業用のブランチを main へ取り込み、リリース用の pull request でタグを付けるまでの流れを示す。
 
 ```mermaid
 gitGraph
-    commit id: "v1.0.0" tag: "v1.0.0"
-    branch develop
-    checkout develop
-    commit id: "dev-1"
+    commit id: "v0.1.0" tag: "v0.1.0"
     branch "feature/12"
     checkout "feature/12"
     commit id: "12-1"
-    checkout develop
+    checkout main
     branch "fix/13"
     checkout "fix/13"
     commit id: "13-1"
-    checkout develop
+    checkout main
     merge "fix/13" id: "PR #13"
     checkout "feature/12"
     commit id: "12-2"
-    checkout develop
-    merge "feature/12" id: "PR #12"
     checkout main
-    merge develop id: "release" tag: "v1.1.0"
+    merge "feature/12" id: "PR #12"
+    commit id: "release PR" tag: "v0.2.0"
 ```
+
+バージョンは、セマンティック バージョニングに従う。リポジトリ全体で 1 つのバージョンにする。  
+1.0 より前は、破壊的な変更で minor を、それ以外で patch を上げる。
+
+- 出典: [Semantic Versioning 2.0.0](https://semver.org/lang/ja/)
+
+バージョンの決定とタグ付けには release-please を使う。コミットメッセージから次のバージョンを決め、リリース用の pull request を作る。  
+リリース用の pull request をマージすると、タグとリリースができる。
+
+- ADR-0003: [release-please でタグを付け、packages/ を変えたコミットだけでバージョンを上げる](adr/0003-release-with-release-please.md)
+
+バージョンが上がるのは、`packages/` の下を変えたコミットだけ。コミットの type と、上がるバージョンの桁の対応は次のとおり。
+
+| コミットの type | 1.0 より前 | 1.0 以降 | 変更履歴の節 |
+| --- | --- | --- | --- |
+| type の後に `!`、または本文に `BREAKING CHANGE:` | minor | major | BREAKING CHANGES |
+| `feat` | patch | minor | Features |
+| `fix` | patch | patch | Bug Fixes |
+| `perf`、`revert`、`docs` | patch | patch | 各 type の節 |
+| `chore`、`refactor`、`test`、`build`、`ci`、`style` | patch | patch | 載らない |
+
+- 変更履歴に載るコミットが 1 つもないと、リリース用の pull request は作られない。
+- 次の変更は、利用者の呼び方や手順が変わるので破壊的な変更とする。type の後に `!` を付け、本文に `BREAKING CHANGE:` を書く。
+  - スキルの改名と削除
+  - playbook の改名と削除
+  - 前提にする agent-harness のバージョンを上げること
+- 取り込んだ変更を取り消すときは、取り消すコミットの type と scope を引き継ぎ、`revert(<scope>): <要約>` の形で書く。タグとリリースは消さず、付け替えない。
+
+### リリースの流れ
+
+main へ push するたびに、`.github/workflows/release.yml` がリリース用の pull request を作るか更新する。  
+リリース用の pull request は常に 1 つで、取り込むまで変更がたまる。タグとリリースができるのは、この pull request を取り込んだときだけである。
+
+次の図は、作業用のブランチを取り込んでから、タグとリリースができるまでの流れを示す。
+
+```mermaid
+sequenceDiagram
+    actor Dev as 開発者
+    participant Main as main
+    participant WF as release workflow
+    participant PR as リリース用の pull request
+    Dev->>Main: 作業用のブランチを取り込む
+    Main->>WF: push で起動
+    WF->>PR: packages/ を変えたコミットがあれば、作成か更新
+    Note over WF,PR: plugin.json、README の例、CHANGELOG.md を書き換える
+    Note over Main,PR: 取り込むまで、push のたびに同じ pull request へ変更がたまる
+    Dev->>PR: バージョンと変更履歴を確かめて取り込む
+    PR->>Main: マージコミット
+    Main->>WF: push で起動
+    WF->>Main: タグ v0.x.y と GitHub のリリースを作る
+```
+
+リリースするときは、次の順に進める。
+
+1. リリース用の pull request（題は `chore(main): release <バージョン>`）を開き、バージョンと `CHANGELOG.md` の変更を確かめる。
+2. 最新のコミットの CI が通っていることを確かめる。
+3. マージコミットで取り込む。
+4. release workflow が終わったら、`gh release view v<バージョン>` でタグとリリースができたことを確かめる。
+5. release workflow が失敗したときは、GitHub の Actions の画面で、失敗した実行をやり直す。
 
 ## issue と pull request
 
