@@ -1,6 +1,6 @@
 ---
 name: design-playbook
-description: 合う playbook がない作業、多くの箇所にまたがる作業、利用者が離れている間に進める作業で、その場で手順を組んで進めるときに読む。スキル run-playbook から回される。
+description: 合う playbook がない作業と、多くの箇所にまたがる作業で、その場で手順を組んで進めるときに読む。スキル run-playbook から回される。
 ---
 
 # design-playbook
