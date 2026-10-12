@@ -91,6 +91,12 @@ playbook は次のとおり。
 | investigation | コードを変えずに問いに答える | なし |
 | opening-a-pr | 変更を pull request にする。ほかの playbook の最後に呼ぶ | integration |
 | pr-follow-up | pull request のレビューの指摘と CI の失敗に対応する | integration |
+| verification-setup | アプリを利用者と同じ方法で動かして確かめる手段を作り、保つ | verification-design |
+| reflect | 終えた作業から学びを取り出し、context か配布元へ書き戻す | なし |
+| correct | 繰り返す誤りを、仕組みで起こせなくする | implementation |
+| autonomous-run | 決めた終了の条件まで、止まらずに進める | 組んだ手順による |
+| pause-safely | 作業を、続きから再開できる形で止める | なし |
+| session-pickup | 前の作業を、続きから再開する | 引き継いだ作業による |
 
 ### design-playbook
 
@@ -148,9 +154,17 @@ dependencies:
 - 取り消せない操作（共有のブランチへの push、取り込み、デプロイ、データの削除、外部への送信）の前と、利用者だけが決められる判断では止まる。
 - 実行すれば分かる事実は、尋ねずに確かめる。
 
+### 確かめる手段
+
+- 「本物で確かめる」手順は、利用者のリポジトリの `context/testing/verification.md` の手順で動かす。この文書とスクリプトは、利用者のリポジトリだけの知識なので、スキルではなく context と `scripts/verify/` に置く。verification-setup が作り、保つ。
+
+### 判断の記録
+
+- 長い作業と、利用者が離れている間の作業では、分かれ道の判断を `.ai-out/` に 1 行ずつ追記する。形はスキル run-playbook の共通の規則が持つ。
+
 ### 学びの書き戻し
 
-- 同じ訂正を 2 回したら、principle の encode-lessons に従い、チェックか仕組みに移す。
+- 同じ訂正を 2 回したら、principle の encode-lessons に従い、チェックか仕組みに移す。手順は correct が、作業の後の振り返りは reflect が持つ。
 - playbook と skill の誤りは、作業の途中でも、別の pull request で直す。
 
 ## Repository Layout
