@@ -1,0 +1,15 @@
+{
+  "skill": "run-playbook",
+  "cases": [
+    { "query": "社内向けに、問い合わせの履歴を検索できる画面がほしい。まだ何を作るかは決まっていない", "expected": "requirements" },
+    { "query": "issue #42 の受け入れの条件どおりに、CSV の書き出しの機能を足して", "expected": "feature" },
+    { "query": "一覧の画面を、カードの並べ方と表の 2 案で比べて、どちらにするか決めたい", "expected": "prototype" },
+    { "query": "ログインでパスワードを間違えたとき、エラーのメッセージが出ない。直して", "expected": "bug-fix" },
+    { "query": "OrderService の 600 行のクラスを、振る舞いを変えずに 3 つに分けて", "expected": "refactoring" },
+    { "query": "README の誤記を 1 文字直したい", "expected": "small-change" },
+    { "query": "認証のトークンは、どこで発行されて、どこで検証されているか教えて", "expected": "investigation" },
+    { "query": "この変更を pull request にして", "expected": "opening-a-pr" },
+    { "query": "PR #12 に付いたレビューの指摘と、落ちている CI に対応して", "expected": "pr-follow-up" },
+    { "query": "リポジトリ全体の 300 か所にある古いロガーの呼び出しを、新しいロガーに置き換えて", "expected": "design-playbook" }
+  ]
+}
