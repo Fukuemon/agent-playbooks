@@ -24,6 +24,12 @@
 | investigation | コードを変えずに問いに答える |
 | opening-a-pr | 変更を pull request にする |
 | pr-follow-up | pull request のレビューの指摘と CI の失敗に対応する |
+| verification-setup | アプリを利用者と同じ方法で動かして確かめる手段を作り、保つ |
+| reflect | 終えた作業から学びを取り出し、context か配布元へ書き戻す |
+| correct | 繰り返す誤りを、型、チェック、テストのような仕組みで止める |
+| autonomous-run | 決めた終了の条件まで、止まらずに進める |
+| pause-safely | 作業を、続きから再開できる形で止める |
+| session-pickup | 前の会話や別のエージェントの作業を、続きから再開する |
 
 ## Installation
 
