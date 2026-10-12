@@ -32,8 +32,10 @@ let failed = 0;
 for (const model of models) {
   for (const c of cases) {
     const r = spawnSync("claude", ["-p", "--model", model, c.query + instruction], { cwd: dir, encoding: "utf8", timeout: 300_000 });
-    const line = (r.stdout ?? "").split("\n").find((l) => l.includes("PLAYBOOK:")) ?? "";
-    const got = names.find((n) => new RegExp(`PLAYBOOK:\\s*\`?${n}\\b`).test(line)) ?? "(不明)";
+    // 途中で止まった実行の出力は、要求した行を含んでいても採点しない
+    const finished = !r.error && r.status === 0;
+    const line = finished ? ((r.stdout ?? "").split("\n").find((l) => l.includes("PLAYBOOK:")) ?? "") : "";
+    const got = finished ? (names.find((n) => new RegExp(`PLAYBOOK:\\s*\`?${n}\\b`).test(line)) ?? "(不明)") : "(実行に失敗)";
     const ok = got === c.expected;
     if (!ok) failed++;
     console.log(`${ok ? "ok  " : "NG  "} ${model}\t期待 ${c.expected}\t結果 ${got}\t${c.query}`);
