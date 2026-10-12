@@ -10,7 +10,6 @@
 ### Features
 
 * **playbooks:** スキル playbook を run-playbook に改め、playbook を足す ([0a0a25c](https://github.com/Fukuemon/agent-playbooks/commit/0a0a25c25f3f9fb1a2d82753664e5e2ae1d169a6))
-* **playbooks:** 検証、学びの書き戻し、長い作業の playbook を足す ([fe97529](https://github.com/Fukuemon/agent-playbooks/commit/fe97529f7703522d05e54eb0f06d1905fc0d7afb))
 * **playbooks:** 検証、学びの書き戻し、長い作業の playbook を足す ([b479a29](https://github.com/Fukuemon/agent-playbooks/commit/b479a29d0ce286537191b192996f58747543010c))
 
 
