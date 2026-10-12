@@ -1,10 +1,4 @@
----
-name: principle-smallest-change
-description: 変更の大きさを決めるときと、抽象化や層を足したくなったときの判断の基準。スキル playbook の索引から読まれる。
-disable-model-invocation: true
----
-
-# principle-smallest-change
+# smallest-change
 
 問題を解く最小の変更を選ぶ。
 

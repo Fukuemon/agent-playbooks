@@ -1,10 +1,4 @@
----
-name: principle-prove-it-works
-description: 作業を終えたと言う前の判断の基準。スキル playbook の索引から読まれる。
-disable-model-invocation: true
----
-
-# principle-prove-it-works
+# prove-it-works
 
 終えたと言う前に、本物で動かして確かめる。
 

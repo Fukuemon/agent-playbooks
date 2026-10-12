@@ -1,10 +1,4 @@
----
-name: principle-fix-root-causes
-description: 不具合や失敗の原因を探すときと、症状を消す修正を足したくなったときの判断の基準。スキル playbook の索引から読まれる。
-disable-model-invocation: true
----
-
-# principle-fix-root-causes
+# fix-root-causes
 
 症状を隠さず、再現してから原因を直す。
 

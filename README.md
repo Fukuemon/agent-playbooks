@@ -1,7 +1,7 @@
 # agent-playbooks
 
 コーディングエージェントが作業をどの順に進めるかを、playbook として持つパッケージ。  
-依頼を受けたエージェントがスキル `playbook` を読み、依頼に合う playbook を選び、その手順で進める。
+依頼を受けたエージェントがスキル `run-playbook` を読み、依頼に合う playbook を選び、その手順で進める。
 
 [agent-harness](https://github.com/Fukuemon/agent-harness) の core と docs を前提にする。context、文書の型、コミットと issue と pull request の規約は agent-harness が持ち、このパッケージは作業の進め方だけを持つ。
 
@@ -9,7 +9,7 @@
 
 | パッケージ | 役割 |
 | --- | --- |
-| playbooks | playbook を選ぶスキル `playbook` と playbook 本体、手順を組むスキル `design-playbook`、レビューのスキル `review-changes` とレビューの subagent、principle |
+| playbooks | playbook を選ぶスキル `run-playbook` と、playbook と principle の本体、手順を組むスキル `design-playbook`、レビューのスキル `review-changes` とレビューの subagent |
 
 ### playbook
 
@@ -17,7 +17,9 @@
 | --- | --- |
 | requirements | 実現したいことを整理して issue にする |
 | feature | 振る舞いを足すか変える |
+| prototype | 使い捨ての実装で、設計の判断を決める |
 | bug-fix | 報告された不具合を再現し、原因を突き止めて直す |
+| refactoring | 振る舞いを変えずに、構造を変える |
 | small-change | 設計の判断が要らない小さな変更 |
 | investigation | コードを変えずに問いに答える |
 | opening-a-pr | 変更を pull request にする |
@@ -43,13 +45,13 @@ apm install
 
 ## Usage
 
-コーディングエージェントで、依頼を添えて `/playbook` を呼ぶ。
+コーディングエージェントで、依頼を添えて `/run-playbook` を呼ぶ。依頼の内容から、スキルが自動で読み込まれることもある。
 
 ```text
-/playbook ログインの画面で、パスワードを間違えたときのメッセージが出ない。直して
+/run-playbook ログインの画面で、パスワードを間違えたときのメッセージが出ない。直して
 ```
 
-スキル playbook が playbook を選び、その手順を todolist に写して進める。取り消せない操作（push、pull request の作成と取り込み、外部への送信）の前では止まり、指示を待つ。
+スキル run-playbook が playbook を選び、その手順を todolist に写して進める。取り消せない操作（push、pull request の作成と取り込み、外部への送信）の前では止まり、指示を待つ。
 
 ## Documentation
 

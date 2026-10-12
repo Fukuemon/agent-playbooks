@@ -34,8 +34,14 @@ node .claude/hooks/docs/hooks/check-links.mjs
 ## パッケージを直すとき
 
 - スキルの書き方は、スキル write-skill に従う。`SKILL.md` は 150 行以内に保つ。
-- playbook を足すときは、`packages/playbooks/skills/playbook/playbooks/<名前>.md` を作り、スキル playbook の索引に 1 行を足す。
-- 直したパッケージを、手元の仮の利用者で確かめる。`apm.yml` の依存に `packages/playbooks` のパスを書いて `apm install` し、コーディングエージェントで依頼を 1 つ試す。
+- playbook を足すときは、`packages/playbooks/skills/run-playbook/playbooks/<名前>.md` を作り、スキル run-playbook の索引に 1 行を足す。principle も同じく `principles/<名前>.md` に置き、索引に足す。
+- playbook を足したときは、`evals/run-playbook.json` に、その playbook が選ばれるべき依頼を 1 つ足す。
+- 直したパッケージを、評価で確かめる。仮の利用者にパッケージを入れ、依頼ごとに期待した playbook が選ばれるかを、モデルごとに試す。モデルを実際に動かすので、使うモデルを絞って実行してよい。
+
+```sh
+node scripts/eval-run-playbook.mjs            # haiku、sonnet、opus で試す
+node scripts/eval-run-playbook.mjs sonnet     # 1 つのモデルで試す
+```
 
 ## コミットするとき
 
