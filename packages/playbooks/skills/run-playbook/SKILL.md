@@ -1,6 +1,6 @@
 ---
 name: run-playbook
-description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、のどれかの作業を始めるとき、または /run-playbook で呼ばれたときに使う。
+description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
 ---
 
 # run-playbook
@@ -25,6 +25,12 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - **investigation:** 今あるコードと記録を読んで、問いに答える。どう動くか、なぜこうなっているか、既にある選択肢のどちらがよいか。新しく作って比べる判断は、prototype である。[playbooks/investigation.md](playbooks/investigation.md)
 - **opening-a-pr:** 変更を pull request にする。ほかの playbook の最後に行う。[playbooks/opening-a-pr.md](playbooks/opening-a-pr.md)
 - **pr-follow-up:** pull request のレビューの指摘と、CI の失敗に対応する。[playbooks/pr-follow-up.md](playbooks/pr-follow-up.md)
+- **verification-setup:** アプリを利用者と同じ方法で動かして確かめる手段を作るか、アプリの変化に合わせて直す。[playbooks/verification-setup.md](playbooks/verification-setup.md)
+- **reflect:** 終えた作業から学びを取り出し、context か配布元へ書き戻す。「振り返って」「学びを残して」。[playbooks/reflect.md](playbooks/reflect.md)
+- **correct:** 繰り返す誤りを、型、チェック、テストのような仕組みで起こせなくする。「同じ間違いを止めて」。[playbooks/correct.md](playbooks/correct.md)
+- **autonomous-run:** 決めた終了の条件まで、止まらずに進める。「終わるまで続けて」「離れるので進めておいて」。[playbooks/autonomous-run.md](playbooks/autonomous-run.md)
+- **pause-safely:** 作業を、続きから再開できる形で止める。「いったん止めて」。[playbooks/pause-safely.md](playbooks/pause-safely.md)
+- **session-pickup:** 前の会話や別のエージェントの作業を、続きから再開する。「続きをやって」「このブランチを引き継いで」。[playbooks/session-pickup.md](playbooks/session-pickup.md)
 
 playbook の手順が別の playbook の名前を挙げたら、この索引からそのファイルを開く。
 
@@ -59,6 +65,15 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
   - データの削除と、取り消せない変更
   - 外部のサービスへの送信。issue と pull request の作成と書き換えを含む
 - 利用者だけが決められる判断（製品の方針、範囲、優先順位）は、推奨の案を添えて尋ねる。
+
+### 判断の記録
+
+長い作業、利用者が離れている間の作業、手順を組んだ作業では、分かれ道の判断を記録する。
+
+- 置き場は、リポジトリの `.ai-out/YYYY-MM-DD-<主題>-decisions.md` にする。
+- 1 つの判断を 1 行にし、時刻、判断、理由、根拠の在りかを書く。根拠は文章ではなく、コミット、`<path>:<行>`、pull request で指す。
+- 記録するのは、2 つの案から選んだとき、確かめの結果が出たとき、方針を変えたか変更を戻したとき、先へ進めないとき。
+- 追記だけにする。誤った行は書き換えず、訂正の行を足す。
 
 ### サブエージェント
 
