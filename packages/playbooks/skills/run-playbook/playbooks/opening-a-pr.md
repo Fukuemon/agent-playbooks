@@ -10,7 +10,7 @@ pull request の指摘への対応は、pr-follow-up が行う。
 3. push の前に、CONTRIBUTING.md の「コミットするとき」と CI が実行するチェックを、手元で実行する。
 4. 題と本文を下書きする。書き方は、スキル write-issue-pr に従う。本文には、確かめたことと確かめていないこと、決まっていないことを書く。
 5. push と pull request の作成の前に、利用者の指示を待つ。
-6. 指示を受けて push し、pull request を作る。下書きではなく、レビューできる状態で作る。
+6. 指示を受けて push し、pull request を作る。下書き（Draft）で作るかは、CONTRIBUTING.md の取り決めに従う。取り決めがなければ、レビューできる状態で作る。
 7. CI の結果を待つ。失敗したら pr-follow-up を行う。
 
 **止まる:** 手順 5 で push と作成の指示を待つとき。
