@@ -1,10 +1,4 @@
----
-name: principle-encode-lessons
-description: 同じ訂正や指示を 2 回目に書いたときの判断の基準。スキル playbook の索引から読まれる。
-disable-model-invocation: true
----
-
-# principle-encode-lessons
+# encode-lessons
 
 2 回した訂正は、文章ではなく仕組みに移す。
 
