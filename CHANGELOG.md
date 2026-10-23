@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1](https://github.com/Fukuemon/agent-playbooks/compare/v0.2.0...v0.2.1) (2026-10-23)
+
+
+### Features
+
+* **playbooks:** 事前の権限で止まる場面を外し、再開のメモと判断の記録を引き継ぎのメモにまとめる [#34](https://github.com/Fukuemon/agent-playbooks/issues/34) ([57485c9](https://github.com/Fukuemon/agent-playbooks/commit/57485c952c345b7575118403eae2e464f6ec646c))
+* **playbooks:** 作業を渡す playbook と配る playbook、待ちの上限の principle を足す [#34](https://github.com/Fukuemon/agent-playbooks/issues/34) ([d9850b0](https://github.com/Fukuemon/agent-playbooks/commit/d9850b0832ea42d7b6bfae25cee8083b57a08a4a))
+
+
+### Bug Fixes
+
+* **playbooks:** ワーカーへの指示に、写した委任と親の引き継ぎのメモの場所を持たせる [#34](https://github.com/Fukuemon/agent-playbooks/issues/34) ([f0da37b](https://github.com/Fukuemon/agent-playbooks/commit/f0da37ba792db8da2d8634b292f4ded8b542f298))
+
 ## [0.2.0](https://github.com/Fukuemon/agent-playbooks/compare/v0.1.0...v0.2.0) (2026-10-12)
 
 
