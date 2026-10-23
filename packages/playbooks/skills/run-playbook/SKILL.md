@@ -1,6 +1,6 @@
 ---
 name: run-playbook
-description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、作業を別のセッションに渡す、複数のワーカーに作業を配って取り込む、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
+description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、作業を別のセッションに渡す、複数のワーカーに作業を配ってマージする、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
 ---
 
 # run-playbook
@@ -26,14 +26,14 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - **investigation:** 今あるコードと記録を読んで、問いに答える。どう動くか、なぜこうなっているか、既にある選択肢のどちらがよいか。新しく作って比べる判断は、prototype である。[playbooks/investigation.md](playbooks/investigation.md)
 - **opening-a-pr:** 変更を pull request にする。ほかの playbook の最後に行う。[playbooks/opening-a-pr.md](playbooks/opening-a-pr.md)
 - **pr-follow-up:** pull request のレビューの指摘と、CI の失敗に対応する。[playbooks/pr-follow-up.md](playbooks/pr-follow-up.md)
-- **verification-setup:** アプリを利用者と同じ方法で動かして確かめる手段を作るか、アプリの変化に合わせて直す。[playbooks/verification-setup.md](playbooks/verification-setup.md)
+- **verification-setup:** アプリを利用者と同じ方法で動かして確認する手段を作るか、アプリの変化に合わせて直す。[playbooks/verification-setup.md](playbooks/verification-setup.md)
 - **reflect:** 終えた作業から学びを取り出し、context か配布元へ書き戻す。「振り返って」「学びを残して」。[playbooks/reflect.md](playbooks/reflect.md)
 - **correct:** 繰り返す誤りを、型、チェック、テストのような仕組みで起こせなくする。「同じ間違いを止めて」。[playbooks/correct.md](playbooks/correct.md)
 - **autonomous-run:** 決めた終了の条件まで、止まらずに進める。「終わるまで続けて」「離れるので進めておいて」。[playbooks/autonomous-run.md](playbooks/autonomous-run.md)
 - **pause-safely:** 作業を、続きから再開できる形で止める。「いったん止めて」。[playbooks/pause-safely.md](playbooks/pause-safely.md)
 - **session-pickup:** 前の会話や別のエージェントの作業を、続きから再開する。「続きをやって」「このブランチを引き継いで」。[playbooks/session-pickup.md](playbooks/session-pickup.md)
 - **delegate-work:** 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る。「この作業を別のセッションに渡して」。[playbooks/delegate-work.md](playbooks/delegate-work.md)
-- **coordinate-workers:** 依存を並べた複数の作業をワーカーに配り、取り込みと片付けまで繰り返す。「この issue 群をワーカーに配ってマージまで進めて」。[playbooks/coordinate-workers.md](playbooks/coordinate-workers.md)
+- **coordinate-workers:** 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す。「この issue 群をワーカーに配ってマージまで進めて」。[playbooks/coordinate-workers.md](playbooks/coordinate-workers.md)
 
 playbook の手順が別の playbook の名前を挙げたら、この索引からそのファイルを開く。
 
@@ -63,31 +63,32 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
 ### 止まって尋ねる場面
 
 - 元に戻せる作業は、尋ねずに進めて、結果を見せる。
-- 実行すれば分かる事実（動き、出力、性能、見た目）は、尋ねずに確かめる。確かめるのに試作が要るなら、prototype を使う。
+- 実行すれば分かる事実（動き、出力、性能、見た目）は、尋ねずに確認する。確認するのに試作が要るなら、prototype を使う。
 - 次の操作の前では止まり、利用者の明示の指示を待つ。「事前の権限」の範囲に並べた操作は除く。
-  - 共有のブランチへの push、pull request の取り込み、デプロイ
+  - push、pull request のマージ、デプロイ
+    - push は、自分の作業用のブランチへの push も、pull request を開く前か後かを問わず含む
   - データの削除と、取り消せない変更
   - 外部のサービスへの送信。issue と pull request の作成と書き換えを含む
 - 利用者だけが決められる判断（製品の方針、範囲、優先順位）は、推奨の案を添えて尋ねる。
 
 ### 事前の権限
 
-次の 3 つが、引き継ぎのメモの委任のセクション（ワーカーへの指示では「制約」に写した委任）か、利用者の個人の常設の指示にそろったときだけ、範囲に並べた操作の前では止まらない。1 つでも欠ければ、「止まって尋ねる場面」のとおりに止まる。
+次の 3 つが、委任のセクション（引き継ぎのメモか、ワーカーへの指示にある）か、利用者の個人の常設の指示にそろったときだけ、範囲に並べた操作の前では止まらない。1 つでも欠ければ、「止まって尋ねる場面」のとおりに止まる。
 
-- 範囲: 作業用のブランチへの push、issue と pull request の作成と書き換え、取り込み、片付けのうち、許した操作の名前。並べていない操作は許していない。
+- 範囲: 作業用のブランチへの push、issue と pull request の作成と書き換え、マージ、片付けのうち、許した操作の名前。並べていない操作は許していない。
 - 対象: どの issue か、どの終了の条件までか。
 - 与えた人と日付: 利用者の指示の文を、言い換えずに写したもの。
 
 個人の常設の指示は、利用者が自分で書き、どのリポジトリの作業にも読み込まれる指示のファイルを指す。リポジトリで追跡するファイルは含めず、対象は利用者がそのセッションで依頼した作業に限る。  
 リポジトリの context は、権限を狭めるときにだけ使う。委任のセクションや常設の指示と食い違えば、context に従う。  
-権限があっても、範囲の操作はリポジトリの取り決めどおりに行う。保護するブランチへ直接 push しない。取り込みは、CI が通り、レビューで直すものが残っていないときだけ行う。片付けは、取り込みに含まれたことを確認したブランチと worktree の削除に限る。  
+権限があっても、範囲の操作はリポジトリの取り決めどおりに行う。保護するブランチへ直接 push しない。マージは、CI が通り、レビューで直すものが残っていないときだけ行う。片付けは、マージに含まれたことを確認したブランチと worktree の削除に限る。  
 片付け以外のデータの削除、取り消せない変更、デプロイ、範囲に並べた操作以外の外部への送信、利用者だけが決められる判断の前では、権限があっても止まる。
 
 ### 判断の記録
 
 長い作業、利用者が離れている間の作業、手順を組んだ作業、別のセッションに渡す作業では、分かれ道の判断を記録する。
 
-- 置き場は、引き継ぎのメモ（リポジトリの主の作業ツリーの `.ai-out/YYYY-MM-DD-<主題>-handoff.md`）の「決まったこと」のセクションにする。メモがなければ作る。セクションは、playbook delegate-work の手順 3 に従う。
+- 置き場は、引き継ぎのメモ（リポジトリの主の作業ツリーの `.ai-out/YYYY-MM-DD-<主題>-handoff.md`）の「決まったこと」のセクションにする。メモがなければ作る。セクションは、playbook delegate-work の、引き継ぎのメモを作る手順に並べたものにする。
 - 1 つの判断を 1 行にし、時刻、判断、理由、根拠の在りかを書く。根拠は文章ではなく、コミット、`<path>:<行>`、pull request で指す。
 - 記録するのは、2 つの案から選んだとき、確認の結果が出たとき、方針を変えたか変更を戻したとき、先へ進めないとき、外部の待ちの上限を超えて進めたとき。
 - 追記だけにする。誤った行は書き換えず、訂正の行を足す。
