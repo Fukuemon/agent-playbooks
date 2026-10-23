@@ -42,7 +42,7 @@ dependencies:
   apm:
     - Fukuemon/agent-harness/packages/core#v0.2.1
     - Fukuemon/agent-harness/packages/docs#v0.2.1
-    - Fukuemon/agent-playbooks/packages/playbooks#v0.2.0 # x-release-please-version
+    - Fukuemon/agent-playbooks/packages/playbooks#v0.2.1 # x-release-please-version
 ```
 
 タグとバージョンごとの変更は [Releases](https://github.com/Fukuemon/agent-playbooks/releases) にある。
