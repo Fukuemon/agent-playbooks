@@ -1,6 +1,6 @@
 ---
 name: run-playbook
-description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
+description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、作業を別のセッションに渡す、複数のワーカーに作業を配って取り込む、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
 ---
 
 # run-playbook
@@ -32,6 +32,8 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - **autonomous-run:** 決めた終了の条件まで、止まらずに進める。「終わるまで続けて」「離れるので進めておいて」。[playbooks/autonomous-run.md](playbooks/autonomous-run.md)
 - **pause-safely:** 作業を、続きから再開できる形で止める。「いったん止めて」。[playbooks/pause-safely.md](playbooks/pause-safely.md)
 - **session-pickup:** 前の会話や別のエージェントの作業を、続きから再開する。「続きをやって」「このブランチを引き継いで」。[playbooks/session-pickup.md](playbooks/session-pickup.md)
+- **delegate-work:** 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る。「この作業を別のセッションに渡して」。[playbooks/delegate-work.md](playbooks/delegate-work.md)
+- **coordinate-workers:** 依存を並べた複数の作業をワーカーに配り、取り込みと片付けまで繰り返す。「この issue 群をワーカーに配ってマージまで進めて」。[playbooks/coordinate-workers.md](playbooks/coordinate-workers.md)
 
 playbook の手順が別の playbook の名前を挙げたら、この索引からそのファイルを開く。
 
@@ -44,6 +46,7 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
 - **fix-root-causes:** 不具合や失敗の原因を探すとき。症状を消す修正を足したくなったとき。[principles/fix-root-causes.md](principles/fix-root-causes.md)
 - **smallest-change:** 変更の大きさを決めるとき。抽象化や層を足したくなったとき。[principles/smallest-change.md](principles/smallest-change.md)
 - **encode-lessons:** 同じ訂正や指示を 2 回目に書いたとき。[principles/encode-lessons.md](principles/encode-lessons.md)
+- **bound-every-wait:** 自動のレビュー、CI、ほかのセッションの返事のような、外部の待ちを始めるとき。[principles/bound-every-wait.md](principles/bound-every-wait.md)
 
 ## 共通の規則
 
