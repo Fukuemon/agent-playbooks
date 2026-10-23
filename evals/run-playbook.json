@@ -64,6 +64,14 @@
     {
       "query": "昨日の続きをやって。feature/42 のブランチと .ai-out の再開のメモがある",
       "expected": "session-pickup"
+    },
+    {
+      "query": "コンテキストが残り少ないので、この作業を別のセッションに渡したい。続きを任せられるようにして",
+      "expected": "delegate-work"
+    },
+    {
+      "query": "issue #10、#11、#12 をワーカーに 1 つずつ配って、終わったものから CI を見てマージし、worktree を片付けて次を渡して。#12 は #10 の後",
+      "expected": "coordinate-workers"
     }
   ]
 }

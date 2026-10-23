@@ -98,6 +98,8 @@ playbook は次のとおり。
 | autonomous-run | 決めた終了の条件まで、止まらずに進める | 組んだ手順による |
 | pause-safely | 作業を、続きから再開できる形で止める | なし |
 | session-pickup | 前の作業を、続きから再開する | 引き継いだ作業による |
+| delegate-work | 作業を別のセッションに渡す | なし |
+| coordinate-workers | 依存を並べた複数の作業をワーカーに配り、取り込みと片付けまで繰り返す | integration |
 
 ### design-playbook
 
@@ -107,12 +109,13 @@ playbook は次のとおり。
 ### principle
 
 手順の途中の判断の基準を 1 つずつ書いた Markdown で、スキル run-playbook の `principles/` に置く。skill にはせず、run-playbook の索引から読まれる。  
-最初のバージョンは次の 4 つにする。
+次の 5 つを持つ。
 
 - prove-it-works: 本物で動かして確かめてから、終わったと言う。
 - fix-root-causes: 症状を隠さず、再現してから原因を直す。
 - smallest-change: 問題を解く最小の変更を選ぶ。
 - encode-lessons: 2 回した訂正は、文章ではなくチェックや仕組みに移す。
+- bound-every-wait: 外部の待ちに上限を付け、上限を超えたら代わりの根拠で進めるか止まり、待たずに進めたことを記録する。
 
 ### review-changes とレビューの subagent
 
