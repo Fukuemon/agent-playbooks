@@ -8,7 +8,7 @@ import { join, resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const { cases } = JSON.parse(readFileSync(join(root, "evals/run-playbook.json"), "utf8"));
 const models = process.argv.slice(2).length ? process.argv.slice(2) : ["haiku", "sonnet", "opus"];
-const names = ["requirements", "feature", "prototype", "bug-fix", "refactoring", "small-change", "investigation", "opening-a-pr", "pr-follow-up", "verification-setup", "reflect", "correct", "autonomous-run", "pause-safely", "session-pickup", "design-playbook"];
+const names = ["requirements", "feature", "prototype", "bug-fix", "refactoring", "small-change", "investigation", "opening-a-pr", "pr-follow-up", "verification-setup", "reflect", "correct", "autonomous-run", "pause-safely", "session-pickup", "delegate-work", "coordinate-workers", "design-playbook"];
 
 const dir = join(root, ".ai-out", `eval-run-playbook-${Date.now()}`);
 mkdirSync(dir, { recursive: true });
