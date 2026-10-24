@@ -59,8 +59,17 @@ apm install
 /run-playbook ログインの画面で、パスワードを間違えたときのメッセージが出ない。直して
 ```
 
-スキル run-playbook が playbook を選び、その手順を todolist に写して進める。取り消せない操作（push、pull request の作成と取り込み、外部への送信）の前では止まり、指示を待つ。  
-利用者が引き継ぎのメモか個人の常設の指示で事前に権限を与えた作業では、その範囲に並べた操作の前では止まらない。
+スキル run-playbook が playbook を選び、その手順を todolist に写して進める。  
+止まって指示を待つのは、次の操作の前。
+
+- push、pull request のマージ、デプロイ
+  - push は、作業用のブランチへの push も含む。
+- データの削除と、取り消せない変更
+- 外部のサービスへの送信
+  - issue と pull request の作成と書き換えも含む。
+
+利用者が事前に与えた権限（引き継ぎのメモの委任のセクションか、利用者の個人の常設の指示）がある範囲では止まらない。  
+条件は、スキル run-playbook の「事前の権限」にある。
 
 ## Documentation
 
@@ -68,4 +77,4 @@ apm install
 
 ## Contributing
 
-開発の準備と、変更を取り込むまでの手順は [CONTRIBUTING.md](CONTRIBUTING.md) にある。
+開発の準備と、変更をマージするまでの手順は [CONTRIBUTING.md](CONTRIBUTING.md) にある。
