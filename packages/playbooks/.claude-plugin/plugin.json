@@ -1,7 +1,7 @@
 {
   "name": "playbooks",
   "description": "コーディングエージェントの作業の進め方を playbook として持つ。入口のスキルが依頼に合う playbook を選び、その手順で進める。agent-harness の core と docs を前提にする。",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": {
     "name": "Fukuemon"
   },
