@@ -31,7 +31,7 @@
 | pause-safely | 作業を、続きから再開できる形で止める |
 | session-pickup | 前の会話や別のエージェントの作業を、続きから再開する |
 | delegate-work | 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る |
-| coordinate-workers | 依存を並べた複数の作業をワーカーに配り、取り込みと片付けまで繰り返す |
+| coordinate-workers | 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す |
 
 ## Installation
 
