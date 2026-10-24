@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/Fukuemon/agent-playbooks/compare/v0.2.2...v0.2.3) (2026-10-24)
+
+
+### Documentation
+
+* **playbooks:** 「確かめる」「節」「取り込み」を write-prose の語にそろえる [#41](https://github.com/Fukuemon/agent-playbooks/issues/41) ([85073e2](https://github.com/Fukuemon/agent-playbooks/commit/85073e2b30ba7e9380e7a6da52957abdf4acc743))
+
 ## [0.2.2](https://github.com/Fukuemon/agent-playbooks/compare/v0.2.1...v0.2.2) (2026-10-23)
 
 
