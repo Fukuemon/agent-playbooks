@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/Fukuemon/agent-playbooks/compare/v0.2.1...v0.2.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* **playbooks:** 事前の権限と待ちの記録の食い違いを直し、マージの語をそろえる [#38](https://github.com/Fukuemon/agent-playbooks/issues/38) ([a98d0cc](https://github.com/Fukuemon/agent-playbooks/commit/a98d0ccdaa6796f35776e1d39e0f3e10e85ca8b3))
+
 ## [0.2.1](https://github.com/Fukuemon/agent-playbooks/compare/v0.2.0...v0.2.1) (2026-10-23)
 
 
