@@ -1,4 +1,4 @@
-// スキル run-playbook が、依頼ごとに期待した playbook を選ぶかを確かめる。
+// スキル run-playbook が、依頼ごとに期待した playbook を選ぶかを確認する。
 // 使い方: node scripts/eval-run-playbook.mjs [モデル]...。省くと haiku、sonnet、opus で試す
 // 終了コード: 0 はすべて期待どおり、1 は外れがある、2 は準備に失敗した
 import { execFileSync, spawnSync } from "node:child_process";

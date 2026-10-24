@@ -68,4 +68,4 @@ apm install
 
 ## Contributing
 
-開発の準備と、変更を取り込むまでの手順は [CONTRIBUTING.md](CONTRIBUTING.md) にある。
+開発の準備と、変更をマージするまでの手順は [CONTRIBUTING.md](CONTRIBUTING.md) にある。
