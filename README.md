@@ -3,7 +3,8 @@
 コーディングエージェントが作業をどの順に進めるかを、playbook として持つパッケージ。  
 依頼を受けたエージェントがスキル `run-playbook` を読み、依頼に合う playbook を選び、その手順で進める。
 
-[agent-harness](https://github.com/Fukuemon/agent-harness) の core と docs を前提にする。context、文書の型、コミットと issue と pull request の規約は agent-harness が持ち、このパッケージは作業の進め方だけを持つ。
+[agent-harness](https://github.com/Fukuemon/agent-harness) の core と docs を前提にする。context、文書の型、コミットと issue と pull request の規約は agent-harness が持ち、このパッケージは作業の進め方だけを持つ。  
+agent-harness の製品のパッケージ（verification、e2e、screens、design-system、docs-site）は任意である。入れたパッケージのスキルは、playbook の段から呼ばれる。入れていないパッケージの段は飛ばされる。
 
 ## Packages
 
@@ -35,14 +36,24 @@
 
 ## Installation
 
-agent-harness を導入したリポジトリの `apm.yml` に、1 行を足す。
+agent-harness を導入したリポジトリの `apm.yml` に、1 行を足す。agent-harness のタグは、パッケージごとの `<名前>-v<バージョン>` の形で書く。
 
 ```yaml
 dependencies:
   apm:
-    - Fukuemon/agent-harness/packages/core#v0.2.1
-    - Fukuemon/agent-harness/packages/docs#v0.2.1
+    - Fukuemon/agent-harness/packages/core#core-v0.2.12
+    - Fukuemon/agent-harness/packages/docs#docs-v0.2.14
     - Fukuemon/agent-playbooks/packages/playbooks#v0.2.3 # x-release-please-version
+```
+
+製品のパッケージは、プロダクトに要るものだけを足す。
+
+```yaml
+    - Fukuemon/agent-harness/packages/verification#verification-v0.3.1
+    - Fukuemon/agent-harness/packages/e2e#e2e-v0.2.1
+    - Fukuemon/agent-harness/packages/screens#screens-v0.1.2
+    - Fukuemon/agent-harness/packages/design-system#design-system-v0.3.0
+    - Fukuemon/agent-harness/packages/docs-site#docs-site-v0.1.3
 ```
 
 タグとバージョンごとの変更は [Releases](https://github.com/Fukuemon/agent-playbooks/releases) にある。
