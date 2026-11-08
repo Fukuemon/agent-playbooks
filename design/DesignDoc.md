@@ -40,7 +40,10 @@ agent-harness が定める開発プロセスの標準の上で動く、具体の
 
 ## Assumptions and Constraints
 
-- 利用者は、agent-harness v0.2.1 以上の core と docs を入れている。playbook は、core と docs の skill を名前で呼ぶ。
+- 利用者は、agent-harness の core（`core-v0.2.12` 以上）と docs（`docs-v0.2.14` 以上）を入れている。playbook は、core と docs の skill を名前で呼ぶ。
+- agent-harness の製品のパッケージ（verification、e2e、screens、design-system、docs-site）は任意である。playbook は、製品のパッケージの skill も名前で呼ぶ。skill が配置されていない段は、todolist に `skip: <パッケージ名> のパッケージが無い` と残して飛ばす。
+  - ADR-0005: [playbook から agent-harness の製品のパッケージのスキルを名前で呼び、入っていないパッケージの段は飛ばす](../adr/0005-call-product-package-skills-by-name.md)
+- 利用者の個人の構成の skill は、名前で呼ばない。
 - 配布は apm で行い、Claude Code と Codex CLI に配置する。形は Claude Code の形式のプラグインにする。
 - agent-harness の process のパッケージ（`process.yml` の schema とチェック）はまだない。playbook は、agent-harness の開発プロセスの Design Doc が定める形で `process.yml` を書く。schema のチェックは、process のパッケージができたら使う。
 
@@ -126,13 +129,14 @@ playbook は次のとおり。
 
 ### 導入
 
-利用者は、`apm.yml` に agent-harness の core と docs と並べて、このパッケージを書く。
+利用者は、`apm.yml` に agent-harness の core と docs と並べて、このパッケージを書く。製品のパッケージは、要るものだけを足す。agent-harness のタグは、パッケージごとの `<名前>-v<バージョン>` の形で書く。
 
 ```yaml
 dependencies:
   apm:
-    - Fukuemon/agent-harness/packages/core#v0.2.1
-    - Fukuemon/agent-harness/packages/docs#v0.2.1
+    - Fukuemon/agent-harness/packages/core#core-v0.2.12
+    - Fukuemon/agent-harness/packages/docs#docs-v0.2.14
+    - Fukuemon/agent-harness/packages/verification#verification-v0.3.1 # 任意
     - Fukuemon/agent-playbooks/packages/playbooks#<ref>
 ```
 
