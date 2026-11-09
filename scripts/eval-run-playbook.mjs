@@ -1,4 +1,4 @@
-// スキル run-playbook が、依頼ごとに期待した playbook を選ぶかを確認する。
+// スキル run-playbook と run-session が、依頼ごとに期待した playbook を選ぶかを確認する。
 // 使い方: node scripts/eval-run-playbook.mjs [モデル]...。省くと haiku、sonnet、opus で試す
 // 終了コード: 0 はすべて期待どおり、1 は外れがある、2 は準備に失敗した
 import { execFileSync, spawnSync } from "node:child_process";
@@ -14,7 +14,7 @@ const dir = join(root, ".ai-out", `eval-run-playbook-${Date.now()}`);
 mkdirSync(dir, { recursive: true });
 writeFileSync(
   join(dir, "apm.yml"),
-  `name: eval\nversion: 0.1.0\ntargets: [claude]\ndependencies:\n  apm:\n    - ${join(root, "packages/playbooks")}\n`,
+  `name: eval\nversion: 0.1.0\ntargets: [claude]\ndependencies:\n  apm:\n${["playbooks", "sessions", "review"].map((p) => `    - ${join(root, "packages", p)}\n`).join("")}`,
 );
 try {
   execFileSync("git", ["init", "-q"], { cwd: dir });
@@ -25,7 +25,7 @@ try {
 }
 
 const instruction =
-  "\n\nファイルは変更しない。スキル run-playbook に従って使う playbook を選び、1 行目に `PLAYBOOK: <名前>` の形で書く。" +
+  "\n\nファイルは変更しない。スキル run-playbook か run-session に従って使う playbook を選び、1 行目に `PLAYBOOK: <名前>` の形で書く。" +
   "どの playbook にも当てはまらず手順を組むなら `PLAYBOOK: design-playbook` と書く。2 行目以降に、todolist に写す手順を書く。";
 
 let failed = 0;
