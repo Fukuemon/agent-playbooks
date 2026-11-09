@@ -20,7 +20,7 @@ playbooks の playbook は、sessions と review が入っていなければ、�
 
 | 名前 | パッケージ | 当てはまる依頼 |
 | --- | --- | --- |
-| requirements | playbooks | 実現したいことを整理して issue にする |
+| requirements | playbooks | 実現したいことを整理し、種別を選んで issue にし、タスクに分ける |
 | feature | playbooks | 振る舞いを足すか変える |
 | prototype | playbooks | 使い捨ての実装で、設計の判断を決める |
 | bug-fix | playbooks | 報告された不具合を再現し、原因を突き止めて直す |
