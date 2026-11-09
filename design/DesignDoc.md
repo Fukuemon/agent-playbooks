@@ -72,7 +72,7 @@ flowchart TB
     entry -- "当てはまる principle を開く" --> pr["principle<br>判断の基準"]
     pb -- "名前で呼ぶ" --> ah["agent-harness の skill<br>write-context / write-design-docs<br>write-commit / write-issue-pr"]
     pb -- "レビューを頼む" --> rv["review-by-viewpoints と<br>レビューの subagent"]
-    pb -- "選択と進み具合を書く" --> proc["specs/&lt;issue&gt;/process.yml"]
+    pb -- "選択と進み具合を書く" --> proc["&lt;docs.spec&gt;/&lt;issue&gt;/process.yml"]
 ```
 
 ## Components
@@ -174,7 +174,9 @@ dependencies:
 
 ### 利用者のリポジトリに置かれるファイル
 
-- `specs/<issue 番号>-<主題>/process.yml`: feature と requirements の playbook が書く。形は agent-harness の開発プロセスの Design Doc に従う。
+- `<spec のディレクトリ>/<issue 番号>-<主題>/process.yml`: feature と requirements の playbook が書く。形は agent-harness の開発プロセスの Design Doc に従う。
+  - spec のディレクトリは、`context/project.yml` の `docs.spec` から読む。`docs.spec` が無ければ、スキル write-design-docs の既定の `specs` にする。
+- 検証の設計とシナリオ: verification の playbook が書く。置き場は `context/testing/evidence.md` の Verification Scenarios から読み、書かれていなければ利用者に尋ねる。
 
 ## Cross-Cutting Concerns
 

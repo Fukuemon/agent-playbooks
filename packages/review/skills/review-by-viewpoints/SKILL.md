@@ -9,7 +9,7 @@ description: 差分、pull request、spec を、観点ごとのレビューの s
 
 - 差分: 作業用のブランチと統合ブランチの差分。差分を `.ai-out/` にファイルとして書き出し、パスを subagent に渡す。
 - pull request: 番号から差分と本文を取得し、同じく書き出す。
-- spec: `specs/<issue 番号>-<主題>/` のパス。
+- spec: spec のディレクトリの下の `<issue 番号>-<主題>/` のパス。spec のディレクトリは `context/project.yml` の `docs.spec` にあり、無ければ `specs` である。
 
 ## 2. 観点を選ぶ
 
