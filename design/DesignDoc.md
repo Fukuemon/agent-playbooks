@@ -12,8 +12,6 @@ status: draft
 agent-playbooks は、コーディングエージェントが作業をどの順に進めるかを、playbook として配るパッケージである。  
 agent-harness が定める開発プロセスの標準の上で動く、具体のワークフローのハーネスに当たる。
 
-- agent-harness の ADR-0008: [開発プロセスの標準はこのリポジトリに置き、具体のワークフローのハーネスは別のリポジトリに置く](https://github.com/Fukuemon/agent-harness/blob/v0.2.1/adr/0008-workflow-harness.md)
-
 利用者は、agent-harness の core と docs を入れたリポジトリに、このパッケージを足して使う。  
 依頼を受けたエージェントがスキル run-playbook を読み、依頼に合う playbook を選び、その手順に沿って作業する。
 
