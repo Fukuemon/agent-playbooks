@@ -1,6 +1,6 @@
 ---
 name: review-architecture
-description: 差分を、依存の向き、モジュールの境界、責務の置き場の観点でレビューする。スキル review-changes から呼ばれる。読み取りだけを行う。
+description: 差分を、依存の向き、モジュールの境界、責務の置き場の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
 ---
 

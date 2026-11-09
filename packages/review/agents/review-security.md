@@ -1,6 +1,6 @@
 ---
 name: review-security
-description: 差分を、秘密情報の露出、injection、入力の検証、認可、機微な情報の出力の観点でレビューする。スキル review-changes から呼ばれる。読み取りだけを行う。
+description: 差分を、秘密情報の露出、injection、入力の検証、認可、機微な情報の出力の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
 ---
 

@@ -1,9 +1,9 @@
 ---
-name: review-changes
-description: 差分、pull request、spec を、観点ごとのレビューの subagent に読ませ、指摘を重大度の順にまとめるときに読む。feature と bug-fix の playbook から呼ばれるほか、「レビューして」「マージ前に確認して」の依頼で使う。
+name: review-by-viewpoints
+description: 差分、pull request、spec を、観点ごとのレビューの subagent に読ませ、指摘を重大度の順にまとめるときに読む。スキル run-playbook の playbook から呼ばれるほか、「レビューして」「マージ前に確認して」の依頼で使う。
 ---
 
-# review-changes
+# review-by-viewpoints
 
 ## 1. 対象を決める
 
@@ -33,7 +33,7 @@ description: 差分、pull request、spec を、観点ごとのレビューの s
 - 同じ箇所への同じ指摘をまとめる。
 - 指摘ごとに、自分でコードか文書を開いて確認する。確認できない指摘は「未確認」と付ける。
 - 重大度の順に並べる。重大度は、マージを止めるもの、直すべきもの、提案の 3 段にする。
-- 指摘への対応は自動で行わず、呼び出し元の playbook に返す。
+- 指摘への対応は自動で行わず、呼び出し元に返す。
 
 ## 返すもの
 
