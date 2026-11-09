@@ -46,6 +46,18 @@
       "expected": "verification-setup"
     },
     {
+      "query": "要求 #120 の子の実装はすべてマージされた。検証の issue #128 で、受け入れの条件を確認してエビデンスを残して",
+      "expected": "verification"
+    },
+    {
+      "query": "デザインシステムに、警告の状態を表すセマンティックトークンとバッジのコンポーネントを足して",
+      "expected": "design-system"
+    },
+    {
+      "query": "実装の前に、注文の一覧の画面の画面仕様書とモックだけ先に書いて",
+      "expected": "screen-spec"
+    },
+    {
       "query": "今日の作業を振り返って、次に同じ誤りをしないように学びを残して",
       "expected": "reflect"
     },
