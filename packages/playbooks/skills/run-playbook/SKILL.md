@@ -14,6 +14,19 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - どれにも当てはまらない作業と、多くの箇所にまたがる作業は、スキル design-playbook で手順を組む。
 - 1 回の会話を超える作業（終わるまで続ける作業、作業の中断と再開、別のセッションに渡す作業、複数のワーカーに配る作業）は、スキル run-session の playbook を使う。手順が決まっていない作業は、run-session の autonomous-run の中で design-playbook を使って手順を組む。スキル run-session が無ければ、`skip: sessions のパッケージが無い` とし、この索引の playbook で 1 回の会話の中で進める。
 - 1 つの依頼が 2 つの playbook にまたがるときは、先に行う方を選び、終えてから次を選び直す。
+- 要求の issue に種別（`context/project.yml` の `process.presets` の名前）があれば、下の表で playbook を選ぶ。表に無い種別は、索引から選ぶ。
+
+### 種別から playbook への対応
+
+| 種別 | 要求の issue | 子のタスク |
+| --- | --- | --- |
+| feature | requirements | 設計と実装は feature、検証は verification、文書は small-change |
+| screen | requirements | 画面仕様書の設計は screen-spec、実装は feature、検証は verification |
+| design-system | requirements | 設計と実装は design-system、文書は small-change |
+| bug | bug-fix | なし |
+| refactoring | refactoring | 実装は refactoring |
+| maintenance、docs | small-change | なし |
+| prototype | prototype | なし |
 
 ## playbook の索引
 

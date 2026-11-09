@@ -58,6 +58,18 @@
       "expected": "screen-spec"
     },
     {
+      "query": "要求 #200 の種別は screen。子の設計のタスク #205（会員の詳細の画面）を進めて",
+      "expected": "screen-spec"
+    },
+    {
+      "query": "種別が bug の要求 #210 を進めて。保存のボタンを押しても、設定が保存されない",
+      "expected": "bug-fix"
+    },
+    {
+      "query": "種別が maintenance の要求 #215 を進めて。CI の Node.js のバージョンを 22 に上げる",
+      "expected": "small-change"
+    },
+    {
       "query": "今日の作業を振り返って、次に同じ誤りをしないように学びを残して",
       "expected": "reflect"
     },
