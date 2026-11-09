@@ -214,7 +214,7 @@ dependencies:
 - 「本物で確認する」手順は、利用者のリポジトリの context の手順で動かす。画面があれば `context/testing/e2e.md` と `context/testing/evidence.md`、画面が無ければ `context/testing.md` の Runtime Requirements である。どれも利用者のリポジトリだけの知識なので、スキルではなく context に置く。verification-setup が作り、保つ。
 - 機能の pull request（振る舞いを足すか変えるもの）には、動作確認のエビデンスを載せる。エビデンスは、agent-harness のパッケージ verification のスキル capture-pull-request で撮り、pull request のスレッドに投稿する。文書だけの pull request と依存の更新は対象外にする。
   - 投稿した後、マージの前に利用者の確認を待つ。この待ちは判断の 3 段の 2 段目として扱い、待つ間はほかの作業を進める。autonomous-run と coordinate-workers でも、止まる理由にしない。
-  - パッケージ verification が無ければ段を飛ばし、pull request の「確認したこと」に「未実施」と理由を書く。
+  - パッケージ verification が無ければ段を飛ばし、pull request の「確認したこと」に「未実施」と理由を書く。段を飛ばした pull request は、確認の待ちの対象外である。
 
 ### 判断の記録
 

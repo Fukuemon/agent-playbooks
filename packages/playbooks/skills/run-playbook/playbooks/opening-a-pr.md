@@ -14,7 +14,7 @@ pull request の指摘への対応は、pr-follow-up が行う。
 7. 機能の pull request では、動作確認のエビデンスを載せる。機能の pull request は、振る舞いを足すか変えるものである。文書だけの pull request と依存の更新は、対象外にする。利用者の `context/testing/evidence.md` の Evidence Scope に範囲があれば、それを読む。
    - スキル capture-pull-request の手順で、観点を設計し、撮って、pull request のスレッドに投稿する。
    - 観点の承認と、投稿したスレッドの確認は、判断の 3 段の 2 段目の待ちとして扱う。待つ間は、ほかの作業を進める。利用者がスレッドを確認したら、スキルの「9. 本文に動画を並べる」を行う。
-   - 利用者がスレッドを確認するまで、pull request をマージしない。
+   - スレッドを投稿した pull request は、利用者がスレッドを確認するまでマージしない。
    - スキルが無ければ `skip: verification のパッケージが無い` とし、「確認したこと」に「未実施」と理由を書く。
 8. CI の結果を待つ。失敗したら pr-follow-up を行う。
 
