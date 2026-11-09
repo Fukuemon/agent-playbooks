@@ -10,9 +10,6 @@
 
 前提にする agent-harness は、release-please でタグとリリースを作っている。同じ人が両方を保守するので、手順をそろえたい。
 
-- agent-harness の ADR-0007: [main と作業用のブランチだけで運用し、release-please でタグを付ける](https://github.com/Fukuemon/agent-harness/blob/v0.2.1/adr/0007-branch-and-release.md)
-- agent-harness の ADR-0019: [packages/ を変えたコミットだけでバージョンを上げ、切り戻しは新しいバージョンで行う](https://github.com/Fukuemon/agent-harness/blob/v0.2.1/adr/0019-release-scope-and-rollback.md)
-
 v0.1.0 のタグは、release-please を入れる前に、手で付けた。
 
 ## Decision

@@ -10,9 +10,7 @@ playbook の手順は、コミット、issue、pull request、Design Doc、conte
 
 agent-harness のスキル write-skill は、パッケージとして配るスキルに、ほかのパッケージのスキルを名前で呼ばないことを求めている。そのパッケージが入っていない利用者には、存在しないスキルになるためである。
 
-一方、agent-harness の ADR-0008 は、具体のワークフローのハーネスが agent-harness のパッケージに依存すると決めている。
-
-- agent-harness の ADR-0008: [開発プロセスの標準はこのリポジトリに置き、具体のワークフローのハーネスは別のリポジトリに置く](https://github.com/Fukuemon/agent-harness/blob/v0.2.1/adr/0008-workflow-harness.md)
+一方、このパッケージは agent-harness の上で動く具体のワークフローのハーネスで、agent-harness のパッケージを前提にする。
 
 ## Decision
 
