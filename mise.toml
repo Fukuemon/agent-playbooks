@@ -3,4 +3,4 @@ node = "24"
 pnpm = "10.27.0"
 # apm は agent-harness のスキルとフックを配置する
 uv = "0.12"
-"pipx:apm-cli" = "0.32.0"
+"pipx:apm-cli" = "0.35.0"
