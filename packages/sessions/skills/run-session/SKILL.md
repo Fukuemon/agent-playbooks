@@ -10,7 +10,9 @@ description: 1 回の会話を超える作業の進め方を選び、その手�
 
 ## 前提
 
-- このスキルは、スキル run-playbook の共通の規則と principle を使う。手順が「共通の規則」か principle の名前を挙げたら、スキル run-playbook を開き、その「共通の規則」と principle の索引から読む。規則をこのスキルに写さない。
+- このスキルは、スキル run-playbook の共通の規則と principle を使う。規則をこのスキルに写さない。
+  - playbook を開く前に、スキル run-playbook を開き、その「共通の規則」を読んで当てる。todolist の作り方、作業の前に読むもの、止まって尋ねる場面は、この playbook にも当たる。
+  - principle は、手順が名前を挙げたときに、run-playbook の principle の索引から開く。
 - スキル run-playbook が無いときは、手順の中の共通の規則と principle を使う段を `skip: playbooks のパッケージが無い` とし、取り消せない操作の前では必ず止まる。
 - 1 つの工程の作業（機能の追加、不具合の修正、pull request を開くなど）の手順は、スキル run-playbook の playbook にある。この playbook の手順が工程の playbook を挙げたら、スキル run-playbook の索引から開く。
 
