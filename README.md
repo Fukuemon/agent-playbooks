@@ -50,7 +50,7 @@ dependencies:
   apm:
     - Fukuemon/agent-harness/packages/core#core-v0.2.12
     - Fukuemon/agent-harness/packages/docs#docs-v0.2.14
-    - Fukuemon/agent-playbooks/packages/playbooks#playbooks-v0.3.0 # x-release-please-version
+    - Fukuemon/agent-playbooks/packages/playbooks#playbooks-v0.3.1 # x-release-please-version
     - Fukuemon/agent-playbooks/packages/sessions#sessions-v0.1.0
     - Fukuemon/agent-playbooks/packages/review#review-v0.1.0
 ```

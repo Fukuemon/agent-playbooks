@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/Fukuemon/agent-playbooks/compare/review-v0.1.0...review-v0.1.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **review:** spec の置き場を docs.spec から読む [#71](https://github.com/Fukuemon/agent-playbooks/issues/71) ([bc93174](https://github.com/Fukuemon/agent-playbooks/commit/bc931740299edc37f3eaf6031ba37141647b3bff))
+
 ## 0.1.0 (2026-11-09)
 
 

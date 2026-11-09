@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/Fukuemon/agent-playbooks/compare/playbooks-v0.3.0...playbooks-v0.3.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **playbooks:** feature の spec を docs.spec の置き場に作る [#71](https://github.com/Fukuemon/agent-playbooks/issues/71) ([3f88a6f](https://github.com/Fukuemon/agent-playbooks/commit/3f88a6f3dc0bee561bdd7e68b873424220c0541f))
+
 ## [0.3.0](https://github.com/Fukuemon/agent-playbooks/compare/playbooks-v0.2.3...playbooks-v0.3.0) (2026-11-09)
 
 
