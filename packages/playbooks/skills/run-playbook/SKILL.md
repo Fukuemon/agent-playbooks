@@ -1,6 +1,6 @@
 ---
 name: run-playbook
-description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
+description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、画面仕様書を書く、デザインシステムの導入と整備、要求の受け入れの検証、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
 ---
 
 # run-playbook
@@ -24,6 +24,7 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
 - **requirements:** 実現したいことを整理して、issue にする。まだ作るものが決まっていない依頼。[playbooks/requirements.md](playbooks/requirements.md)
 - **prototype:** 作ってみないと決まらない判断を、使い捨ての実装で決める。画面の案、操作、方式、速さを、複数の案を作って比べる。成果物は判断で、出荷するコードではない。[playbooks/prototype.md](playbooks/prototype.md)
 - **investigation:** 今あるコードと記録を読んで、問いに答える。どう動くか、なぜこうなっているか、既にある選択肢のどちらがよいか。新しく作って比べる判断は、prototype である。[playbooks/investigation.md](playbooks/investigation.md)
+- **screen-spec:** 画面仕様書（画面ごとの文書と操作できるモック）を、実装より先に書くか、既にある実装と読み合わせる。実装はしない。[playbooks/screen-spec.md](playbooks/screen-spec.md)
 
 ### 実装
 
@@ -31,10 +32,12 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
 - **bug-fix:** 報告された不具合を再現し、原因を突き止めて直す。[playbooks/bug-fix.md](playbooks/bug-fix.md)
 - **refactoring:** 振る舞いを変えずに、構造を変える。名前の変更、抽出、重複の統合、移動。[playbooks/refactoring.md](playbooks/refactoring.md)
 - **small-change:** 設計の判断が要らない変更。誤記の修正、設定の値の変更、依存の更新、文書の直し。[playbooks/small-change.md](playbooks/small-change.md)
+- **design-system:** デザインシステムを導入するか、トークン、コンポーネント、原則を足すか変える。画面の実装は feature である。[playbooks/design-system.md](playbooks/design-system.md)
 
 ### 確認
 
 - **verification-setup:** アプリを利用者と同じ方法で動かして確認する手段を作るか、アプリの変化に合わせて直す。[playbooks/verification-setup.md](playbooks/verification-setup.md)
+- **verification:** 要求の受け入れの条件を、子の実装の pull request がマージされた後に確認する。検証の設計を書き、エビデンスを検証の pull request に載せ、検証の issue と親の要求を閉じる。[playbooks/verification.md](playbooks/verification.md)
 
 ### pull request
 

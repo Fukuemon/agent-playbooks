@@ -30,6 +30,9 @@ playbooks の playbook は、sessions と review が入っていなければ、�
 | opening-a-pr | playbooks | 変更を pull request にする |
 | pr-follow-up | playbooks | pull request のレビューの指摘と CI の失敗に対応する |
 | verification-setup | playbooks | アプリを利用者と同じ方法で動かして確認する手段を作り、保つ |
+| verification | playbooks | 要求の受け入れの条件を、子の実装のマージの後に確認し、エビデンスを検証の pull request に載せる |
+| design-system | playbooks | デザインシステムを導入するか、トークン、コンポーネント、原則を足すか変える |
+| screen-spec | playbooks | 画面仕様書を実装より先に書くか、実装と読み合わせる |
 | reflect | playbooks | 終えた作業から学びを取り出し、context か配布元へ書き戻す |
 | correct | playbooks | 繰り返す誤りを、型、チェック、テストのような仕組みで止める |
 | autonomous-run | sessions | 決めた終了の条件まで、止まらずに進める |
