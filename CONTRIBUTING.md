@@ -148,7 +148,18 @@ sequenceDiagram
 
 ## issue と pull request
 
-<!-- issue の種類とラベル、pull request との対応 -->
-
 - 作業は issue から始める。pull request は 1 つの issue に対応させる。
+  - issue は、issue テンプレートの要求、不具合と、設計、実装、検証、文書の 4 つのタスクから選ぶ。
+  - 要求は、テンプレートの「種別」で、`context/project.yml` の `process.presets` の種別を 1 つ選ぶ。種別で、行うプロセスと、子のタスクの種類が決まる。
+- 種類のラベルは、テンプレートが付ける。
+
+  | 種類 | ラベル |
+  | --- | --- |
+  | 要求 | `type:requirements` |
+  | 不具合 | `type:bug` |
+  | 設計のタスク | `type:design` |
+  | 実装のタスク | `type:impl` |
+  | 検証のタスク | `type:verify` |
+  | 文書のタスク | `type:docs` |
+
 - 題と本文の書き方は、スキル write-issue-pr に従う。
