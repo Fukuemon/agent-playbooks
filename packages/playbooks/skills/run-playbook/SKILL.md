@@ -1,6 +1,6 @@
 ---
 name: run-playbook
-description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、終わるまで続ける作業、作業の中断と再開、作業を別のセッションに渡す、複数のワーカーに作業を配ってマージする、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
+description: 依頼に合う playbook を選び、その手順で作業を進める。機能の追加、要求の整理、不具合の修正、小さな変更、構造の整理、設計を決めるための試作、調査、pull request を開く、pull request の指摘に対応する、検証の手段を作る、作業の振り返り、繰り返す誤りを仕組みで止める、のどれかを始めるとき、または /run-playbook で呼ばれたときに使う。
 ---
 
 # run-playbook
@@ -12,7 +12,7 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 
 - 索引のどれかに当てはまる作業は、その playbook を使う。
 - どれにも当てはまらない作業と、多くの箇所にまたがる作業は、スキル design-playbook で手順を組む。
-- 利用者が離れている間に進める作業は、autonomous-run を使う。手順が決まっていない作業は、autonomous-run の中で design-playbook を使って手順を組む。
+- 1 回の会話を超える作業（終わるまで続ける作業、作業の中断と再開、別のセッションに渡す作業、複数のワーカーに配る作業）は、スキル run-session の playbook を使う。手順が決まっていない作業は、run-session の autonomous-run の中で design-playbook を使って手順を組む。スキル run-session が無ければ、`skip: sessions のパッケージが無い` とし、この索引の playbook で 1 回の会話の中で進める。
 - 1 つの依頼が 2 つの playbook にまたがるときは、先に行う方を選び、終えてから次を選び直す。
 
 ## playbook の索引
@@ -29,11 +29,6 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - **verification-setup:** アプリを利用者と同じ方法で動かして確認する手段を作るか、アプリの変化に合わせて直す。[playbooks/verification-setup.md](playbooks/verification-setup.md)
 - **reflect:** 終えた作業から学びを取り出し、context か配布元へ書き戻す。「振り返って」「学びを残して」。[playbooks/reflect.md](playbooks/reflect.md)
 - **correct:** 繰り返す誤りを、型、チェック、テストのような仕組みで起こせなくする。「同じ間違いを止めて」。[playbooks/correct.md](playbooks/correct.md)
-- **autonomous-run:** 決めた終了の条件まで、止まらずに進める。「終わるまで続けて」「離れるので進めておいて」。[playbooks/autonomous-run.md](playbooks/autonomous-run.md)
-- **pause-safely:** 作業を、続きから再開できる形で止める。「いったん止めて」。[playbooks/pause-safely.md](playbooks/pause-safely.md)
-- **session-pickup:** 前の会話や別のエージェントの作業を、続きから再開する。「続きをやって」「このブランチを引き継いで」。[playbooks/session-pickup.md](playbooks/session-pickup.md)
-- **delegate-work:** 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る。「この作業を別のセッションに渡して」。[playbooks/delegate-work.md](playbooks/delegate-work.md)
-- **coordinate-workers:** 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す。「この issue 群をワーカーに配ってマージまで進めて」。[playbooks/coordinate-workers.md](playbooks/coordinate-workers.md)
 
 playbook の手順が別の playbook の名前を挙げたら、この索引からそのファイルを開く。
 
@@ -88,7 +83,7 @@ playbook の手順が別の playbook の名前を挙げたら、この索引か�
 
 長い作業、利用者が離れている間の作業、手順を組んだ作業、別のセッションに渡す作業では、分かれ道の判断を記録する。
 
-- 置き場は、引き継ぎのメモ（リポジトリの主の作業ツリーの `.ai-out/YYYY-MM-DD-<主題>-handoff.md`）の「決まったこと」のセクションにする。メモがなければ作る。セクションは、playbook delegate-work の、引き継ぎのメモを作る手順に並べたものにする。
+- 置き場は、引き継ぎのメモ（リポジトリの主の作業ツリーの `.ai-out/YYYY-MM-DD-<主題>-handoff.md`）の「決まったこと」のセクションにする。メモがなければ作る。セクションは、スキル run-session の playbook delegate-work の、引き継ぎのメモを作る手順に並べたものにする。run-session が無ければ、「決まったこと」のセクションだけのメモにする。
 - 1 つの判断を 1 行にし、時刻、判断、理由、根拠の在りかを書く。根拠は文章ではなく、コミット、`<path>:<行>`、pull request で指す。
 - 記録するのは、2 つの案から選んだとき、確認の結果が出たとき、方針を変えたか変更を戻したとき、先へ進めないとき、外部の待ちの上限を超えて進めたとき。
 - 追記だけにする。誤った行は書き換えず、訂正の行を足す。

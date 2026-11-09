@@ -1,7 +1,7 @@
 ---
 type: design-doc
 title: agent-playbooks Design Doc
-description: コーディングエージェントの作業の進め方を playbook として配るパッケージの全体像。構成要素の責務と、agent-harness との分担
+description: コーディングエージェントの作業の進め方を playbook として配る 3 つのパッケージの全体像。構成要素の責務、パッケージの間の依存、agent-harness との分担
 status: draft
 ---
 
@@ -9,11 +9,11 @@ status: draft
 
 ## Overview
 
-agent-playbooks は、コーディングエージェントが作業をどの順に進めるかを、playbook として配るパッケージである。  
+agent-playbooks は、コーディングエージェントが作業をどの順に進めるかを、playbook として配るパッケージ群である。  
 agent-harness が定める開発プロセスの標準の上で動く、具体のワークフローのハーネスに当たる。
 
-利用者は、agent-harness の core と docs を入れたリポジトリに、このパッケージを足して使う。  
-依頼を受けたエージェントがスキル run-playbook を読み、依頼に合う playbook を選び、その手順に沿って作業する。
+利用者は、agent-harness の core と docs を入れたリポジトリに、このリポジトリのパッケージを足して使う。  
+依頼を受けたエージェントが索引のスキル run-playbook か run-session を読み、依頼に合う playbook を選び、その手順に沿って作業する。
 
 構成は pstack に倣う。
 
@@ -24,7 +24,7 @@ agent-harness が定める開発プロセスの標準の上で動く、具体の
 ### Goals
 
 - 依頼の種類ごとに、作業の手順を playbook として持つ。手順は番号付きで、各手順から skill と principle を名前で呼ぶ。
-- スキル run-playbook が playbook の索引を持ち、依頼から playbook を選ぶ。利用者は playbook の名前を覚えなくてよい。
+- パッケージごとの索引のスキルが playbook の索引を持ち、依頼から playbook を選ぶ。利用者は playbook の名前を覚えなくてよい。
 - 合う playbook がない作業では、その場で手順を組む。
 - 手順の途中の判断の基準を、principle として少数持つ。
 - 作業の進み具合を、agent-harness の `process.yml` に記録する。
@@ -47,16 +47,31 @@ agent-harness が定める開発プロセスの標準の上で動く、具体の
 
 ## Architecture
 
+パッケージは、変わる理由ごとに 3 つに分ける。
+
+- ADR-0008: [パッケージを、工程の playbooks、長い作業と委譲の sessions、レビューの review の 3 つに分ける](../adr/0008-split-into-playbooks-sessions-review.md)
+
+| パッケージ | 持つもの | 依存 |
+| --- | --- | --- |
+| playbooks | 索引のスキル run-playbook、工程の playbook、principle、共通の規則、スキル design-playbook | なし |
+| sessions | 索引のスキル run-session、長い作業と委譲の playbook、引き継ぎのメモとワーカーへの指示の形 | playbooks の共通の規則と principle を名前で開く |
+| review | スキル review-by-viewpoints と、5 つのレビューの subagent | なし |
+
+- playbooks の手順が sessions の playbook か review のスキルを挙げる段は、そのパッケージが入っていなければ、todolist に `skip: <パッケージ名> のパッケージが無い` と残して飛ばす。review が無いときは、差分を自分で読み直す。
+- sessions は共通の規則を写さない。同じ規則を 2 つのパッケージに書くと、片方だけが更新されて食い違うためである。
+
 次の図は、利用者のリポジトリで、エージェントが playbook を選んで作業を進めるときの要素の関係を示す。
 
 ```mermaid
 flowchart TB
     user["利用者の依頼"] --> entry["スキル run-playbook<br>playbook と principle の索引<br>共通の規則"]
+    user -- "1 回の会話を超える作業" --> sess["スキル run-session<br>長い作業と委譲の playbook"]
+    sess -- "共通の規則と principle を開く" --> entry
     entry -- "合う playbook を開く" --> pb["playbook<br>番号付きの手順"]
     entry -- "合うものがない" --> design["design-playbook<br>その場で手順を組む"]
     entry -- "当てはまる principle を開く" --> pr["principle<br>判断の基準"]
     pb -- "名前で呼ぶ" --> ah["agent-harness の skill<br>write-context / write-design-docs<br>write-commit / write-issue-pr"]
-    pb -- "レビューを頼む" --> rv["review-changes と<br>レビューの subagent"]
+    pb -- "レビューを頼む" --> rv["review-by-viewpoints と<br>レビューの subagent"]
     pb -- "選択と進み具合を書く" --> proc["specs/&lt;issue&gt;/process.yml"]
 ```
 
@@ -70,9 +85,16 @@ flowchart TB
 - playbook と principle の本文は持たない。`playbooks/<名前>.md` と `principles/<名前>.md` に置き、選んだものだけを開く。
 - playbook の手順が別の playbook や principle の名前を挙げたときも、この索引から開かせる。参照を SKILL.md から 1 段に保つためである。
 
+### スキル run-session
+
+- パッケージ sessions の、長い作業と委譲の playbook の索引を持つ。
+- 共通の規則と principle は持たず、スキル run-playbook から開く。
+- playbook の本文は `playbooks/<名前>.md` に置き、選んだものだけを開く。
+- ADR-0009: [パッケージごとの索引のスキルが playbook の索引を持ち、playbook と principle と場面で読む規則はファイルとして置く](../adr/0009-entry-skills-with-playbook-files.md)
+
 ### playbook
 
-frontmatter を持たない Markdown で、スキル run-playbook の `playbooks/` に置く。単独では読み込まれない。  
+frontmatter を持たない Markdown で、索引のスキル（run-playbook か run-session）の `playbooks/` に置く。単独では読み込まれない。  
 中身は次の 4 つ。
 
 - 担当の範囲。この playbook が何に責任を持ち、隣の playbook と何が違うか。
@@ -82,29 +104,29 @@ frontmatter を持たない Markdown で、スキル run-playbook の `playbooks
 
 playbook は次のとおり。
 
-| playbook | 当てはまる依頼 | 主に行う開発プロセス |
-| --- | --- | --- |
-| requirements | 実現したいことを整理して issue にする | requirements |
-| feature | 振る舞いを足すか変える | requirements から integration |
-| prototype | 使い捨ての実装で、設計の判断や、実行すれば分かる問いに答える | design |
-| bug-fix | 報告された不具合を再現し、原因を突き止めて直す | implementation、verification |
-| refactoring | 振る舞いを変えずに、構造を変える | implementation、verification |
-| small-change | 設計の判断が要らない小さな変更 | implementation、integration |
-| investigation | コードを変えずに問いに答える | なし |
-| opening-a-pr | 変更を pull request にする。ほかの playbook の最後に呼ぶ | integration |
-| pr-follow-up | pull request のレビューの指摘と CI の失敗に対応する | integration |
-| verification-setup | アプリを利用者と同じ方法で動かして確認する手段を作り、保つ | verification-design |
-| reflect | 終えた作業から学びを取り出し、context か配布元へ書き戻す | なし |
-| correct | 繰り返す誤りを、仕組みで起こせなくする | implementation |
-| autonomous-run | 決めた終了の条件まで、止まらずに進める | 組んだ手順による |
-| pause-safely | 作業を、続きから再開できる形で止める | なし |
-| session-pickup | 前の作業を、続きから再開する | 引き継いだ作業による |
-| delegate-work | 作業を別のセッションに渡す | なし |
-| coordinate-workers | 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す | integration |
+| playbook | パッケージ | 当てはまる依頼 | 主に行う開発プロセス |
+| --- | --- | --- | --- |
+| requirements | playbooks | 実現したいことを整理して issue にする | requirements |
+| feature | playbooks | 振る舞いを足すか変える | requirements から integration |
+| prototype | playbooks | 使い捨ての実装で、設計の判断や、実行すれば分かる問いに答える | design |
+| bug-fix | playbooks | 報告された不具合を再現し、原因を突き止めて直す | implementation、verification |
+| refactoring | playbooks | 振る舞いを変えずに、構造を変える | implementation、verification |
+| small-change | playbooks | 設計の判断が要らない小さな変更 | implementation、integration |
+| investigation | playbooks | コードを変えずに問いに答える | なし |
+| opening-a-pr | playbooks | 変更を pull request にする。ほかの playbook の最後に呼ぶ | integration |
+| pr-follow-up | playbooks | pull request のレビューの指摘と CI の失敗に対応する | integration |
+| verification-setup | playbooks | アプリを利用者と同じ方法で動かして確認する手段を作り、保つ | verification-design |
+| reflect | playbooks | 終えた作業から学びを取り出し、context か配布元へ書き戻す | なし |
+| correct | playbooks | 繰り返す誤りを、仕組みで起こせなくする | implementation |
+| autonomous-run | sessions | 決めた終了の条件まで、止まらずに進める | 組んだ手順による |
+| pause-safely | sessions | 作業を、続きから再開できる形で止める | なし |
+| session-pickup | sessions | 前の作業を、続きから再開する | 引き継いだ作業による |
+| delegate-work | sessions | 作業を別のセッションに渡す | なし |
+| coordinate-workers | sessions | 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す | integration |
 
 ### design-playbook
 
-合う playbook がない作業と、範囲が大きい作業で使う。利用者が離れている間の作業は autonomous-run が受け、手順が決まっていなければ design-playbook で組む。  
+合う playbook がない作業と、範囲が大きい作業で使う。利用者が離れている間の作業は sessions の autonomous-run が受け、手順が決まっていなければ design-playbook で組む。  
 終了の条件、範囲、確認の方法を先に決め、作業を単独でマージできる単位に分け、その場の手順を組む。組んだ手順は保存しない。
 
 ### principle
@@ -118,16 +140,16 @@ playbook は次のとおり。
 - encode-lessons: 2 回した訂正は、文章ではなくチェックや仕組みに移す。
 - bound-every-wait: 外部の待ちに上限を付け、上限を超えたら代わりの根拠で進めるか止まり、待たずに進めたことを記録する。
 
-### review-changes とレビューの subagent
+### review-by-viewpoints とレビューの subagent
 
-差分か spec を、観点ごとの subagent に読ませ、指摘を重大度の順にまとめる。subagent は読み取りだけを行う。  
+パッケージ review に置き、ほかのパッケージに依存しない。差分か spec を、観点ごとの subagent に読ませ、指摘を重大度の順にまとめる。subagent は読み取りだけを行う。  
 観点は、アーキテクチャ、性能、品質、セキュリティ、spec の 5 つである。
 
 ## Interfaces
 
 ### 導入
 
-利用者は、`apm.yml` に agent-harness の core と docs と並べて、このパッケージを書く。製品のパッケージは、要るものだけを足す。agent-harness のタグは、パッケージごとの `<名前>-v<バージョン>` の形で書く。
+利用者は、`apm.yml` に agent-harness の core と docs と並べて、使うパッケージを書く。製品のパッケージは、要るものだけを足す。タグは、agent-harness もこのリポジトリも、パッケージごとの `<名前>-v<バージョン>` の形で書く。
 
 ```yaml
 dependencies:
@@ -135,12 +157,14 @@ dependencies:
     - Fukuemon/agent-harness/packages/core#core-v0.2.12
     - Fukuemon/agent-harness/packages/docs#docs-v0.2.14
     - Fukuemon/agent-harness/packages/verification#verification-v0.3.1 # 任意
-    - Fukuemon/agent-playbooks/packages/playbooks#<ref>
+    - Fukuemon/agent-playbooks/packages/playbooks#playbooks-v<バージョン>
+    - Fukuemon/agent-playbooks/packages/sessions#sessions-v<バージョン> # 任意。playbooks を前提にする
+    - Fukuemon/agent-playbooks/packages/review#review-v<バージョン> # 任意
 ```
 
 ### 呼び方
 
-- 利用者は `/run-playbook` に依頼を添えて呼ぶ。スキル run-playbook が playbook を選ぶ。依頼の内容から、スキルが自動で読み込まれることもある。
+- 利用者は `/run-playbook` に依頼を添えて呼ぶ。1 回の会話を超える作業は `/run-session` で呼ぶ。索引のスキルが playbook を選ぶ。依頼の内容から、スキルが自動で読み込まれることもある。
 - 利用者が playbook の名前を添えたときは、その playbook を使う。
 
 ### 利用者のリポジトリに置かれるファイル
@@ -199,16 +223,22 @@ agent-playbooks/
 ├── .claude-plugin/
 │   └── marketplace.json       パッケージの一覧
 ├── packages/
-│   └── playbooks/
-│       ├── .claude-plugin/
-│       │   └── plugin.json
-│       ├── skills/
-│       │   ├── run-playbook/
-│       │   │   ├── SKILL.md    playbook と principle の索引、共通の規則
-│       │   │   ├── playbooks/  playbook の本体
-│       │   │   └── principles/ principle の本体
-│       │   ├── design-playbook/
-│       │   └── review-changes/
+│   ├── playbooks/
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/
+│   │       ├── run-playbook/
+│   │       │   ├── SKILL.md    playbook と principle の索引、共通の規則
+│   │       │   ├── playbooks/  工程の playbook の本体
+│   │       │   └── principles/ principle の本体
+│   │       └── design-playbook/
+│   ├── sessions/
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/run-session/
+│   │       ├── SKILL.md        長い作業と委譲の playbook の索引
+│   │       └── playbooks/      長い作業と委譲の playbook の本体
+│   └── review/
+│       ├── .claude-plugin/plugin.json
+│       ├── skills/review-by-viewpoints/
 │       └── agents/            レビューの subagent
 ├── evals/
 │   └── run-playbook.json    依頼と、選ばれるべき playbook

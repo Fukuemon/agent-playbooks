@@ -1,6 +1,6 @@
 ---
 name: review-spec
-description: spec を、上位の文書との食い違い、未決の論点、受け入れの条件、実装の範囲の観点でレビューする。スキル review-changes から呼ばれる。読み取りだけを行う。
+description: spec を、上位の文書との食い違い、未決の論点、受け入れの条件、実装の範囲の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
 ---
 

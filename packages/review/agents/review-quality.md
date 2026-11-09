@@ -1,6 +1,6 @@
 ---
 name: review-quality
-description: 差分を、エラーの扱い、テストの過不足、命名、使われないコードの観点でレビューする。スキル review-changes から呼ばれる。読み取りだけを行う。
+description: 差分を、エラーの扱い、テストの過不足、命名、使われないコードの観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
 ---
 

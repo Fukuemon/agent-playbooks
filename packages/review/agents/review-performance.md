@@ -1,6 +1,6 @@
 ---
 name: review-performance
-description: 差分を、計算量、ループの中の入出力、不要な全件の取得の観点でレビューする。スキル review-changes から呼ばれる。読み取りだけを行う。
+description: 差分を、計算量、ループの中の入出力、不要な全件の取得の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
 ---
 

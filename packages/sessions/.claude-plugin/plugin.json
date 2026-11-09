@@ -1,0 +1,10 @@
+{
+  "name": "sessions",
+  "description": "1 回の会話を超える作業の進め方を playbook として持つ。止まらずに進める、止めて再開する、別のセッションに渡す、複数のワーカーに配ってマージまで進める。パッケージ playbooks の共通の規則を使う。",
+  "version": "0.1.0",
+  "author": {
+    "name": "Fukuemon"
+  },
+  "repository": "https://github.com/Fukuemon/agent-playbooks",
+  "license": "MIT"
+}
