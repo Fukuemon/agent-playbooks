@@ -211,7 +211,7 @@ dependencies:
 
 ### 確認する手段
 
-- 「本物で確認する」手順は、利用者のリポジトリの `context/testing/verification.md` の手順で動かす。この文書とスクリプトは、利用者のリポジトリだけの知識なので、スキルではなく context と `scripts/verify/` に置く。verification-setup が作り、保つ。
+- 「本物で確認する」手順は、利用者のリポジトリの context の手順で動かす。画面があれば `context/testing/e2e.md` と `context/testing/evidence.md`、画面が無ければ `context/testing.md` の Runtime Requirements である。どれも利用者のリポジトリだけの知識なので、スキルではなく context に置く。verification-setup が作り、保つ。
 
 ### 判断の記録
 
