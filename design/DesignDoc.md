@@ -80,9 +80,11 @@ flowchart TB
 ### スキル run-playbook
 
 - playbook の索引を持つ。項目ごとに、名前と、どんな依頼に当てはまるかを 1 行で書く。
-- すべての playbook に共通する規則を持つ。todolist の作り方、止まって尋ねる場面、返答の形。
+- すべての playbook に共通する規則を持つ。todolist の作り方、作業の前に読むもの、判断の 3 段、論点の尋ね方、返答の形。
+- 場面を選んで読む規則（事前の権限、判断の記録、ワーカーとサブエージェント）は `rules/<名前>.md` に置き、規則の索引に読む場面を書く。SKILL.md を 150 行以内に保つためである。
+- playbook の索引は、工程ごとのまとまり（要求と設計、実装、確認、pull request、学び）に並べる。
 - principle の索引を持つ。当てはまる principle だけを全文読ませる。
-- playbook と principle の本文は持たない。`playbooks/<名前>.md` と `principles/<名前>.md` に置き、選んだものだけを開く。
+- playbook、principle、場面で読む規則の本文は持たない。`playbooks/<名前>.md`、`principles/<名前>.md`、`rules/<名前>.md` に置き、選んだものだけを開く。
 - playbook の手順が別の playbook や principle の名前を挙げたときも、この索引から開かせる。参照を SKILL.md から 1 段に保つためである。
 
 ### スキル run-session
@@ -177,6 +179,7 @@ dependencies:
 
 - 通常の作業では、進み具合をファイルに残さない。エージェントが playbook の手順を todolist に写し、飛ばす手順にも `skip: <理由>` を付けて残す。
 - spec を置く作業だけ、`process.yml` に選んだプロセスと進み具合を書く。
+- コンテキストの使用量の知らせを受けたときは、pause-safely で引き継ぎのメモを書く。閾値と知らせの手段は、利用者の構成に任せる。ワーカーは次のセッションを自分で起動せず、親に知らせて止まる。親は delegate-work で次の親に渡す。
 - 作業を中断するとき、別のセッションに渡すときは、リポジトリの主の作業ツリーの `.ai-out/<主題>/YYYY-MM-DD-<主題>-handoff.md` の引き継ぎのメモに書く。ワーカーには絶対パスで渡す。再開のメモ、判断の記録、動いているものは、このメモのセクションにする。
   - ADR-0007: [事前の権限は委任のセクションか利用者の個人の常設の指示に書いたときだけ使い、再開のメモ、判断の記録、動いているものを主題のディレクトリの引き継ぎのメモにまとめる](../adr/0007-pre-granted-permission-and-handoff-memo-placement.md)
 - 引き継ぎのメモのセクションは、委任、最初に読むもの、今の状態、動いているもの、作るもの、進め方、ほかの作業との順番、守ること、進み具合、返事待ち、決まったこと、次にすること、結果。
@@ -209,7 +212,7 @@ dependencies:
 
 ### 判断の記録
 
-- 長い作業と、利用者が離れている間の作業では、分かれ道の判断を、引き継ぎのメモの「決まったこと」のセクションに 1 行ずつ追記する。形はスキル run-playbook の共通の規則が持つ。
+- 長い作業と、利用者が離れている間の作業では、分かれ道の判断を、引き継ぎのメモの「決まったこと」のセクションに 1 行ずつ追記する。形はスキル run-playbook の `rules/decision-log.md` が持つ。
 
 ### 学びの書き戻し
 
@@ -229,6 +232,7 @@ agent-playbooks/
 │   │       ├── run-playbook/
 │   │       │   ├── SKILL.md    playbook と principle の索引、共通の規則
 │   │       │   ├── playbooks/  工程の playbook の本体
+│   │       │   ├── rules/      場面で読む規則の本体
 │   │       │   └── principles/ principle の本体
 │   │       └── design-playbook/
 │   ├── sessions/
