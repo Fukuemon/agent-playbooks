@@ -14,6 +14,21 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 - どれにも当てはまらない作業と、多くの箇所にまたがる作業は、スキル design-playbook で手順を組む。
 - 1 回の会話を超える作業（終わるまで続ける作業、作業の中断と再開、別のセッションに渡す作業、複数のワーカーに配る作業）は、スキル run-session の playbook を使う。手順が決まっていない作業は、run-session の autonomous-run の中で design-playbook を使って手順を組む。スキル run-session が無ければ、`skip: sessions のパッケージが無い` とし、この索引の playbook で 1 回の会話の中で進める。
 - 1 つの依頼が 2 つの playbook にまたがるときは、先に行う方を選び、終えてから次を選び直す。
+- 要求の issue に種別（`context/project.yml` の `process.presets` の名前）があれば、下の表で playbook を選ぶ。表に無い種別は、索引から選ぶ。
+
+### 種別から playbook への対応
+
+| 種別 | 要求を起票するまで | 起票した要求の続き | 子のタスク |
+| --- | --- | --- | --- |
+| feature | requirements | feature | 設計と実装は feature、検証は verification、文書は small-change |
+| screen | requirements | feature。画面仕様書は screen-spec の手順で書く | 画面仕様書の設計は screen-spec、実装は feature、検証は verification |
+| design-system | requirements | design-system | 設計と実装は design-system、文書は small-change |
+| bug | bug-fix | なし | なし |
+| refactoring | requirements | refactoring | 実装は refactoring |
+| maintenance、docs | small-change | なし | なし |
+| prototype | prototype | なし | なし |
+
+- 起票した要求の続きを進める playbook は、分解の時点の手順を終えたら、requirements の「タスクに分ける」を行う。分解の時点は種別の `breakdown_at` にあり、種別が無ければ `process.defaults` の `breakdown_at` にある。
 
 ## playbook の索引
 

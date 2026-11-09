@@ -108,7 +108,7 @@ playbook は次のとおり。
 
 | playbook | パッケージ | 当てはまる依頼 | 主に行う開発プロセス |
 | --- | --- | --- | --- |
-| requirements | playbooks | 実現したいことを整理して issue にする | requirements |
+| requirements | playbooks | 実現したいことを整理し、種別を選んで issue にし、種別が決める時点でタスクに分ける | requirements |
 | feature | playbooks | 振る舞いを足すか変える | requirements から integration |
 | prototype | playbooks | 使い捨ての実装で、設計の判断や、実行すれば分かる問いに答える | design |
 | bug-fix | playbooks | 報告された不具合を再現し、原因を突き止めて直す | implementation、verification |
