@@ -8,6 +8,14 @@
     {
       "name": "playbooks",
       "source": "./packages/playbooks"
+    },
+    {
+      "name": "sessions",
+      "source": "./packages/sessions"
+    },
+    {
+      "name": "review",
+      "source": "./packages/review"
     }
   ]
 }
