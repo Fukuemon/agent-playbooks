@@ -1,7 +1,7 @@
 # agent-playbooks
 
-コーディングエージェントが作業をどの順に進めるかを、playbook として持つパッケージ。  
-依頼を受けたエージェントがスキル `run-playbook` を読み、依頼に合う playbook を選び、その手順で進める。
+コーディングエージェントが作業をどの順に進めるかを、playbook として持つパッケージ群。  
+依頼を受けたエージェントが索引のスキル `run-playbook` か `run-session` を読み、依頼に合う playbook を選び、その手順で進める。
 
 [agent-harness](https://github.com/Fukuemon/agent-harness) の core と docs を前提にする。context、文書の型、コミットと issue と pull request の規約は agent-harness が持ち、このパッケージは作業の進め方だけを持つ。  
 agent-harness の製品のパッケージ（verification、e2e、screens、design-system、docs-site）は任意である。入れたパッケージのスキルは、playbook の段から呼ばれる。入れていないパッケージの段は飛ばされる。
@@ -10,40 +10,46 @@ agent-harness の製品のパッケージ（verification、e2e、screens、desig
 
 | パッケージ | 役割 |
 | --- | --- |
-| playbooks | playbook を選ぶスキル `run-playbook` と、playbook と principle の本体、手順を組むスキル `design-playbook`、レビューのスキル `review-changes` とレビューの subagent |
+| playbooks | 工程ごとの playbook を選ぶスキル `run-playbook` と、playbook、principle、共通の規則の本体、手順を組むスキル `design-playbook` |
+| sessions | 1 回の会話を超える作業の playbook を選ぶスキル `run-session` と、playbook の本体。playbooks の共通の規則を使う |
+| review | 観点ごとのレビューのスキル `review-by-viewpoints` と、レビューの subagent。ほかのパッケージに依存しない |
+
+playbooks の playbook は、sessions と review が入っていなければ、それを使う段を飛ばす。
 
 ### playbook
 
-| 名前 | 当てはまる依頼 |
-| --- | --- |
-| requirements | 実現したいことを整理して issue にする |
-| feature | 振る舞いを足すか変える |
-| prototype | 使い捨ての実装で、設計の判断を決める |
-| bug-fix | 報告された不具合を再現し、原因を突き止めて直す |
-| refactoring | 振る舞いを変えずに、構造を変える |
-| small-change | 設計の判断が要らない小さな変更 |
-| investigation | コードを変えずに問いに答える |
-| opening-a-pr | 変更を pull request にする |
-| pr-follow-up | pull request のレビューの指摘と CI の失敗に対応する |
-| verification-setup | アプリを利用者と同じ方法で動かして確認する手段を作り、保つ |
-| reflect | 終えた作業から学びを取り出し、context か配布元へ書き戻す |
-| correct | 繰り返す誤りを、型、チェック、テストのような仕組みで止める |
-| autonomous-run | 決めた終了の条件まで、止まらずに進める |
-| pause-safely | 作業を、続きから再開できる形で止める |
-| session-pickup | 前の会話や別のエージェントの作業を、続きから再開する |
-| delegate-work | 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る |
-| coordinate-workers | 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す |
+| 名前 | パッケージ | 当てはまる依頼 |
+| --- | --- | --- |
+| requirements | playbooks | 実現したいことを整理して issue にする |
+| feature | playbooks | 振る舞いを足すか変える |
+| prototype | playbooks | 使い捨ての実装で、設計の判断を決める |
+| bug-fix | playbooks | 報告された不具合を再現し、原因を突き止めて直す |
+| refactoring | playbooks | 振る舞いを変えずに、構造を変える |
+| small-change | playbooks | 設計の判断が要らない小さな変更 |
+| investigation | playbooks | コードを変えずに問いに答える |
+| opening-a-pr | playbooks | 変更を pull request にする |
+| pr-follow-up | playbooks | pull request のレビューの指摘と CI の失敗に対応する |
+| verification-setup | playbooks | アプリを利用者と同じ方法で動かして確認する手段を作り、保つ |
+| reflect | playbooks | 終えた作業から学びを取り出し、context か配布元へ書き戻す |
+| correct | playbooks | 繰り返す誤りを、型、チェック、テストのような仕組みで止める |
+| autonomous-run | sessions | 決めた終了の条件まで、止まらずに進める |
+| pause-safely | sessions | 作業を、続きから再開できる形で止める |
+| session-pickup | sessions | 前の会話や別のエージェントの作業を、続きから再開する |
+| delegate-work | sessions | 作業を別のセッションに渡す。引き継ぎのメモか、ワーカーへの指示を作る |
+| coordinate-workers | sessions | 依存を並べた複数の作業をワーカーに配り、マージと片付けまで繰り返す |
 
 ## Installation
 
-agent-harness を導入したリポジトリの `apm.yml` に、1 行を足す。agent-harness のタグは、パッケージごとの `<名前>-v<バージョン>` の形で書く。
+agent-harness を導入したリポジトリの `apm.yml` に、使うパッケージの行を足す。タグは、agent-harness もこのリポジトリも、パッケージごとの `<名前>-v<バージョン>` の形で書く。
 
 ```yaml
 dependencies:
   apm:
     - Fukuemon/agent-harness/packages/core#core-v0.2.12
     - Fukuemon/agent-harness/packages/docs#docs-v0.2.14
-    - Fukuemon/agent-playbooks/packages/playbooks#v0.2.3 # x-release-please-version
+    - Fukuemon/agent-playbooks/packages/playbooks#playbooks-v0.2.3 # x-release-please-version
+    - Fukuemon/agent-playbooks/packages/sessions#sessions-v0.1.0
+    - Fukuemon/agent-playbooks/packages/review#review-v0.1.0
 ```
 
 製品のパッケージは、プロダクトに要るものだけを足す。
@@ -56,7 +62,8 @@ dependencies:
     - Fukuemon/agent-harness/packages/docs-site#docs-site-v0.1.3
 ```
 
-タグとバージョンごとの変更は [Releases](https://github.com/Fukuemon/agent-playbooks/releases) にある。
+sessions は playbooks を前提にする。review は単独で入れてよい。  
+タグとバージョンごとの変更は [Releases](https://github.com/Fukuemon/agent-playbooks/releases) にある。`v0.2.3` までのタグは、3 つに分ける前の 1 つのパッケージ playbooks のものである。
 
 ```sh
 apm install
@@ -64,7 +71,7 @@ apm install
 
 ## Usage
 
-コーディングエージェントで、依頼を添えて `/run-playbook` を呼ぶ。依頼の内容から、スキルが自動で読み込まれることもある。
+コーディングエージェントで、依頼を添えて `/run-playbook` を呼ぶ。1 回の会話を超える作業（終わるまで続ける、止めて再開する、別のセッションに渡す、ワーカーに配る）は `/run-session` を呼ぶ。依頼の内容から、スキルが自動で読み込まれることもある。
 
 ```text
 /run-playbook ログインの画面で、パスワードを間違えたときのメッセージが出ない。直して
