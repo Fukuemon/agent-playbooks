@@ -18,15 +18,17 @@ description: 依頼に合う playbook を選び、その手順で作業を進め
 
 ### 種別から playbook への対応
 
-| 種別 | 要求の issue | 子のタスク |
-| --- | --- | --- |
-| feature | requirements | 設計と実装は feature、検証は verification、文書は small-change |
-| screen | requirements | 画面仕様書の設計は screen-spec、実装は feature、検証は verification |
-| design-system | requirements | 設計と実装は design-system、文書は small-change |
-| bug | bug-fix | なし |
-| refactoring | refactoring | 実装は refactoring |
-| maintenance、docs | small-change | なし |
-| prototype | prototype | なし |
+| 種別 | 要求を起票するまで | 起票した要求の続き | 子のタスク |
+| --- | --- | --- | --- |
+| feature | requirements | feature | 設計と実装は feature、検証は verification、文書は small-change |
+| screen | requirements | feature。画面仕様書は screen-spec の手順で書く | 画面仕様書の設計は screen-spec、実装は feature、検証は verification |
+| design-system | requirements | design-system | 設計と実装は design-system、文書は small-change |
+| bug | bug-fix | なし | なし |
+| refactoring | requirements | refactoring | 実装は refactoring |
+| maintenance、docs | small-change | なし | なし |
+| prototype | prototype | なし | なし |
+
+- 起票した要求の続きを進める playbook は、分解の時点の手順を終えたら、requirements の「タスクに分ける」を行う。分解の時点は種別の `breakdown_at` にあり、種別が無ければ `process.defaults` の `breakdown_at` にある。
 
 ## playbook の索引
 

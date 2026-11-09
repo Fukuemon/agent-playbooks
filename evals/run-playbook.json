@@ -70,6 +70,10 @@
       "expected": "small-change"
     },
     {
+      "query": "起票済みの要求 #230 は種別 feature で、受け入れの条件も決まっている。設計を進めて、タスクに分けて",
+      "expected": "feature"
+    },
+    {
       "query": "今日の作業を振り返って、次に同じ誤りをしないように学びを残して",
       "expected": "reflect"
     },
