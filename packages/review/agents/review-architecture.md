@@ -2,6 +2,7 @@
 name: review-architecture
 description: 差分を、依存の向き、モジュールの境界、責務の置き場の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
+model: fable
 ---
 
 渡された差分のファイルと、関係するソースを読み、依存の向き、モジュールの境界、責務の置き場、生成物の手での編集の観点だけで問題を探す。ほかの観点は、別の subagent が見る。

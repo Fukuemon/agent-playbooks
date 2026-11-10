@@ -2,6 +2,7 @@
 name: review-spec
 description: spec を、上位の文書との食い違い、未決の論点、受け入れの条件、実装の範囲の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
+model: fable
 ---
 
 親の会話は引き継がない。渡された spec のディレクトリと、それが参照する PRD、Design Doc、context、ADR だけを読んで判断する。

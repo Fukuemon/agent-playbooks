@@ -148,7 +148,8 @@ playbook は次のとおり。
 ### review-by-viewpoints とレビューの subagent
 
 パッケージ review に置き、ほかのパッケージに依存しない。差分か spec を、観点ごとの subagent に読ませ、指摘を重大度の順にまとめる。subagent は読み取りだけを行う。  
-観点は、アーキテクチャ、性能、品質、セキュリティ、spec の 5 つである。
+観点は、アーキテクチャ、性能、品質、セキュリティ、spec の 5 つである。  
+subagent は `model: fable` で動く。理由は [モデルの選び方](#モデルの選び方) にある。
 
 ## Interfaces
 
@@ -175,7 +176,7 @@ dependencies:
 ### 利用者のリポジトリに置かれるファイル
 
 - `<spec のディレクトリ>/<issue 番号>-<主題>/process.yml`: feature と requirements の playbook が書く。形は agent-harness の開発プロセスの Design Doc に従う。
-  - spec のディレクトリは、`context/project.yml` の `docs.spec` から読む。`docs.spec` が無ければ、スキル write-design-docs の既定の `specs` にする。
+  - spec のディレクトリは、`context/project.yml` の `docs.spec` から読む。`docs.spec` が無ければ、スキル write-design-docs のデフォルトの `specs` にする。
 - 検証の設計とシナリオ: verification の playbook が書く。置き場は `context/testing/evidence.md` の Verification Scenarios から読み、書かれていなければ利用者に尋ねる。
 
 ## Cross-Cutting Concerns
@@ -226,6 +227,18 @@ dependencies:
 
 - 同じ訂正を 2 回したら、principle の encode-lessons に従い、チェックか仕組みに移す。手順は correct が、作業の後の振り返りは reflect が持つ。
 - playbook と skill の誤りは、作業の途中でも、別の pull request で直す。
+
+### モデルの選び方
+
+パッケージが決めるのは、レビューの subagent のモデルだけである。ワーカーと親のセッションのモデルは、利用者の端末の構成が役割ごとに決める。
+
+- レビューの subagent は、最も能力の高いモデル（`fable`）で動かす。
+  - 理由 1: 差分を書いたセッションと別のモデルで読むと、書いたときと同じ前提で誤りを読み流すことが減る。
+  - 理由 2: レビューは読むだけで、書く量が実装より少ない。モデルを上げても、作業 1 つを終えるまでの使用量の増え方は小さい。
+- ワーカーと親のセッションのモデルを、playbook と run-session に書かない。
+  - 理由 1: 使えるモデルと上限は、利用者の契約で変わる。
+  - 理由 2: 起動する手段（Orca など）も、利用者の端末で変わる。
+  - 起動する手段の取り決めを持つ利用者のスキルが、役割ごとのモデルを持つ。
 
 ## Repository Layout
 
