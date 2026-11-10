@@ -2,6 +2,7 @@
 name: review-performance
 description: 差分を、計算量、ループの中の入出力、不要な全件の取得の観点でレビューする。スキル review-by-viewpoints から呼ばれる。読み取りだけを行う。
 tools: Read, Grep, Glob
+model: fable
 ---
 
 渡された差分のファイルと、関係するソースを読み、計算量、ループの中の入出力、不要な全件の取得、処理を止める呼び出しの観点だけで問題を探す。ほかの観点は、別の subagent が見る。
