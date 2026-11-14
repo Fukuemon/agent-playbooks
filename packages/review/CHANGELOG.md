@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/Fukuemon/agent-playbooks/compare/review-v0.1.1...review-v0.1.2) (2026-11-14)
+
+
+### Features
+
+* **review:** レビューの subagent を Fable で動かす ([3be068e](https://github.com/Fukuemon/agent-playbooks/commit/3be068e3826244e308874834d1a1c096ac309252))
+* **review:** レビューの subagent を Fable で動かす ([59dde7a](https://github.com/Fukuemon/agent-playbooks/commit/59dde7a400f84947aef8d4f260c218b56f31e716))
+
 ## [0.1.1](https://github.com/Fukuemon/agent-playbooks/compare/review-v0.1.0...review-v0.1.1) (2026-11-09)
 
 

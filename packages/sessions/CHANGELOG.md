@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/Fukuemon/agent-playbooks/compare/sessions-v0.1.0...sessions-v0.1.1) (2026-11-14)
+
+
+### Features
+
+* **sessions:** 指示が許すとき、ワーカーがコンテキストの知らせで後任を自分で起動できるようにする ([aed68bb](https://github.com/Fukuemon/agent-playbooks/commit/aed68bb8a395c0c1552e06f41bf466d3cc777550))
+* **sessions:** 指示が許すとき、ワーカーがコンテキストの知らせで後任を自分で起動できるようにする ([cafdb17](https://github.com/Fukuemon/agent-playbooks/commit/cafdb1711d6e65f05db1400f1a5438e02fcb93a1))
+
 ## 0.1.0 (2026-11-09)
 
 
