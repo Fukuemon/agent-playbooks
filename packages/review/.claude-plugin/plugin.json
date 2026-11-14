@@ -1,7 +1,7 @@
 {
   "name": "review",
   "description": "差分、pull request、spec を、観点ごとのレビューの subagent に読ませ、指摘を重大度の順にまとめる。ほかのパッケージに依存しない。",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "name": "Fukuemon"
   },
