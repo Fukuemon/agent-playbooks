@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.1](https://github.com/Fukuemon/agent-playbooks/compare/sessions-v0.1.0...sessions-v0.1.1) (2026-11-23)
+
+
+### Features
+
+* **sessions:** コンテキストの使用量の知らせで続けるか引き継ぐかを決め、作業を 1 つのワーカーで終わる大きさに分ける ([e74140d](https://github.com/Fukuemon/agent-playbooks/commit/e74140d67a5cc247bdc0b9d972c6c4f5fa8ac7ef))
+* **sessions:** コンテキストの使用量の知らせで続けるか引き継ぐかを決め、作業を 1 つのワーカーで終わる大きさに分ける ([1e45f5f](https://github.com/Fukuemon/agent-playbooks/commit/1e45f5f5467dce09130139e66127b6efb1740d50))
+* **sessions:** 指示が許すとき、ワーカーがコンテキストの知らせで後任を自分で起動できるようにする ([aed68bb](https://github.com/Fukuemon/agent-playbooks/commit/aed68bb8a395c0c1552e06f41bf466d3cc777550))
+* **sessions:** 指示が許すとき、ワーカーがコンテキストの知らせで後任を自分で起動できるようにする ([cafdb17](https://github.com/Fukuemon/agent-playbooks/commit/cafdb1711d6e65f05db1400f1a5438e02fcb93a1))
+
+
+### Bug Fixes
+
+* **sessions:** ワーカーへの指示の雛形も、続けるか引き継ぐかを選び方で決める形にする ([d096a24](https://github.com/Fukuemon/agent-playbooks/commit/d096a24eadb072002442a41012b5a248d2301d75))
+
 ## 0.1.0 (2026-11-09)
 
 
